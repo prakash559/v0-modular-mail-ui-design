@@ -3,9 +3,6 @@
 import { useState, useCallback } from "react"
 import {
   Blocks,
-  Layout,
-  Bookmark,
-  Search,
   GripVertical,
   Trash2,
   Pencil,
@@ -13,7 +10,6 @@ import {
   Smartphone,
   Save,
   Eye,
-  Download,
   Code,
   Target,
   ListChecks,
@@ -27,17 +23,42 @@ import {
   X,
   ChevronUp,
   ChevronDown,
-  ArrowUp,
-  ArrowDown,
+  ChevronLeft,
+  ArrowRight,
+  Undo2,
+  Redo2,
+  ChevronDown as ChevronDownIcon,
+  Send,
+  Newspaper,
+  Headphones,
+  Play,
+  MessageCircle,
+  TrendingUp,
+  Star,
+  Hash,
+  Zap,
+  Globe,
+  Lightbulb,
+  BookOpen,
+  List,
+  Shield,
+  BarChart3,
+  CheckSquare,
+  PenLine,
+  Briefcase,
+  Search,
+  Eye as EyeIcon,
+  Rocket,
+  FileText,
+  Compass,
+  Megaphone,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
 import {
   Select,
   SelectContent,
@@ -52,7 +73,145 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { mockModules, layoutTemplates, tones } from "@/lib/mock-data"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { mockModules, moduleLayouts, tones } from "@/lib/mock-data"
+
+/* ─── Tile definitions ─── */
+const feedTiles = [
+  { id: "articles", label: "Articles", icon: Newspaper },
+  { id: "podcasts", label: "Podcasts", icon: Headphones },
+  { id: "videos", label: "Videos", icon: Play },
+  { id: "news", label: "News", icon: Globe },
+  { id: "social", label: "Social", icon: MessageCircle },
+  { id: "highlights", label: "Highlights", icon: Star },
+  { id: "roundup", label: "Roundup", icon: Blocks },
+  { id: "headlines", label: "Headlines", icon: FileText },
+  { id: "trending", label: "Trending", icon: TrendingUp },
+  { id: "resources", label: "Resources", icon: BookOpen },
+  { id: "spotlight", label: "Spotlight", icon: Search },
+  { id: "data-feed", label: "Data Feed", icon: BarChart3 },
+]
+
+const insightTiles = [
+  { id: "tip", label: "Tip", icon: Lightbulb },
+  { id: "insight", label: "Insight", icon: Sparkles },
+  { id: "breakdown", label: "Breakdown", icon: TrendingUp },
+  { id: "explainer", label: "Explainer", icon: Zap },
+  { id: "takeaways", label: "Takeaways", icon: List },
+  { id: "strategy", label: "Strategy", icon: Target },
+  { id: "trend", label: "Trend", icon: Rocket },
+  { id: "analysis", label: "Analysis", icon: BarChart3 },
+  { id: "checklist", label: "Checklist", icon: CheckSquare },
+  { id: "myth", label: "Myth", icon: Shield },
+  { id: "data", label: "Data", icon: Hash },
+  { id: "framework", label: "Framework", icon: Blocks },
+]
+
+const editorialTiles = [
+  { id: "welcome", label: "Welcome", icon: PenLine },
+  { id: "editorial", label: "Editorial", icon: FileText },
+  { id: "perspective", label: "Perspective", icon: Compass },
+  { id: "commentary", label: "Commentary", icon: Megaphone },
+  { id: "focus", label: "Focus", icon: Target },
+  { id: "viewpoint", label: "Viewpoint", icon: EyeIcon },
+  { id: "context", label: "Context", icon: Globe },
+  { id: "opinion", label: "Opinion", icon: MessageCircle },
+  { id: "outlook", label: "Outlook", icon: TrendingUp },
+  { id: "reflection", label: "Reflection", icon: BookOpen },
+  { id: "from-us", label: "From Us", icon: Briefcase },
+  { id: "note", label: "Note", icon: PenLine },
+]
+
+/* ─── Layout wireframe renderer ─── */
+function LayoutWireframe({ layout }: { layout: (typeof moduleLayouts)[0] }) {
+  const f = layout.family
+  const c = layout.columns
+  if (f === "data" && c === 3)
+    return (
+      <div className="flex gap-1.5 w-full">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="flex-1 flex flex-col items-center gap-1 p-1.5 rounded bg-background/80">
+            <div className="h-3.5 w-8 rounded-sm bg-muted-foreground/15" />
+            <div className="h-1.5 w-6 rounded-full bg-muted-foreground/10" />
+          </div>
+        ))}
+      </div>
+    )
+  if (f === "data" && c === 1)
+    return (
+      <div className="flex flex-col items-center gap-1.5 w-full p-2">
+        <div className="h-5 w-14 rounded-sm bg-muted-foreground/15" />
+        <div className="h-1.5 w-20 rounded-full bg-muted-foreground/10" />
+        <div className="h-1.5 w-16 rounded-full bg-muted-foreground/10" />
+      </div>
+    )
+  if (f === "social")
+    return (
+      <div className="flex items-start gap-2 w-full p-2">
+        <div className="size-5 rounded-full bg-muted-foreground/15 shrink-0" />
+        <div className="flex-1 flex flex-col gap-1">
+          <div className="h-1.5 w-14 rounded-full bg-muted-foreground/15" />
+          <div className="h-1.5 w-full rounded-full bg-muted-foreground/10" />
+          <div className="h-1.5 w-3/4 rounded-full bg-muted-foreground/10" />
+        </div>
+      </div>
+    )
+  if (layout.columnFilter === "video")
+    return (
+      <div className="flex flex-col gap-1.5 w-full p-1.5">
+        <div className="w-full h-10 rounded bg-muted-foreground/10 flex items-center justify-center">
+          <Play className="size-4 text-muted-foreground/30" />
+        </div>
+        <div className="h-1.5 w-3/4 rounded-full bg-muted-foreground/15" />
+        <div className="h-1.5 w-1/2 rounded-full bg-muted-foreground/10" />
+      </div>
+    )
+  if (layout.columnFilter === "text" || f === "editorial-text")
+    return (
+      <div className="flex flex-col gap-1 w-full p-2">
+        <div className="h-2 w-16 rounded-full bg-muted-foreground/15" />
+        <div className="h-1.5 w-full rounded-full bg-muted-foreground/10" />
+        <div className="h-1.5 w-full rounded-full bg-muted-foreground/10" />
+        <div className="h-1.5 w-3/4 rounded-full bg-muted-foreground/10" />
+      </div>
+    )
+  if (c === 3)
+    return (
+      <div className="flex gap-1 w-full p-1.5">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="flex-1 flex flex-col gap-1">
+            <div className="w-full h-6 rounded-sm bg-muted-foreground/10" />
+            <div className="h-1.5 w-full rounded-full bg-muted-foreground/15" />
+            <div className="h-1.5 w-3/4 rounded-full bg-muted-foreground/10" />
+          </div>
+        ))}
+      </div>
+    )
+  if (c === 2)
+    return (
+      <div className="flex gap-1.5 w-full p-1.5">
+        <div className="flex-1 h-12 rounded bg-muted-foreground/10" />
+        <div className="flex-1 flex flex-col gap-1 justify-center">
+          <div className="h-2 w-full rounded-full bg-muted-foreground/15" />
+          <div className="h-1.5 w-full rounded-full bg-muted-foreground/10" />
+          <div className="h-1.5 w-3/4 rounded-full bg-muted-foreground/10" />
+        </div>
+      </div>
+    )
+  return (
+    <div className="flex flex-col gap-1 w-full p-1.5">
+      <div className="w-full h-8 rounded bg-muted-foreground/10" />
+      <div className="h-2 w-3/4 rounded-full bg-muted-foreground/15" />
+      <div className="h-1.5 w-full rounded-full bg-muted-foreground/10" />
+      <div className="h-1.5 w-2/3 rounded-full bg-muted-foreground/10" />
+    </div>
+  )
+}
 
 /* ─── Types ─── */
 type EditableComponent = "heading" | "body" | "image" | "bottomLine" | "whyItMatters"
@@ -71,6 +230,8 @@ type CanvasBlock = {
   headingText: string
   bodyText: string
 }
+
+type SidebarStep = "tiles" | "layouts" | "topic"
 
 export function EmailEditor() {
   const [canvasBlocks, setCanvasBlocks] = useState<CanvasBlock[]>([
@@ -109,21 +270,48 @@ export function EmailEditor() {
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null)
   const [selectedComponent, setSelectedComponent] = useState<EditableComponent | null>(null)
   const [hoveredBlockId, setHoveredBlockId] = useState<string | null>(null)
-  const [hoveredComponent, setHoveredComponent] = useState<{ blockId: string; component: EditableComponent } | null>(null)
+  const [hoveredComponent, setHoveredComponent] = useState<{
+    blockId: string
+    component: EditableComponent
+  } | null>(null)
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop")
-  const [searchQuery, setSearchQuery] = useState("")
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
   const [draggingBlockId, setDraggingBlockId] = useState<string | null>(null)
+
+  /* Left sidebar state */
+  const [activeTab, setActiveTab] = useState<"feeds" | "insights" | "editorial">("feeds")
+  const [sidebarStep, setSidebarStep] = useState<SidebarStep>("tiles")
+  const [selectedTileId, setSelectedTileId] = useState<string | null>(null)
+  const [selectedLayoutId, setSelectedLayoutId] = useState<string | null>(null)
+  const [topicKeyword, setTopicKeyword] = useState("")
 
   const selectedBlock = canvasBlocks.find((b) => b.id === selectedBlockId)
   const showRightPanel = selectedBlockId !== null && selectedComponent !== null
 
-  const filteredModules = mockModules.filter(
-    (m) =>
-      m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()))
+  const activeTiles =
+    activeTab === "feeds" ? feedTiles : activeTab === "insights" ? insightTiles : editorialTiles
+
+  /* Compatible layouts for selected module type */
+  const compatibleLayouts = moduleLayouts.filter((l) =>
+    l.compatibleModules.includes(activeTab === "feeds" ? "feeds" : activeTab === "insights" ? "insights" : "editorial")
   )
 
+  const suggestedTopics = [
+    "AI in business",
+    "remote work trends",
+    "SaaS pricing",
+    "customer retention",
+    "startup growth",
+    "marketing automation",
+    "data privacy",
+    "tech layoffs",
+    "product-led growth",
+    "Web3 adoption",
+    "climate tech",
+    "future of work",
+  ]
+
+  /* ─── Canvas helpers ─── */
   const addModuleToCanvas = useCallback((mod: (typeof mockModules)[0]) => {
     const newBlock: CanvasBlock = {
       id: `block-${Date.now()}`,
@@ -141,6 +329,27 @@ export function EmailEditor() {
     }
     setCanvasBlocks((prev) => [...prev, newBlock])
   }, [])
+
+  const addNewModuleToCanvas = useCallback(
+    (tileLabel: string, layoutName: string, topic: string) => {
+      const newBlock: CanvasBlock = {
+        id: `block-${Date.now()}`,
+        moduleId: `new-${Date.now()}`,
+        name: `${tileLabel}: ${topic}`,
+        source: activeTab === "feeds" ? "Feed" : activeTab === "insights" ? "Insight" : "Editorial",
+        tone: "Professional",
+        bottomLine: activeTab !== "editorial",
+        whyItMatters: activeTab === "insights",
+        alignment: "left",
+        colorStyle: "neutral",
+        padding: 16,
+        headingText: `${tileLabel}: ${topic}`,
+        bodyText: `AI-generated ${activeTab} content about "${topic}" using ${layoutName} layout. This content will be populated by ModularMail's AI engine.`,
+      }
+      setCanvasBlocks((prev) => [...prev, newBlock])
+    },
+    [activeTab]
+  )
 
   const deleteBlock = useCallback((id: string) => {
     setCanvasBlocks((prev) => prev.filter((b) => b.id !== id))
@@ -195,40 +404,13 @@ export function EmailEditor() {
     if (blockId.startsWith("module-")) {
       const modId = blockId.replace("module-", "")
       const mod = mockModules.find((m) => m.id === modId)
-      if (mod) {
-        const newBlock: CanvasBlock = {
-          id: `block-${Date.now()}`,
-          moduleId: mod.id,
-          name: mod.name,
-          source: mod.source,
-          tone: mod.tone,
-          bottomLine: mod.commentary.bottomLine,
-          whyItMatters: mod.commentary.whyItMatters,
-          alignment: "left",
-          colorStyle: "neutral",
-          padding: 16,
-          headingText: mod.name,
-          bodyText: mod.summary,
-        }
-        setCanvasBlocks((prev) => {
-          const next = [...prev]
-          next.splice(toIndex, 0, newBlock)
-          return next
-        })
-      }
+      if (mod) addModuleToCanvas(mod)
     } else {
       const fromIndex = canvasBlocks.findIndex((b) => b.id === blockId)
-      if (fromIndex !== -1 && fromIndex !== toIndex) {
-        moveBlock(fromIndex, toIndex)
-      }
+      if (fromIndex !== -1 && fromIndex !== toIndex) moveBlock(fromIndex, toIndex)
     }
     setDragOverIndex(null)
     setDraggingBlockId(null)
-  }
-
-  const handleModuleDragStart = (e: React.DragEvent, modId: string) => {
-    e.dataTransfer.effectAllowed = "copy"
-    e.dataTransfer.setData("text/plain", `module-${modId}`)
   }
 
   const handleComponentClick = (blockId: string, component: EditableComponent) => {
@@ -239,6 +421,41 @@ export function EmailEditor() {
   const closeRightPanel = () => {
     setSelectedBlockId(null)
     setSelectedComponent(null)
+  }
+
+  /* ─── Sidebar flow actions ─── */
+  const handleTileSelect = (tileId: string) => {
+    setSelectedTileId(tileId)
+    setSidebarStep("layouts")
+  }
+
+  const handleLayoutSelect = (layoutId: string) => {
+    setSelectedLayoutId(layoutId)
+    setSidebarStep("topic")
+  }
+
+  const handleAddModule = () => {
+    const tile = activeTiles.find((t) => t.id === selectedTileId)
+    const layout = moduleLayouts.find((l) => l.id === selectedLayoutId)
+    if (tile && layout && topicKeyword.trim()) {
+      addNewModuleToCanvas(tile.label, layout.name, topicKeyword.trim())
+    }
+    // Reset
+    setSidebarStep("tiles")
+    setSelectedTileId(null)
+    setSelectedLayoutId(null)
+    setTopicKeyword("")
+  }
+
+  const handleSidebarBack = () => {
+    if (sidebarStep === "topic") {
+      setSidebarStep("layouts")
+      setSelectedLayoutId(null)
+      setTopicKeyword("")
+    } else if (sidebarStep === "layouts") {
+      setSidebarStep("tiles")
+      setSelectedTileId(null)
+    }
   }
 
   /* ─── Component labels & icons ─── */
@@ -258,9 +475,7 @@ export function EmailEditor() {
           <TooltipTrigger asChild>
             <button
               className="size-6 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              onClick={(e) => {
-                e.stopPropagation()
-              }}
+              onClick={(e) => e.stopPropagation()}
             >
               <Save className="size-3" />
             </button>
@@ -333,9 +548,7 @@ export function EmailEditor() {
           <TooltipTrigger asChild>
             <button
               className="size-6 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              onClick={(e) => {
-                e.stopPropagation()
-              }}
+              onClick={(e) => e.stopPropagation()}
             >
               <Code className="size-3" />
             </button>
@@ -400,7 +613,8 @@ export function EmailEditor() {
               <Label className="text-xs">Text Alignment</Label>
               <div className="flex items-center gap-1">
                 {(["left", "center", "right"] as const).map((align) => {
-                  const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
+                  const Icon =
+                    align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
                   return (
                     <button
                       key={align}
@@ -453,7 +667,8 @@ export function EmailEditor() {
               <Label className="text-xs">Text Alignment</Label>
               <div className="flex items-center gap-1">
                 {(["left", "center", "right"] as const).map((align) => {
-                  const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
+                  const Icon =
+                    align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
                   return (
                     <button
                       key={align}
@@ -488,19 +703,17 @@ export function EmailEditor() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs">Image Source</Label>
-              <div className="flex items-center gap-2">
-                <Select defaultValue="ai">
-                  <SelectTrigger className="text-sm h-8">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ai">AI Generated</SelectItem>
-                    <SelectItem value="source">From Source</SelectItem>
-                    <SelectItem value="upload">Upload</SelectItem>
-                    <SelectItem value="url">Image URL</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Select defaultValue="ai">
+                <SelectTrigger className="text-sm h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ai">AI Generated</SelectItem>
+                  <SelectItem value="source">From Source</SelectItem>
+                  <SelectItem value="upload">Upload</SelectItem>
+                  <SelectItem value="url">Image URL</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="rounded-lg border border-dashed border-border bg-muted/30 p-6 flex flex-col items-center gap-2">
               <Image className="size-6 text-muted-foreground/50" />
@@ -580,7 +793,10 @@ export function EmailEditor() {
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs">AI Context Prompt</Label>
               <div className="flex items-center gap-2">
-                <Input placeholder="e.g. Explain impact on educators..." className="text-sm h-8" />
+                <Input
+                  placeholder="e.g. Explain impact on educators..."
+                  className="text-sm h-8"
+                />
                 <Button size="sm" variant="secondary" className="h-8 px-2 shrink-0">
                   <Sparkles className="size-3" />
                 </Button>
@@ -595,167 +811,255 @@ export function EmailEditor() {
     <div className="flex flex-col flex-1 overflow-hidden">
       {/* ─── Top Toolbar ─── */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center rounded-lg bg-muted p-0.5">
-            <button
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                previewMode === "desktop"
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-              onClick={() => setPreviewMode("desktop")}
-            >
-              <Monitor className="size-3.5" />
-              Desktop
-            </button>
-            <button
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                previewMode === "mobile"
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-              onClick={() => setPreviewMode("mobile")}
-            >
-              <Smartphone className="size-3.5" />
-              Mobile
-            </button>
-          </div>
-          <Separator orientation="vertical" className="h-5" />
-          <span className="text-xs text-muted-foreground">
-            {canvasBlocks.length} module{canvasBlocks.length !== 1 ? "s" : ""}
-          </span>
+        {/* Left: empty spacer */}
+        <div className="w-36" />
+
+        {/* Center: Device toggle (icon-only) */}
+        <div className="flex items-center rounded-lg bg-muted p-0.5">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  className={`flex items-center justify-center size-8 rounded-md transition-colors ${
+                    previewMode === "desktop"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={() => setPreviewMode("desktop")}
+                >
+                  <Monitor className="size-4" />
+                  <span className="sr-only">Desktop</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Desktop</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  className={`flex items-center justify-center size-8 rounded-md transition-colors ${
+                    previewMode === "mobile"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={() => setPreviewMode("mobile")}
+                >
+                  <Smartphone className="size-4" />
+                  <span className="sr-only">Mobile</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Mobile</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
-        <div className="flex items-center gap-2">
+
+        {/* Right: actions */}
+        <div className="flex items-center gap-1.5">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="size-8">
+                  <Undo2 className="size-4" />
+                  <span className="sr-only">Undo</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Undo</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" className="size-8">
+                  <Redo2 className="size-4" />
+                  <span className="sr-only">Redo</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Redo</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <div className="w-px h-5 bg-border mx-1" />
+
           <Button variant="ghost" size="sm" className="text-xs h-8 gap-1.5">
             <Save className="size-3.5" />
             Save
           </Button>
-          <Button variant="ghost" size="sm" className="text-xs h-8 gap-1.5">
-            <Eye className="size-3.5" />
-            Preview
-          </Button>
-          <Button size="sm" className="text-xs h-8 gap-1.5">
-            <Download className="size-3.5" />
-            Export
-          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-xs h-8 gap-1">
+                <Eye className="size-3.5" />
+                Preview
+                <ChevronDownIcon className="size-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>Preview in Browser</DropdownMenuItem>
+              <DropdownMenuItem>Send Test Email</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" className="text-xs h-8 gap-1.5">
+                <Send className="size-3.5" />
+                Send
+                <ChevronDownIcon className="size-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>Send via Mailchimp</DropdownMenuItem>
+              <DropdownMenuItem>Send via HubSpot</DropdownMenuItem>
+              <DropdownMenuItem>Send via Klaviyo</DropdownMenuItem>
+              <DropdownMenuItem className="border-t border-border mt-1 pt-1">
+                Download HTML
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
       {/* ─── Main Area ─── */}
       <div className="flex flex-1 overflow-hidden">
         {/* ─── Left Sidebar ─── */}
-        <div className="w-72 border-r border-border bg-card flex flex-col shrink-0">
-          <div className="p-3 border-b border-border">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-              <Input
-                placeholder="Search modules..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 h-8 text-xs"
-              />
+        <div className="w-64 border-r border-border bg-card flex flex-col shrink-0">
+          {/* Tab header */}
+          <div className="p-2 border-b border-border">
+            <div className="flex items-center rounded-lg bg-muted p-0.5">
+              {(["feeds", "insights", "editorial"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  className={`flex-1 px-2 py-1.5 text-[11px] font-medium rounded-md transition-colors capitalize ${
+                    activeTab === tab
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={() => {
+                    setActiveTab(tab)
+                    setSidebarStep("tiles")
+                    setSelectedTileId(null)
+                    setSelectedLayoutId(null)
+                    setTopicKeyword("")
+                  }}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
           </div>
-          <Tabs defaultValue="modules" className="flex-1 flex flex-col">
-            <TabsList className="mx-3 mt-2">
-              <TabsTrigger value="modules" className="text-xs flex items-center gap-1.5">
-                <Blocks className="size-3" />
-                Modules
-              </TabsTrigger>
-              <TabsTrigger value="layouts" className="text-xs flex items-center gap-1.5">
-                <Layout className="size-3" />
-                Layouts
-              </TabsTrigger>
-              <TabsTrigger value="saved" className="text-xs flex items-center gap-1.5">
-                <Bookmark className="size-3" />
-                Saved
-              </TabsTrigger>
-            </TabsList>
 
-            <TabsContent value="modules" className="flex-1 mt-0">
-              <ScrollArea className="h-[calc(100vh-11rem)]">
-                <div className="p-3 flex flex-col gap-1.5">
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-1 mb-1">
-                    Drag to add to email
-                  </p>
-                  {filteredModules.map((mod) => (
-                    <div
-                      key={mod.id}
-                      draggable
-                      onDragStart={(e) => handleModuleDragStart(e, mod.id)}
-                      className="group rounded-lg border border-border bg-background p-3 hover:border-primary/40 hover:shadow-sm transition-all cursor-grab active:cursor-grabbing"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-medium text-foreground truncate">{mod.name}</p>
-                          <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
-                            <Sparkles className="size-2.5 text-primary" />
-                            {mod.source} &middot; {mod.tone}
-                          </p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => addModuleToCanvas(mod)}
-                        >
-                          <Plus className="size-3" />
-                          <span className="sr-only">Add module</span>
-                        </Button>
-                      </div>
-                      <div className="flex gap-1 mt-2 flex-wrap">
-                        {mod.tags.slice(0, 3).map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-[9px] px-1.5 py-0">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </TabsContent>
-
-            <TabsContent value="layouts" className="flex-1 mt-0">
-              <ScrollArea className="h-[calc(100vh-11rem)]">
-                <div className="p-3 flex flex-col gap-1.5">
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-1 mb-1">
-                    Layout Templates
-                  </p>
-                  {layoutTemplates.map((layout) => (
-                    <div
-                      key={layout.id}
-                      className="rounded-lg border border-border bg-background p-3 hover:border-primary/40 hover:shadow-sm transition-all cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="flex gap-0.5">
-                          {Array.from({ length: layout.columns }).map((_, i) => (
-                            <div
-                              key={i}
-                              className="h-6 rounded-sm bg-muted border border-border"
-                              style={{ width: `${48 / layout.columns}px` }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-xs font-medium text-foreground">{layout.name}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{layout.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </TabsContent>
-
-            <TabsContent value="saved" className="flex-1 mt-0">
-              <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                <Bookmark className="size-8 text-muted-foreground/20 mb-2" />
-                <p className="text-xs text-muted-foreground">No saved blocks yet</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  Save blocks from the canvas to reuse them
+          <ScrollArea className="flex-1">
+            {/* ── Step: Tiles ── */}
+            {sidebarStep === "tiles" && (
+              <div className="p-2.5 flex flex-col gap-1">
+                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-1 mb-1">
+                  Select a module type
                 </p>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {activeTiles.map((tile) => {
+                    const TileIcon = tile.icon
+                    return (
+                      <button
+                        key={tile.id}
+                        className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-background p-3 hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm transition-all"
+                        onClick={() => handleTileSelect(tile.id)}
+                      >
+                        <TileIcon className="size-4 text-muted-foreground" />
+                        <span className="text-[11px] font-medium text-foreground">
+                          {tile.label}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
-            </TabsContent>
-          </Tabs>
+            )}
+
+            {/* ── Step: Layouts ── */}
+            {sidebarStep === "layouts" && (
+              <div className="p-2.5 flex flex-col gap-2">
+                <button
+                  className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors self-start"
+                  onClick={handleSidebarBack}
+                >
+                  <ChevronLeft className="size-3" />
+                  Back
+                </button>
+                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-1">
+                  Choose a layout
+                </p>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {compatibleLayouts.map((layout) => (
+                    <button
+                      key={layout.id}
+                      className={`flex flex-col rounded-lg border bg-background overflow-hidden hover:border-primary/40 hover:shadow-sm transition-all ${
+                        selectedLayoutId === layout.id
+                          ? "border-primary ring-1 ring-primary/30"
+                          : "border-border"
+                      }`}
+                      onClick={() => handleLayoutSelect(layout.id)}
+                    >
+                      <div className="w-full h-16 bg-muted/40 flex items-center justify-center p-1">
+                        <LayoutWireframe layout={layout} />
+                      </div>
+                      <div className="p-1.5">
+                        <span className="text-[10px] font-medium text-foreground leading-tight line-clamp-1">
+                          {layout.name}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── Step: Topic ── */}
+            {sidebarStep === "topic" && (
+              <div className="p-2.5 flex flex-col gap-3">
+                <button
+                  className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors self-start"
+                  onClick={handleSidebarBack}
+                >
+                  <ChevronLeft className="size-3" />
+                  Back
+                </button>
+                <div>
+                  <p className="text-xs font-semibold text-foreground mb-1">
+                    What topic or keyword?
+                  </p>
+                  <p className="text-[10px] text-muted-foreground leading-relaxed">
+                    Give the AI context so it can generate relevant content for this module.
+                  </p>
+                </div>
+                <Input
+                  placeholder="Enter a Topic, Keyword or Phrase"
+                  value={topicKeyword}
+                  onChange={(e) => setTopicKeyword(e.target.value)}
+                  className="text-xs h-8"
+                />
+                <div>
+                  <p className="text-[10px] text-muted-foreground mb-1.5">Suggested</p>
+                  <div className="flex flex-wrap gap-1">
+                    {suggestedTopics.slice(0, 8).map((t) => (
+                      <button
+                        key={t}
+                        className="text-[10px] px-2 py-0.5 rounded-full border border-border bg-background hover:bg-primary/5 hover:border-primary/30 transition-colors text-muted-foreground hover:text-foreground"
+                        onClick={() => setTopicKeyword(t)}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  className="w-full text-xs h-8 gap-1.5 mt-1"
+                  disabled={!topicKeyword.trim()}
+                  onClick={handleAddModule}
+                >
+                  <Plus className="size-3.5" />
+                  Add Module to Email
+                </Button>
+              </div>
+            )}
+          </ScrollArea>
         </div>
 
         {/* ─── Center Canvas ─── */}
@@ -781,7 +1085,9 @@ export function EmailEditor() {
                   <span className="text-sm font-semibold text-foreground">ModularMail</span>
                 </div>
                 <h2 className="text-lg font-bold text-foreground">Your Weekly Digest</h2>
-                <p className="text-xs text-muted-foreground mt-1">Curated content just for you</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Curated content just for you
+                </p>
               </div>
 
               {/* Canvas Blocks */}
@@ -804,7 +1110,7 @@ export function EmailEditor() {
                     <Blocks className="size-10 text-muted-foreground/30 mb-3" />
                     <p className="text-sm font-medium text-foreground">Drop modules here</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Drag modules from the left panel to build your email
+                      Select a module type from the left panel to build your email
                     </p>
                   </div>
                 ) : (
@@ -857,14 +1163,12 @@ export function EmailEditor() {
                             )}
 
                             <div className={`text-${block.alignment}`}>
-                              {/* Heading - editable component */}
                               <EditableWrapper blockId={block.id} component="heading">
                                 <h3 className="text-sm font-semibold text-foreground mb-1 py-1">
                                   {block.headingText}
                                 </h3>
                               </EditableWrapper>
 
-                              {/* Image placeholder - editable component */}
                               <EditableWrapper blockId={block.id} component="image">
                                 <div className="w-full h-32 rounded-md bg-muted/50 border border-border flex items-center justify-center my-2">
                                   <div className="flex flex-col items-center gap-1 text-muted-foreground/40">
@@ -874,14 +1178,12 @@ export function EmailEditor() {
                                 </div>
                               </EditableWrapper>
 
-                              {/* Body text - editable component */}
                               <EditableWrapper blockId={block.id} component="body">
                                 <p className="text-xs text-muted-foreground leading-relaxed py-1">
                                   {block.bodyText}
                                 </p>
                               </EditableWrapper>
 
-                              {/* Bottom Line - editable component */}
                               {block.bottomLine && (
                                 <EditableWrapper blockId={block.id} component="bottomLine">
                                   <div className="mt-3 rounded-md bg-primary/5 border border-primary/10 p-2.5">
@@ -896,7 +1198,6 @@ export function EmailEditor() {
                                 </EditableWrapper>
                               )}
 
-                              {/* Why It Matters - editable component */}
                               {block.whyItMatters && (
                                 <EditableWrapper blockId={block.id} component="whyItMatters">
                                   <div className="mt-2 rounded-md bg-muted/50 border border-border p-2.5">
@@ -937,7 +1238,7 @@ export function EmailEditor() {
           </div>
         </div>
 
-        {/* ─── Right Panel - Contextual Editor (only visible when component selected) ─── */}
+        {/* ─── Right Panel - Contextual Editor ─── */}
         {showRightPanel && selectedBlock && selectedComponent && (
           <div className="w-72 border-l border-border bg-card flex flex-col shrink-0 animate-in slide-in-from-right-2 duration-200">
             <div className="p-3 border-b border-border flex items-center justify-between">
