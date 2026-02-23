@@ -56,6 +56,8 @@ export type ModuleSource = ContentSource & {
 
 export type LayoutFamily = "compact" | "feature" | "social" | "data" | "editorial-text"
 
+export type LayoutColumnFilter = "all" | "1" | "2" | "3" | "video" | "text"
+
 export type ModuleLayout = {
   id: string
   name: string
@@ -65,6 +67,7 @@ export type ModuleLayout = {
   imagePlacement: string
   mobileBehavior: "stack" | "collapse"
   description: string
+  columnFilter: LayoutColumnFilter
 }
 
 /* ─── Editorial Module Types ─── */
@@ -83,187 +86,76 @@ export type InsightTopic = {
   label: string
   description: string
   icon: string
-  count: number
 }
 
-/* ─── Static Data: Module Layouts (from spreadsheet) ─── */
+/* ─── Static Data: All Module Layouts ─── */
 
 export const moduleLayouts: ModuleLayout[] = [
-  {
-    id: "stacked-cards",
-    name: "Stacked Cards",
-    family: "compact",
-    columns: 1,
-    compatibleModules: ["feeds", "insights"],
-    imagePlacement: "Top thumbnail",
-    mobileBehavior: "stack",
-    description: "Single-column cards stacked vertically with top thumbnail images. Clean and scannable.",
-  },
-  {
-    id: "2-column-grid",
-    name: "2-Column Grid",
-    family: "compact",
-    columns: 2,
-    compatibleModules: ["feeds"],
-    imagePlacement: "Top thumbnail",
-    mobileBehavior: "collapse",
-    description: "Two cards side-by-side that collapse to a single column on mobile.",
-  },
-  {
-    id: "3-card-grid",
-    name: "3-Card Grid",
-    family: "compact",
-    columns: 3,
-    compatibleModules: ["feeds"],
-    imagePlacement: "Top thumbnail",
-    mobileBehavior: "stack",
-    description: "Three-column card grid ideal for roundups and digest-style modules.",
-  },
-  {
-    id: "editorial-block",
-    name: "Editorial Block",
-    family: "feature",
-    columns: 1,
-    compatibleModules: ["editorial", "insights"],
-    imagePlacement: "Optional header image",
-    mobileBehavior: "stack",
-    description: "Full-width editorial format with optional hero image. Great for opinion pieces.",
-  },
-  {
-    id: "split-feature",
-    name: "Split Feature",
-    family: "feature",
-    columns: 2,
-    compatibleModules: ["insights", "editorial"],
-    imagePlacement: "Left image",
-    mobileBehavior: "stack",
-    description: "Image on the left, text on the right. Perfect for featured stories.",
-  },
-  {
-    id: "social-card",
-    name: "Social Card",
-    family: "social",
-    columns: 1,
-    compatibleModules: ["feeds"],
-    imagePlacement: "Avatar left",
-    mobileBehavior: "stack",
-    description: "Social-media-style card with avatar, author name, and post preview.",
-  },
-  {
-    id: "big-stat-block",
-    name: "Big Stat Block",
-    family: "data",
-    columns: 1,
-    compatibleModules: ["insights"],
-    imagePlacement: "None",
-    mobileBehavior: "stack",
-    description: "A single bold statistic with supporting context text. High visual impact.",
-  },
-  {
-    id: "3-stat-grid",
-    name: "3-Stat Grid",
-    family: "data",
-    columns: 3,
-    compatibleModules: ["insights"],
-    imagePlacement: "None",
-    mobileBehavior: "stack",
-    description: "Three key statistics in a row with labels and trend indicators.",
-  },
-  {
-    id: "comparison-table",
-    name: "Comparison Table",
-    family: "data",
-    columns: 2,
-    compatibleModules: ["insights"],
-    imagePlacement: "None",
-    mobileBehavior: "stack",
-    description: "Side-by-side comparison of two items, metrics, or options.",
-  },
+  // From original spreadsheet
+  { id: "stacked-cards", name: "Stacked Cards", family: "compact", columns: 1, compatibleModules: ["feeds", "insights"], imagePlacement: "Top thumbnail", mobileBehavior: "stack", description: "Single-column cards stacked vertically with top thumbnail images.", columnFilter: "1" },
+  { id: "2-column-grid", name: "2-Column Grid", family: "compact", columns: 2, compatibleModules: ["feeds"], imagePlacement: "Top thumbnail", mobileBehavior: "collapse", description: "Two cards side-by-side that collapse to single column on mobile.", columnFilter: "2" },
+  { id: "3-card-grid", name: "3-Card Grid", family: "compact", columns: 3, compatibleModules: ["feeds"], imagePlacement: "Top thumbnail", mobileBehavior: "stack", description: "Three-column card grid ideal for roundups and digest-style modules.", columnFilter: "3" },
+  { id: "editorial-block", name: "Editorial Block", family: "feature", columns: 1, compatibleModules: ["editorial", "insights"], imagePlacement: "Optional header image", mobileBehavior: "stack", description: "Full-width editorial format with optional hero image.", columnFilter: "1" },
+  { id: "split-feature", name: "Split Feature", family: "feature", columns: 2, compatibleModules: ["insights", "editorial"], imagePlacement: "Left image", mobileBehavior: "stack", description: "Image on the left, text on the right.", columnFilter: "2" },
+  { id: "social-card", name: "Social Card", family: "social", columns: 1, compatibleModules: ["feeds"], imagePlacement: "Avatar left", mobileBehavior: "stack", description: "Social-media-style card with avatar and post preview.", columnFilter: "1" },
+  { id: "big-stat-block", name: "Big Stat Block", family: "data", columns: 1, compatibleModules: ["insights"], imagePlacement: "None", mobileBehavior: "stack", description: "A single bold statistic with supporting context text.", columnFilter: "1" },
+  { id: "3-stat-grid", name: "3-Stat Grid", family: "data", columns: 3, compatibleModules: ["insights"], imagePlacement: "None", mobileBehavior: "stack", description: "Three key statistics in a row with labels and indicators.", columnFilter: "3" },
+  { id: "comparison-table", name: "Comparison Table", family: "data", columns: 2, compatibleModules: ["insights"], imagePlacement: "None", mobileBehavior: "stack", description: "Side-by-side comparison of two items or metrics.", columnFilter: "2" },
+  // From 1pasted-text
+  { id: "single-column-card", name: "Single Column Card", family: "compact", columns: 1, compatibleModules: ["feeds", "insights"], imagePlacement: "Optional 16:9 image", mobileBehavior: "stack", description: "Optional image, title, 2-4 lines text, text CTA.", columnFilter: "1" },
+  { id: "single-column-long", name: "Single Column Long Form", family: "feature", columns: 1, compatibleModules: ["editorial"], imagePlacement: "Optional hero image", mobileBehavior: "stack", description: "Hero image, title, subtitle, long-form body, bullet section, CTA.", columnFilter: "text" },
+  { id: "image-title-only", name: "Image + Title Only", family: "compact", columns: 1, compatibleModules: ["feeds"], imagePlacement: "Required image", mobileBehavior: "stack", description: "Image and title only, no body text. Visual-heavy.", columnFilter: "1" },
+  { id: "video-card", name: "Video Card", family: "feature", columns: 1, compatibleModules: ["feeds"], imagePlacement: "16:9 thumbnail", mobileBehavior: "stack", description: "Video thumbnail with play overlay, title, summary, CTA.", columnFilter: "video" },
+  { id: "bullet-insight-block", name: "Bullet Insight Block", family: "data", columns: 1, compatibleModules: ["insights"], imagePlacement: "None", mobileBehavior: "stack", description: "Section title, 3-5 bullet points, optional highlighted line.", columnFilter: "text" },
+  // From 2pasted-text
+  { id: "split-feature-card", name: "Split Feature Card", family: "feature", columns: 2, compatibleModules: ["feeds", "editorial"], imagePlacement: "Left image", mobileBehavior: "stack", description: "Image on left, title + text on right, CTA below.", columnFilter: "2" },
+  { id: "centered-feature", name: "Centered Feature Block", family: "feature", columns: 1, compatibleModules: ["editorial"], imagePlacement: "Optional centered image", mobileBehavior: "stack", description: "Centered image, title, paragraphs, button CTA.", columnFilter: "1" },
+  { id: "compact-list-view", name: "Compact List View", family: "compact", columns: 1, compatibleModules: ["feeds", "insights"], imagePlacement: "None", mobileBehavior: "stack", description: "Title + 1-line description per row. Scannable digest.", columnFilter: "text" },
+  { id: "numbered-insight", name: "Numbered Insight Block", family: "data", columns: 1, compatibleModules: ["insights"], imagePlacement: "None", mobileBehavior: "stack", description: "Section title, 3-5 numbered points with descriptions.", columnFilter: "text" },
+  { id: "highlight-panel", name: "Highlight Panel", family: "feature", columns: 1, compatibleModules: ["insights", "editorial"], imagePlacement: "None", mobileBehavior: "stack", description: "Subtle background block with short statement or CTA.", columnFilter: "text" },
+  { id: "hero-grid-below", name: "Hero + Grid Below", family: "feature", columns: 2, compatibleModules: ["feeds"], imagePlacement: "Top hero", mobileBehavior: "stack", description: "Large feature card on top, 2-column grid below.", columnFilter: "2" },
+  { id: "icon-text-grid", name: "Icon + Text Grid", family: "compact", columns: 3, compatibleModules: ["feeds", "insights"], imagePlacement: "Icon above", mobileBehavior: "stack", description: "Small icon above title, 1-line description below.", columnFilter: "3" },
+  { id: "image-overlay-card", name: "Image Overlay Card", family: "feature", columns: 1, compatibleModules: ["feeds"], imagePlacement: "Full-width overlay", mobileBehavior: "stack", description: "Full-width image with title overlay text.", columnFilter: "1" },
+  { id: "side-accent-editorial", name: "Side Accent Editorial", family: "feature", columns: 1, compatibleModules: ["editorial"], imagePlacement: "None", mobileBehavior: "stack", description: "Title, body text, thin vertical accent line beside content.", columnFilter: "text" },
 ]
 
-/* ─── Editorial text-based layout options ─── */
-
-export const editorialTextLayouts: ModuleLayout[] = [
-  {
-    id: "short-form",
-    name: "Short Form",
-    family: "editorial-text",
-    columns: 1,
-    compatibleModules: ["editorial", "insights"],
-    imagePlacement: "None",
-    mobileBehavior: "stack",
-    description: "2-3 concise sentences. Quick reads and brief commentary.",
-  },
-  {
-    id: "mid-form-bullets",
-    name: "Mid-Form with Bullets",
-    family: "editorial-text",
-    columns: 1,
-    compatibleModules: ["editorial", "insights"],
-    imagePlacement: "None",
-    mobileBehavior: "stack",
-    description: "Opening paragraph followed by bullet points. Structured and scannable.",
-  },
-  {
-    id: "long-form",
-    name: "Long Form",
-    family: "editorial-text",
-    columns: 1,
-    compatibleModules: ["editorial", "insights"],
-    imagePlacement: "Optional header image",
-    mobileBehavior: "stack",
-    description: "Full article-length content with paragraphs. Deep dives and thought leadership.",
-  },
+export const layoutColumnFilters: { id: LayoutColumnFilter; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "1", label: "1 Column" },
+  { id: "2", label: "2 Column" },
+  { id: "3", label: "3 Column" },
+  { id: "video", label: "Video" },
+  { id: "text", label: "Text" },
 ]
 
 /* ─── Editorial Module Types ─── */
 
 export const editorialTypes: EditorialType[] = [
-  {
-    id: "welcome-note",
-    name: "Welcome Note",
-    description: "A personal greeting from the sender. Sets the tone for the entire email.",
-    icon: "hand-metal",
-  },
-  {
-    id: "editorial-view",
-    name: "Editorial View",
-    description: "Your unique perspective or opinion on a trending topic in your industry.",
-    icon: "pen-line",
-  },
-  {
-    id: "what-this-means",
-    name: "What This Means",
-    description: "Contextual analysis explaining the significance of a news item or trend.",
-    icon: "lightbulb",
-  },
-  {
-    id: "emerging-topic",
-    name: "Emerging Topic",
-    description: "Early signal on a topic just starting to gain traction in your space.",
-    icon: "trending-up",
-  },
-  {
-    id: "office-conversations",
-    name: "Office Conversations",
-    description: "Casual, relatable insights styled like watercooler chat. Humanizes your brand.",
-    icon: "message-circle",
-  },
+  { id: "welcome-note", name: "Welcome Note", description: "A short opening message that frames the edition and sets the tone.", icon: "hand-metal" },
+  { id: "editorial-view", name: "Editorial View", description: "A concise opinion or perspective on a current theme or development.", icon: "pen-line" },
+  { id: "what-were-noticing", name: "What We're Noticing", description: "A brief reflection on patterns or shifts emerging in the space.", icon: "eye" },
+  { id: "emerging-topic", name: "Emerging Topic", description: "A commentary block highlighting a new idea gaining traction.", icon: "trending-up" },
+  { id: "from-the-desk", name: "From the Desk", description: "A more personal leadership-style message grounded in experience.", icon: "briefcase" },
+  { id: "office-conversation", name: "Office Conversation", description: "A light, human summary of a recent discussion or debate.", icon: "message-circle" },
+  { id: "in-perspective", name: "In Perspective", description: "A short contextual piece explaining why something matters right now.", icon: "lightbulb" },
+  { id: "behind-the-scenes", name: "Behind the Scenes", description: "A glimpse into internal thinking, process, or observations.", icon: "search" },
+  { id: "this-week-in-focus", name: "This Week in Focus", description: "A framing statement explaining the theme of the edition.", icon: "target" },
+  { id: "looking-ahead", name: "Looking Ahead", description: "A forward-facing note outlining what to watch in the coming weeks.", icon: "arrow-right" },
 ]
 
 /* ─── Insight Topics ─── */
 
 export const insightTopics: InsightTopic[] = [
-  { id: "industry-trends", label: "Industry Trends", description: "Key movements shaping your industry", icon: "trending-up", count: 89 },
-  { id: "market-data", label: "Market Data", description: "Statistics, benchmarks, and financial figures", icon: "bar-chart-3", count: 52 },
-  { id: "competitor-analysis", label: "Competitor Analysis", description: "What competitors are doing and how they compare", icon: "search", count: 38 },
-  { id: "customer-insights", label: "Customer Insights", description: "Behavioral data and audience sentiment", icon: "users", count: 45 },
-  { id: "technology-shifts", label: "Technology Shifts", description: "New tools, platforms, and tech disruptions", icon: "cpu", count: 73 },
-  { id: "regulatory-changes", label: "Regulatory Changes", description: "Policy and regulation updates impacting business", icon: "shield", count: 22 },
-  { id: "sustainability", label: "Sustainability", description: "ESG, green initiatives, and climate impact", icon: "leaf", count: 18 },
-  { id: "workforce-talent", label: "Workforce & Talent", description: "Hiring trends, skills gaps, and workplace shifts", icon: "briefcase", count: 32 },
-  { id: "innovation", label: "Innovation", description: "Breakthrough ideas, patents, and R&D highlights", icon: "sparkles", count: 67 },
-  { id: "global-economy", label: "Global Economy", description: "Macro-economic indicators and trade developments", icon: "globe", count: 41 },
+  { id: "tip-of-week", label: "Tip of the Week", description: "A short, actionable recommendation your audience can apply immediately.", icon: "lightbulb" },
+  { id: "word-of-week", label: "Word of the Week", description: "A relevant term explained in simple, practical language.", icon: "book-open" },
+  { id: "key-takeaways", label: "Key Takeaways", description: "A concise summary of the most important lessons from this week's content.", icon: "list" },
+  { id: "myth-vs-reality", label: "Myth vs Reality", description: "A common misconception clarified with a grounded, factual perspective.", icon: "shield" },
+  { id: "trend-breakdown", label: "Trend Breakdown", description: "A simplified explanation of an emerging shift and why it matters.", icon: "trending-up" },
+  { id: "quick-explainer", label: "Quick Explainer", description: "A short, structured breakdown of a concept your audience should understand.", icon: "zap" },
+  { id: "data-insight", label: "Data Insight", description: "A single statistic highlighted with context and interpretation.", icon: "bar-chart-3" },
+  { id: "strategy-snapshot", label: "Strategy Snapshot", description: "A practical framework or approach distilled into 2-4 clear points.", icon: "target" },
+  { id: "what-this-means", label: "What This Means", description: "A brief interpretation translating broader developments into audience impact.", icon: "message-circle" },
+  { id: "checklist", label: "Checklist", description: "A short, scannable list to guide action or evaluation.", icon: "check-square" },
 ]
 
 /* ─── Module Categories for Creation Tabs ─── */
@@ -275,6 +167,29 @@ export const moduleCategories: { id: ModuleSourceCategory; label: string }[] = [
   { id: "media", label: "Media" },
   { id: "sports", label: "Sports" },
   { id: "custom", label: "Custom" },
+]
+
+/* ─── Business verticals for sidebar catalogue ─── */
+
+export const businessVerticals: { label: string; count: number }[] = [
+  { label: "Technology", count: 161 },
+  { label: "Business", count: 52 },
+  { label: "Marketing", count: 38 },
+  { label: "Finance", count: 52 },
+  { label: "Healthcare", count: 37 },
+  { label: "Education", count: 45 },
+  { label: "Real Estate", count: 22 },
+  { label: "E-Commerce", count: 30 },
+  { label: "SaaS", count: 89 },
+  { label: "Entertainment", count: 24 },
+  { label: "Sports", count: 15 },
+  { label: "Science", count: 73 },
+  { label: "Design", count: 22 },
+  { label: "Lifestyle", count: 78 },
+  { label: "Gaming", count: 32 },
+  { label: "AI", count: 89 },
+  { label: "Crypto", count: 18 },
+  { label: "Travel", count: 21 },
 ]
 
 /* ─── Feed Sources (websites for Feeds tab) ─── */
@@ -315,147 +230,43 @@ export const contentSources: ContentSource[] = moduleSources.slice(0, 6).map(({ 
 
 export const mockModules: Module[] = [
   {
-    id: "mod-1",
-    name: "Business Analytics Trends",
-    source: "Google News",
-    sourceType: "google-news",
-    moduleType: "feeds",
-    layoutId: "stacked-cards",
-    industry: "SaaS",
-    tone: "Professional",
-    length: "Medium",
-    summary: "Top business analytics trends reshaping how companies make data-driven decisions in 2026.",
-    tags: ["analytics", "business", "data"],
-    createdAt: "2026-02-18",
-    updatedAt: "2026-02-20",
-    status: "ready",
-    topic: "Business Analytics",
+    id: "mod-1", name: "Business Analytics Trends", source: "Google News", sourceType: "google-news", moduleType: "feeds", layoutId: "stacked-cards", industry: "SaaS", tone: "Professional", length: "Medium",
+    summary: "Top business analytics trends reshaping how companies make data-driven decisions in 2026.", tags: ["analytics", "business", "data"], createdAt: "2026-02-18", updatedAt: "2026-02-20", status: "ready", topic: "Business Analytics",
     commentary: { bulletSummary: true, bottomLine: true, whyItMatters: false, keyTakeaways: true },
   },
   {
-    id: "mod-2",
-    name: "EdTech Weekly Roundup",
-    source: "Reddit",
-    sourceType: "reddit",
-    moduleType: "feeds",
-    layoutId: "2-column-grid",
-    industry: "Education",
-    tone: "Conversational",
-    length: "Long",
-    summary: "Weekly roundup of the most discussed EdTech topics from r/edtech and r/education.",
-    tags: ["edtech", "education", "weekly"],
-    createdAt: "2026-02-15",
-    updatedAt: "2026-02-21",
-    status: "ready",
-    topic: "Education Technology",
+    id: "mod-2", name: "EdTech Weekly Roundup", source: "Reddit", sourceType: "reddit", moduleType: "feeds", layoutId: "2-column-grid", industry: "Education", tone: "Conversational", length: "Long",
+    summary: "Weekly roundup of the most discussed EdTech topics from r/edtech and r/education.", tags: ["edtech", "education", "weekly"], createdAt: "2026-02-15", updatedAt: "2026-02-21", status: "ready", topic: "Education Technology",
     commentary: { bulletSummary: true, bottomLine: false, whyItMatters: true, keyTakeaways: true },
   },
   {
-    id: "mod-3",
-    name: "AI in Healthcare",
-    source: "Google News",
-    sourceType: "google-news",
-    moduleType: "insights",
-    layoutId: "big-stat-block",
-    industry: "Healthcare",
-    tone: "Academic",
-    length: "Long",
-    summary: "Breakthroughs in AI-powered diagnostics and patient care improvements across leading hospitals.",
-    tags: ["AI", "healthcare", "research"],
-    createdAt: "2026-02-10",
-    updatedAt: "2026-02-19",
-    status: "draft",
-    topic: "Healthcare AI",
+    id: "mod-3", name: "AI in Healthcare", source: "Google News", sourceType: "google-news", moduleType: "insights", layoutId: "big-stat-block", industry: "Healthcare", tone: "Academic", length: "Long",
+    summary: "Breakthroughs in AI-powered diagnostics and patient care improvements across leading hospitals.", tags: ["AI", "healthcare", "research"], createdAt: "2026-02-10", updatedAt: "2026-02-19", status: "draft", topic: "Healthcare AI",
     commentary: { bulletSummary: true, bottomLine: true, whyItMatters: true, keyTakeaways: false },
   },
   {
-    id: "mod-4",
-    name: "Startup Funding Highlights",
-    source: "Custom URL",
-    sourceType: "custom-url",
-    moduleType: "feeds",
-    layoutId: "3-card-grid",
-    industry: "SaaS",
-    tone: "Punchy",
-    length: "Short",
-    summary: "This week's biggest funding rounds and what they mean for the startup ecosystem.",
-    tags: ["startups", "funding", "VC"],
-    createdAt: "2026-02-12",
-    updatedAt: "2026-02-22",
-    status: "ready",
-    topic: "Startup Ecosystem",
+    id: "mod-4", name: "Startup Funding Highlights", source: "Custom URL", sourceType: "custom-url", moduleType: "feeds", layoutId: "3-card-grid", industry: "SaaS", tone: "Punchy", length: "Short",
+    summary: "This week's biggest funding rounds and what they mean for the startup ecosystem.", tags: ["startups", "funding", "VC"], createdAt: "2026-02-12", updatedAt: "2026-02-22", status: "ready", topic: "Startup Ecosystem",
     commentary: { bulletSummary: false, bottomLine: true, whyItMatters: false, keyTakeaways: true },
   },
   {
-    id: "mod-5",
-    name: "Marketing Video Digest",
-    source: "YouTube",
-    sourceType: "youtube",
-    moduleType: "feeds",
-    layoutId: "social-card",
-    industry: "Marketing",
-    tone: "Conversational",
-    length: "Medium",
-    summary: "Top marketing strategy videos from industry leaders, summarized for quick consumption.",
-    tags: ["marketing", "video", "strategy"],
-    createdAt: "2026-02-08",
-    updatedAt: "2026-02-17",
-    status: "draft",
-    topic: "Marketing Strategy",
+    id: "mod-5", name: "Marketing Video Digest", source: "YouTube", sourceType: "youtube", moduleType: "feeds", layoutId: "social-card", industry: "Marketing", tone: "Conversational", length: "Medium",
+    summary: "Top marketing strategy videos from industry leaders, summarized for quick consumption.", tags: ["marketing", "video", "strategy"], createdAt: "2026-02-08", updatedAt: "2026-02-17", status: "draft", topic: "Marketing Strategy",
     commentary: { bulletSummary: true, bottomLine: false, whyItMatters: true, keyTakeaways: false },
   },
   {
-    id: "mod-6",
-    name: "Weekly Welcome Note",
-    source: "Editorial",
-    sourceType: "welcome-note",
-    moduleType: "editorial",
-    layoutId: "short-form",
-    industry: "Education",
-    tone: "Conversational",
-    length: "Short",
-    summary: "A warm personal greeting to kick off each weekly newsletter edition.",
-    tags: ["welcome", "editorial", "intro"],
-    createdAt: "2026-02-05",
-    updatedAt: "2026-02-16",
-    status: "ready",
-    topic: "Newsletter Intro",
+    id: "mod-6", name: "Weekly Welcome Note", source: "Editorial", sourceType: "welcome-note", moduleType: "editorial", layoutId: "side-accent-editorial", industry: "Education", tone: "Conversational", length: "Short",
+    summary: "A warm personal greeting to kick off each weekly newsletter edition.", tags: ["welcome", "editorial", "intro"], createdAt: "2026-02-05", updatedAt: "2026-02-16", status: "ready", topic: "Newsletter Intro",
     commentary: { bulletSummary: false, bottomLine: false, whyItMatters: false, keyTakeaways: false },
   },
   {
-    id: "mod-7",
-    name: "The AI Regulation Debate",
-    source: "Editorial",
-    sourceType: "editorial-view",
-    moduleType: "editorial",
-    layoutId: "editorial-block",
-    industry: "SaaS",
-    tone: "Professional",
-    length: "Long",
-    summary: "Our editorial take on the growing push for AI regulation and what it means for SaaS companies.",
-    tags: ["AI", "regulation", "opinion"],
-    createdAt: "2026-02-14",
-    updatedAt: "2026-02-20",
-    status: "ready",
-    topic: "AI Policy",
+    id: "mod-7", name: "The AI Regulation Debate", source: "Editorial", sourceType: "editorial-view", moduleType: "editorial", layoutId: "editorial-block", industry: "SaaS", tone: "Professional", length: "Long",
+    summary: "Our editorial take on the growing push for AI regulation and what it means for SaaS companies.", tags: ["AI", "regulation", "opinion"], createdAt: "2026-02-14", updatedAt: "2026-02-20", status: "ready", topic: "AI Policy",
     commentary: { bulletSummary: false, bottomLine: true, whyItMatters: true, keyTakeaways: false },
   },
   {
-    id: "mod-8",
-    name: "Q1 SaaS Benchmark Data",
-    source: "Insights",
-    sourceType: "market-data",
-    moduleType: "insights",
-    layoutId: "3-stat-grid",
-    industry: "SaaS",
-    tone: "Professional",
-    length: "Medium",
-    summary: "Key SaaS metrics for Q1 2026 including ARR growth, churn rates, and NRR benchmarks.",
-    tags: ["SaaS", "benchmarks", "data"],
-    createdAt: "2026-02-19",
-    updatedAt: "2026-02-23",
-    status: "ready",
-    topic: "SaaS Metrics",
+    id: "mod-8", name: "Q1 SaaS Benchmark Data", source: "Insights", sourceType: "market-data", moduleType: "insights", layoutId: "3-stat-grid", industry: "SaaS", tone: "Professional", length: "Medium",
+    summary: "Key SaaS metrics for Q1 2026 including ARR growth, churn rates, and NRR benchmarks.", tags: ["SaaS", "benchmarks", "data"], createdAt: "2026-02-19", updatedAt: "2026-02-23", status: "ready", topic: "SaaS Metrics",
     commentary: { bulletSummary: true, bottomLine: true, whyItMatters: false, keyTakeaways: true },
   },
 ]
@@ -503,14 +314,6 @@ export const topicTags = [
   { label: "E-Commerce", count: 30 },
 ]
 
-export const suggestedModules = [
-  { id: "sug-1", name: "K-12 Digital Learning Trends", industry: "Education", source: "Google News" },
-  { id: "sug-2", name: "Higher Ed Policy Updates", industry: "Education", source: "Custom URL" },
-  { id: "sug-3", name: "EdTech Tool Reviews", industry: "Education", source: "YouTube" },
-  { id: "sug-4", name: "Teacher Community Picks", industry: "Education", source: "Reddit" },
-  { id: "sug-5", name: "Education Podcast Spotlight", industry: "Education", source: "Podcasts" },
-]
-
 export const industries = ["Education", "SaaS", "Healthcare", "Marketing", "Finance", "E-Commerce", "Real Estate"]
-export const tones = ["Professional", "Conversational", "Academic", "Punchy"]
-export const lengths = ["Short", "Medium", "Long"]
+
+export const tones = ["Professional", "Conversational", "Academic", "Punchy", "Casual", "Authoritative"]

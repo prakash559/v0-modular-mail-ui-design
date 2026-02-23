@@ -8,58 +8,35 @@ import {
   Copy,
   Eye,
   Search,
-  Newspaper,
-  MessageCircle,
-  Play,
-  Globe,
-  FileText,
-  Rss,
   Mail,
-  PenLine,
-  BarChart3,
 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { mockModules, mockEmails, moduleLayouts, editorialTextLayouts, type Module } from "@/lib/mock-data"
-
-const sourceIconMap: Record<string, React.ElementType> = {
-  "google-news": Newspaper,
-  reddit: MessageCircle,
-  youtube: Play,
-  "custom-url": Globe,
-  podcasts: Globe,
-  "welcome-note": Mail,
-  "editorial-view": PenLine,
-  "market-data": BarChart3,
-}
+import { mockModules, mockEmails, moduleLayouts, type Module } from "@/lib/mock-data"
 
 /* ── Visual mini-preview of a module ── */
 function ModulePreview({ mod }: { mod: Module }) {
-  const layout = [...moduleLayouts, ...editorialTextLayouts].find((l) => l.id === mod.layoutId)
+  const layout = moduleLayouts.find((l) => l.id === mod.layoutId)
   const cols = layout?.columns ?? 1
 
   if (mod.moduleType === "editorial") {
     return (
-      <div className="h-32 rounded-lg bg-muted/50 p-4 flex flex-col gap-1.5 overflow-hidden">
+      <div className="flex flex-col gap-1.5 overflow-hidden">
         <div className="w-16 h-2 rounded-full bg-muted-foreground/15" />
         <div className="w-full h-1.5 rounded-full bg-muted-foreground/10 mt-1" />
         <div className="w-4/5 h-1.5 rounded-full bg-muted-foreground/10" />
         <div className="w-3/5 h-1.5 rounded-full bg-muted-foreground/10" />
-        {mod.length === "Long" && (
-          <>
-            <div className="w-full h-1.5 rounded-full bg-muted-foreground/10 mt-1" />
-            <div className="w-4/5 h-1.5 rounded-full bg-muted-foreground/10" />
-          </>
-        )}
+        <div className="w-full h-1.5 rounded-full bg-muted-foreground/10 mt-1" />
+        <div className="w-4/5 h-1.5 rounded-full bg-muted-foreground/10" />
       </div>
     )
   }
 
   if (mod.moduleType === "insights") {
     return (
-      <div className="h-32 rounded-lg bg-muted/50 p-4 flex items-center justify-center gap-4 overflow-hidden">
+      <div className="flex items-center justify-center gap-4 overflow-hidden">
         {Array.from({ length: Math.min(cols, 3) }).map((_, i) => (
           <div key={i} className="flex flex-col items-center gap-1">
             <div className="text-lg font-bold text-muted-foreground/20">
@@ -73,10 +50,10 @@ function ModulePreview({ mod }: { mod: Module }) {
   }
 
   return (
-    <div className="h-32 rounded-lg bg-muted/50 p-3 flex gap-2 overflow-hidden">
+    <div className="flex gap-2 overflow-hidden">
       {Array.from({ length: Math.min(cols, 3) }).map((_, i) => (
         <div key={i} className="flex-1 flex flex-col gap-1.5">
-          <div className="flex-1 rounded bg-muted-foreground/8" />
+          <div className="flex-1 rounded bg-muted-foreground/8 min-h-[40px]" />
           <div className="w-4/5 h-1.5 rounded-full bg-muted-foreground/10" />
           <div className="w-3/5 h-1.5 rounded-full bg-muted-foreground/10" />
         </div>
@@ -99,26 +76,28 @@ function ModuleCard({
     mod.moduleType === "feeds" ? "Feed" : mod.moduleType === "insights" ? "Insight" : "Editorial"
 
   return (
-    <Card className="group relative hover:shadow-lg hover:border-primary/25 transition-all duration-200 overflow-hidden">
-      <CardContent className="p-0">
+    <Card className="group relative hover:shadow-lg hover:border-primary/60 hover:ring-2 hover:ring-primary/20 transition-all duration-200 overflow-hidden">
+      <CardContent className="p-0 flex flex-col">
         {/* Visual Preview */}
-        <div className="p-3 pb-0">
+        <div className="p-4 h-40 flex flex-col justify-center rounded-t-lg bg-muted/40">
           <ModulePreview mod={mod} />
         </div>
 
         {/* Content */}
-        <div className="p-3 flex flex-col gap-2">
-          <h3 className="text-sm font-bold text-foreground truncate">{mod.name}</h3>
+        <div className="p-4 flex flex-col gap-2.5 min-h-[100px]">
+          <h3 className="text-sm font-bold text-foreground leading-snug line-clamp-2">
+            {mod.name}
+          </h3>
           <Badge
             variant="secondary"
-            className="w-fit text-[10px] px-2 py-0 bg-primary/6 text-muted-foreground border-0"
+            className="w-fit text-[10px] px-2.5 py-0.5 bg-primary/6 text-muted-foreground border-0 font-medium"
           >
             {typeLabel}
           </Badge>
 
           {/* Used in emails */}
           {emailsUsedIn.length > 0 && (
-            <div className="flex items-center gap-1.5 pt-1.5 border-t border-border mt-0.5">
+            <div className="flex items-center gap-1.5 mt-auto">
               <Mail className="size-3 text-muted-foreground shrink-0" />
               <span className="text-[11px] text-muted-foreground truncate">
                 Used in {emailsUsedIn.join(", ")}
@@ -127,29 +106,29 @@ function ModuleCard({
           )}
         </div>
 
-        {/* Hover action bar at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 bg-card border-t border-border px-3 py-2 flex items-center justify-center gap-1 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200">
+        {/* Hover action icons -- positioned in the white space between content and card bottom */}
+        <div className="absolute bottom-3 right-3 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <button
-            onClick={onEdit}
-            className="flex items-center justify-center size-8 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
+            onClick={(e) => { e.stopPropagation(); onEdit() }}
+            className="flex items-center justify-center size-7 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
             title="Edit"
           >
             <Pencil className="size-3.5" />
           </button>
           <button
-            className="flex items-center justify-center size-8 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
+            className="flex items-center justify-center size-7 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
             title="Preview"
           >
             <Eye className="size-3.5" />
           </button>
           <button
-            className="flex items-center justify-center size-8 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
+            className="flex items-center justify-center size-7 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
             title="Duplicate"
           >
             <Copy className="size-3.5" />
           </button>
           <button
-            className="flex items-center justify-center size-8 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/8 transition-colors"
+            className="flex items-center justify-center size-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/8 transition-colors"
             title="Delete"
           >
             <Trash2 className="size-3.5" />
