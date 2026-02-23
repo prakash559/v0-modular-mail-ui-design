@@ -5,6 +5,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { TopBar } from "@/components/top-bar"
 import { Dashboard } from "@/components/sections/dashboard"
+import { ModulesIndex } from "@/components/sections/modules-index"
 import { ModuleCreate } from "@/components/sections/module-create"
 import { EmailEditor } from "@/components/sections/email-editor"
 import { EmailsList } from "@/components/sections/emails-list"
@@ -19,6 +20,7 @@ export default function Page() {
       case "dashboard":
         return <Dashboard onNavigate={setActiveSection} />
       case "modules":
+        return <ModulesIndex onNavigate={setActiveSection} />
       case "module-create":
         return <ModuleCreate onNavigate={setActiveSection} />
       case "editor":

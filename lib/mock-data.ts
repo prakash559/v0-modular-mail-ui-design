@@ -1,8 +1,12 @@
+/* ─── Core Types ─── */
+
 export type Module = {
   id: string
   name: string
   source: string
   sourceType: string
+  moduleType: "feeds" | "insights" | "editorial"
+  layoutId: string
   industry: string
   tone: string
   length: string
@@ -12,6 +16,7 @@ export type Module = {
   createdAt: string
   updatedAt: string
   status: "draft" | "ready"
+  topic: string
   commentary: {
     bulletSummary: boolean
     bottomLine: boolean
@@ -27,14 +32,7 @@ export type Email = {
   lastEdited: string
   status: "draft" | "ready"
   moduleCount: number
-}
-
-export type LayoutTemplate = {
-  id: string
-  name: string
-  description: string
-  columns: number
-  preview: string
+  moduleIds: string[]
 }
 
 export type ContentSource = {
@@ -45,12 +43,230 @@ export type ContentSource = {
   color: string
 }
 
+/* ─── Module Source Types ─── */
+
 export type ModuleSourceCategory = "all" | "social" | "news" | "media" | "custom"
 
 export type ModuleSource = ContentSource & {
   category: ModuleSourceCategory
   popular?: boolean
 }
+
+/* ─── Module Layout Types ─── */
+
+export type LayoutFamily = "compact" | "feature" | "social" | "data" | "editorial-text"
+
+export type ModuleLayout = {
+  id: string
+  name: string
+  family: LayoutFamily
+  columns: number
+  compatibleModules: ("feeds" | "insights" | "editorial")[]
+  imagePlacement: string
+  mobileBehavior: "stack" | "collapse"
+  description: string
+}
+
+/* ─── Editorial Module Types ─── */
+
+export type EditorialType = {
+  id: string
+  name: string
+  description: string
+  icon: string
+}
+
+/* ─── Insight Topic Types ─── */
+
+export type InsightTopic = {
+  id: string
+  label: string
+  description: string
+  icon: string
+  count: number
+}
+
+/* ─── Static Data: Module Layouts (from spreadsheet) ─── */
+
+export const moduleLayouts: ModuleLayout[] = [
+  {
+    id: "stacked-cards",
+    name: "Stacked Cards",
+    family: "compact",
+    columns: 1,
+    compatibleModules: ["feeds", "insights"],
+    imagePlacement: "Top thumbnail",
+    mobileBehavior: "stack",
+    description: "Single-column cards stacked vertically with top thumbnail images. Clean and scannable.",
+  },
+  {
+    id: "2-column-grid",
+    name: "2-Column Grid",
+    family: "compact",
+    columns: 2,
+    compatibleModules: ["feeds"],
+    imagePlacement: "Top thumbnail",
+    mobileBehavior: "collapse",
+    description: "Two cards side-by-side that collapse to a single column on mobile.",
+  },
+  {
+    id: "3-card-grid",
+    name: "3-Card Grid",
+    family: "compact",
+    columns: 3,
+    compatibleModules: ["feeds"],
+    imagePlacement: "Top thumbnail",
+    mobileBehavior: "stack",
+    description: "Three-column card grid ideal for roundups and digest-style modules.",
+  },
+  {
+    id: "editorial-block",
+    name: "Editorial Block",
+    family: "feature",
+    columns: 1,
+    compatibleModules: ["editorial", "insights"],
+    imagePlacement: "Optional header image",
+    mobileBehavior: "stack",
+    description: "Full-width editorial format with optional hero image. Great for opinion pieces.",
+  },
+  {
+    id: "split-feature",
+    name: "Split Feature",
+    family: "feature",
+    columns: 2,
+    compatibleModules: ["insights", "editorial"],
+    imagePlacement: "Left image",
+    mobileBehavior: "stack",
+    description: "Image on the left, text on the right. Perfect for featured stories.",
+  },
+  {
+    id: "social-card",
+    name: "Social Card",
+    family: "social",
+    columns: 1,
+    compatibleModules: ["feeds"],
+    imagePlacement: "Avatar left",
+    mobileBehavior: "stack",
+    description: "Social-media-style card with avatar, author name, and post preview.",
+  },
+  {
+    id: "big-stat-block",
+    name: "Big Stat Block",
+    family: "data",
+    columns: 1,
+    compatibleModules: ["insights"],
+    imagePlacement: "None",
+    mobileBehavior: "stack",
+    description: "A single bold statistic with supporting context text. High visual impact.",
+  },
+  {
+    id: "3-stat-grid",
+    name: "3-Stat Grid",
+    family: "data",
+    columns: 3,
+    compatibleModules: ["insights"],
+    imagePlacement: "None",
+    mobileBehavior: "stack",
+    description: "Three key statistics in a row with labels and trend indicators.",
+  },
+  {
+    id: "comparison-table",
+    name: "Comparison Table",
+    family: "data",
+    columns: 2,
+    compatibleModules: ["insights"],
+    imagePlacement: "None",
+    mobileBehavior: "stack",
+    description: "Side-by-side comparison of two items, metrics, or options.",
+  },
+]
+
+/* ─── Editorial text-based layout options ─── */
+
+export const editorialTextLayouts: ModuleLayout[] = [
+  {
+    id: "short-form",
+    name: "Short Form",
+    family: "editorial-text",
+    columns: 1,
+    compatibleModules: ["editorial", "insights"],
+    imagePlacement: "None",
+    mobileBehavior: "stack",
+    description: "2-3 concise sentences. Quick reads and brief commentary.",
+  },
+  {
+    id: "mid-form-bullets",
+    name: "Mid-Form with Bullets",
+    family: "editorial-text",
+    columns: 1,
+    compatibleModules: ["editorial", "insights"],
+    imagePlacement: "None",
+    mobileBehavior: "stack",
+    description: "Opening paragraph followed by bullet points. Structured and scannable.",
+  },
+  {
+    id: "long-form",
+    name: "Long Form",
+    family: "editorial-text",
+    columns: 1,
+    compatibleModules: ["editorial", "insights"],
+    imagePlacement: "Optional header image",
+    mobileBehavior: "stack",
+    description: "Full article-length content with paragraphs. Deep dives and thought leadership.",
+  },
+]
+
+/* ─── Editorial Module Types ─── */
+
+export const editorialTypes: EditorialType[] = [
+  {
+    id: "welcome-note",
+    name: "Welcome Note",
+    description: "A personal greeting from the sender. Sets the tone for the entire email.",
+    icon: "hand-metal",
+  },
+  {
+    id: "editorial-view",
+    name: "Editorial View",
+    description: "Your unique perspective or opinion on a trending topic in your industry.",
+    icon: "pen-line",
+  },
+  {
+    id: "what-this-means",
+    name: "What This Means",
+    description: "Contextual analysis explaining the significance of a news item or trend.",
+    icon: "lightbulb",
+  },
+  {
+    id: "emerging-topic",
+    name: "Emerging Topic",
+    description: "Early signal on a topic just starting to gain traction in your space.",
+    icon: "trending-up",
+  },
+  {
+    id: "office-conversations",
+    name: "Office Conversations",
+    description: "Casual, relatable insights styled like watercooler chat. Humanizes your brand.",
+    icon: "message-circle",
+  },
+]
+
+/* ─── Insight Topics ─── */
+
+export const insightTopics: InsightTopic[] = [
+  { id: "industry-trends", label: "Industry Trends", description: "Key movements shaping your industry", icon: "trending-up", count: 89 },
+  { id: "market-data", label: "Market Data", description: "Statistics, benchmarks, and financial figures", icon: "bar-chart-3", count: 52 },
+  { id: "competitor-analysis", label: "Competitor Analysis", description: "What competitors are doing and how they compare", icon: "search", count: 38 },
+  { id: "customer-insights", label: "Customer Insights", description: "Behavioral data and audience sentiment", icon: "users", count: 45 },
+  { id: "technology-shifts", label: "Technology Shifts", description: "New tools, platforms, and tech disruptions", icon: "cpu", count: 73 },
+  { id: "regulatory-changes", label: "Regulatory Changes", description: "Policy and regulation updates impacting business", icon: "shield", count: 22 },
+  { id: "sustainability", label: "Sustainability", description: "ESG, green initiatives, and climate impact", icon: "leaf", count: 18 },
+  { id: "workforce-talent", label: "Workforce & Talent", description: "Hiring trends, skills gaps, and workplace shifts", icon: "briefcase", count: 32 },
+  { id: "innovation", label: "Innovation", description: "Breakthrough ideas, patents, and R&D highlights", icon: "sparkles", count: 67 },
+  { id: "global-economy", label: "Global Economy", description: "Macro-economic indicators and trade developments", icon: "globe", count: 41 },
+]
+
+/* ─── Module Categories for Creation Tabs ─── */
 
 export const moduleCategories: { id: ModuleSourceCategory; label: string }[] = [
   { id: "all", label: "All Sources" },
@@ -59,6 +275,8 @@ export const moduleCategories: { id: ModuleSourceCategory; label: string }[] = [
   { id: "media", label: "Media" },
   { id: "custom", label: "Custom" },
 ]
+
+/* ─── Feed Sources (websites for Feeds tab) ─── */
 
 export const moduleSources: ModuleSource[] = [
   { id: "webpage", name: "Webpage to Module", icon: "globe", description: "Turn any webpage into a curated email module.", color: "bg-primary/10 text-primary", category: "custom", popular: true },
@@ -89,12 +307,16 @@ export const moduleSources: ModuleSource[] = [
 
 export const contentSources: ContentSource[] = moduleSources.slice(0, 6).map(({ category, popular, ...rest }) => rest)
 
+/* ─── Mock Modules ─── */
+
 export const mockModules: Module[] = [
   {
     id: "mod-1",
     name: "Business Analytics Trends",
     source: "Google News",
     sourceType: "google-news",
+    moduleType: "feeds",
+    layoutId: "stacked-cards",
     industry: "SaaS",
     tone: "Professional",
     length: "Medium",
@@ -103,6 +325,7 @@ export const mockModules: Module[] = [
     createdAt: "2026-02-18",
     updatedAt: "2026-02-20",
     status: "ready",
+    topic: "Business Analytics",
     commentary: { bulletSummary: true, bottomLine: true, whyItMatters: false, keyTakeaways: true },
   },
   {
@@ -110,6 +333,8 @@ export const mockModules: Module[] = [
     name: "EdTech Weekly Roundup",
     source: "Reddit",
     sourceType: "reddit",
+    moduleType: "feeds",
+    layoutId: "2-column-grid",
     industry: "Education",
     tone: "Conversational",
     length: "Long",
@@ -118,6 +343,7 @@ export const mockModules: Module[] = [
     createdAt: "2026-02-15",
     updatedAt: "2026-02-21",
     status: "ready",
+    topic: "Education Technology",
     commentary: { bulletSummary: true, bottomLine: false, whyItMatters: true, keyTakeaways: true },
   },
   {
@@ -125,6 +351,8 @@ export const mockModules: Module[] = [
     name: "AI in Healthcare",
     source: "Google News",
     sourceType: "google-news",
+    moduleType: "insights",
+    layoutId: "big-stat-block",
     industry: "Healthcare",
     tone: "Academic",
     length: "Long",
@@ -133,6 +361,7 @@ export const mockModules: Module[] = [
     createdAt: "2026-02-10",
     updatedAt: "2026-02-19",
     status: "draft",
+    topic: "Healthcare AI",
     commentary: { bulletSummary: true, bottomLine: true, whyItMatters: true, keyTakeaways: false },
   },
   {
@@ -140,6 +369,8 @@ export const mockModules: Module[] = [
     name: "Startup Funding Highlights",
     source: "Custom URL",
     sourceType: "custom-url",
+    moduleType: "feeds",
+    layoutId: "3-card-grid",
     industry: "SaaS",
     tone: "Punchy",
     length: "Short",
@@ -148,6 +379,7 @@ export const mockModules: Module[] = [
     createdAt: "2026-02-12",
     updatedAt: "2026-02-22",
     status: "ready",
+    topic: "Startup Ecosystem",
     commentary: { bulletSummary: false, bottomLine: true, whyItMatters: false, keyTakeaways: true },
   },
   {
@@ -155,6 +387,8 @@ export const mockModules: Module[] = [
     name: "Marketing Video Digest",
     source: "YouTube",
     sourceType: "youtube",
+    moduleType: "feeds",
+    layoutId: "social-card",
     industry: "Marketing",
     tone: "Conversational",
     length: "Medium",
@@ -163,48 +397,86 @@ export const mockModules: Module[] = [
     createdAt: "2026-02-08",
     updatedAt: "2026-02-17",
     status: "draft",
+    topic: "Marketing Strategy",
     commentary: { bulletSummary: true, bottomLine: false, whyItMatters: true, keyTakeaways: false },
   },
   {
     id: "mod-6",
-    name: "Podcast Picks: Leadership",
-    source: "Podcasts",
-    sourceType: "podcasts",
+    name: "Weekly Welcome Note",
+    source: "Editorial",
+    sourceType: "welcome-note",
+    moduleType: "editorial",
+    layoutId: "short-form",
     industry: "Education",
-    tone: "Professional",
+    tone: "Conversational",
     length: "Short",
-    summary: "Curated leadership podcast episodes with key insights for aspiring managers.",
-    tags: ["leadership", "podcasts", "management"],
+    summary: "A warm personal greeting to kick off each weekly newsletter edition.",
+    tags: ["welcome", "editorial", "intro"],
     createdAt: "2026-02-05",
     updatedAt: "2026-02-16",
     status: "ready",
+    topic: "Newsletter Intro",
+    commentary: { bulletSummary: false, bottomLine: false, whyItMatters: false, keyTakeaways: false },
+  },
+  {
+    id: "mod-7",
+    name: "The AI Regulation Debate",
+    source: "Editorial",
+    sourceType: "editorial-view",
+    moduleType: "editorial",
+    layoutId: "editorial-block",
+    industry: "SaaS",
+    tone: "Professional",
+    length: "Long",
+    summary: "Our editorial take on the growing push for AI regulation and what it means for SaaS companies.",
+    tags: ["AI", "regulation", "opinion"],
+    createdAt: "2026-02-14",
+    updatedAt: "2026-02-20",
+    status: "ready",
+    topic: "AI Policy",
+    commentary: { bulletSummary: false, bottomLine: true, whyItMatters: true, keyTakeaways: false },
+  },
+  {
+    id: "mod-8",
+    name: "Q1 SaaS Benchmark Data",
+    source: "Insights",
+    sourceType: "market-data",
+    moduleType: "insights",
+    layoutId: "3-stat-grid",
+    industry: "SaaS",
+    tone: "Professional",
+    length: "Medium",
+    summary: "Key SaaS metrics for Q1 2026 including ARR growth, churn rates, and NRR benchmarks.",
+    tags: ["SaaS", "benchmarks", "data"],
+    createdAt: "2026-02-19",
+    updatedAt: "2026-02-23",
+    status: "ready",
+    topic: "SaaS Metrics",
     commentary: { bulletSummary: true, bottomLine: true, whyItMatters: false, keyTakeaways: true },
   },
 ]
 
+/* ─── Mock Emails ─── */
+
 export const mockEmails: Email[] = [
-  { id: "email-1", name: "SaaS Weekly Digest", audience: "SaaS", lastEdited: "2026-02-22", status: "ready", moduleCount: 4 },
-  { id: "email-2", name: "EdTech Monthly Roundup", audience: "Education", lastEdited: "2026-02-21", status: "draft", moduleCount: 3 },
-  { id: "email-3", name: "Healthcare Innovation Brief", audience: "Healthcare", lastEdited: "2026-02-19", status: "draft", moduleCount: 2 },
-  { id: "email-4", name: "Marketing Tips Newsletter", audience: "Marketing", lastEdited: "2026-02-18", status: "ready", moduleCount: 5 },
-  { id: "email-5", name: "Startup Ecosystem Update", audience: "SaaS", lastEdited: "2026-02-15", status: "draft", moduleCount: 3 },
+  { id: "email-1", name: "SaaS Weekly Digest", audience: "SaaS", lastEdited: "2026-02-22", status: "ready", moduleCount: 4, moduleIds: ["mod-1", "mod-4", "mod-7", "mod-8"] },
+  { id: "email-2", name: "EdTech Monthly Roundup", audience: "Education", lastEdited: "2026-02-21", status: "draft", moduleCount: 3, moduleIds: ["mod-2", "mod-6", "mod-3"] },
+  { id: "email-3", name: "Healthcare Innovation Brief", audience: "Healthcare", lastEdited: "2026-02-19", status: "draft", moduleCount: 2, moduleIds: ["mod-3", "mod-5"] },
+  { id: "email-4", name: "Marketing Tips Newsletter", audience: "Marketing", lastEdited: "2026-02-18", status: "ready", moduleCount: 5, moduleIds: ["mod-5", "mod-1", "mod-2", "mod-4", "mod-8"] },
+  { id: "email-5", name: "Startup Ecosystem Update", audience: "SaaS", lastEdited: "2026-02-15", status: "draft", moduleCount: 3, moduleIds: ["mod-4", "mod-7", "mod-1"] },
 ]
 
-export const layoutTemplates: LayoutTemplate[] = [
-  { id: "layout-1", name: "Single Column Article", description: "Clean, focused single-column layout perfect for long-form content.", columns: 1, preview: "single" },
-  { id: "layout-2", name: "Two Column Split", description: "Side-by-side columns for comparing or pairing content modules.", columns: 2, preview: "split" },
-  { id: "layout-3", name: "Three Column Roundup", description: "Grid-style layout ideal for news roundups and digest emails.", columns: 3, preview: "grid" },
-  { id: "layout-4", name: "Feature + Sidebar", description: "Hero feature module with a supporting sidebar for secondary content.", columns: 2, preview: "feature" },
-  { id: "layout-5", name: "Newsletter Classic", description: "Traditional newsletter format with header, body sections, and footer.", columns: 1, preview: "newsletter" },
-]
+/* ─── Legacy layout templates (for email editor sidebar) ─── */
 
-export const suggestedModules = [
-  { id: "sug-1", name: "K-12 Digital Learning Trends", industry: "Education", source: "Google News" },
-  { id: "sug-2", name: "Higher Ed Policy Updates", industry: "Education", source: "Custom URL" },
-  { id: "sug-3", name: "EdTech Tool Reviews", industry: "Education", source: "YouTube" },
-  { id: "sug-4", name: "Teacher Community Picks", industry: "Education", source: "Reddit" },
-  { id: "sug-5", name: "Education Podcast Spotlight", industry: "Education", source: "Podcasts" },
-]
+export const layoutTemplates = moduleLayouts.map((l) => ({
+  id: l.id,
+  name: l.name,
+  description: l.description,
+  columns: l.columns,
+  preview: l.family,
+}))
+
+/* ─── Other Static Data ─── */
 
 export const topicTags = [
   { label: "Technology", count: 161 },
@@ -225,6 +497,14 @@ export const topicTags = [
   { label: "Travel", count: 21 },
   { label: "Lifestyle", count: 78 },
   { label: "E-Commerce", count: 30 },
+]
+
+export const suggestedModules = [
+  { id: "sug-1", name: "K-12 Digital Learning Trends", industry: "Education", source: "Google News" },
+  { id: "sug-2", name: "Higher Ed Policy Updates", industry: "Education", source: "Custom URL" },
+  { id: "sug-3", name: "EdTech Tool Reviews", industry: "Education", source: "YouTube" },
+  { id: "sug-4", name: "Teacher Community Picks", industry: "Education", source: "Reddit" },
+  { id: "sug-5", name: "Education Podcast Spotlight", industry: "Education", source: "Podcasts" },
 ]
 
 export const industries = ["Education", "SaaS", "Healthcare", "Marketing", "Finance", "E-Commerce", "Real Estate"]
