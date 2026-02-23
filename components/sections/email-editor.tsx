@@ -835,103 +835,116 @@ export function EmailEditor() {
 
         {/* ── Title ── */}
         <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Title</p>
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-[11px] text-muted-foreground">Font</Label>
-            <Select value={titleFont} onValueChange={setTitleFont}>
-              <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {fontOptions.map((f) => (
-                  <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Title</p>
+            <Switch checked={selectedBlock.showTitle} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showTitle: v })} />
           </div>
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-[11px] text-muted-foreground">Size</Label>
-            <Select value={titleSize} onValueChange={setTitleSize}>
-              <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {sizeOptions.map((s) => (
-                  <SelectItem key={s} value={s}>{s}px</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-[11px] text-muted-foreground">Color</Label>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={selectedBlock.titleColor}
-                onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
-                className="size-7 shrink-0 rounded border border-border cursor-pointer"
-              />
-              <Input
-                value={selectedBlock.titleColor}
-                onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
-                className="text-xs h-7 min-w-0 font-mono"
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Label className="text-[11px] text-muted-foreground">Justification</Label>
-            <JustifyButtons value={titleJustify} onChange={setTitleJustify} />
-          </div>
+          {selectedBlock.showTitle && (
+            <>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-[11px] text-muted-foreground">Font</Label>
+                <Select value={titleFont} onValueChange={setTitleFont}>
+                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {fontOptions.map((f) => (
+                      <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-[11px] text-muted-foreground">Size</Label>
+                <Select value={titleSize} onValueChange={setTitleSize}>
+                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {sizeOptions.map((s) => (
+                      <SelectItem key={s} value={s}>{s}px</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-[11px] text-muted-foreground">Color</Label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={selectedBlock.titleColor}
+                    onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
+                    className="size-7 shrink-0 rounded border border-border cursor-pointer"
+                  />
+                  <Input
+                    value={selectedBlock.titleColor}
+                    onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
+                    className="text-xs h-7 min-w-0 font-mono"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label className="text-[11px] text-muted-foreground">Justification</Label>
+                <JustifyButtons value={titleJustify} onChange={setTitleJustify} />
+              </div>
+            </>
+          )}
         </div>
 
         {/* ── Body ── */}
         <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Body</p>
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-[11px] text-muted-foreground">Font</Label>
-            <Select value={bodyFont} onValueChange={setBodyFont}>
-              <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {fontOptions.map((f) => (
-                  <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Body</p>
+            <Switch checked={selectedBlock.showText} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showText: v })} />
           </div>
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-[11px] text-muted-foreground">Size</Label>
-            <Select value={bodySize} onValueChange={setBodySize}>
-              <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {sizeOptions.map((s) => (
-                  <SelectItem key={s} value={s}>{s}px</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-[11px] text-muted-foreground">Color</Label>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={selectedBlock.textColor}
-                onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
-                className="size-7 shrink-0 rounded border border-border cursor-pointer"
-              />
-              <Input
-                value={selectedBlock.textColor}
-                onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
-                className="text-xs h-7 min-w-0 font-mono"
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-1">
-            <Label className="text-[11px] text-muted-foreground">Justification</Label>
-            <JustifyButtons value={bodyJustify} onChange={setBodyJustify} />
-          </div>
+          {selectedBlock.showText && (
+            <>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-[11px] text-muted-foreground">Font</Label>
+                <Select value={bodyFont} onValueChange={setBodyFont}>
+                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {fontOptions.map((f) => (
+                      <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-[11px] text-muted-foreground">Size</Label>
+                <Select value={bodySize} onValueChange={setBodySize}>
+                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {sizeOptions.map((s) => (
+                      <SelectItem key={s} value={s}>{s}px</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-[11px] text-muted-foreground">Color</Label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={selectedBlock.textColor}
+                    onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
+                    className="size-7 shrink-0 rounded border border-border cursor-pointer"
+                  />
+                  <Input
+                    value={selectedBlock.textColor}
+                    onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
+                    className="text-xs h-7 min-w-0 font-mono"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label className="text-[11px] text-muted-foreground">Justification</Label>
+                <JustifyButtons value={bodyJustify} onChange={setBodyJustify} />
+              </div>
+            </>
+          )}
         </div>
 
         {/* ── Image ── */}
         <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Image</p>
           <div className="flex items-center justify-between">
-            <Label className="text-xs">Show Image</Label>
+            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Image</p>
             <Switch checked={selectedBlock.showImage} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showImage: v })} />
           </div>
           {selectedBlock.showImage && (
@@ -950,9 +963,8 @@ export function EmailEditor() {
 
         {/* ── CTA ── */}
         <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">CTA</p>
           <div className="flex items-center justify-between">
-            <Label className="text-xs">Show CTA</Label>
+            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">CTA</p>
             <Switch checked={selectedBlock.showCta} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showCta: v })} />
           </div>
           {selectedBlock.showCta && (
@@ -1009,19 +1021,6 @@ export function EmailEditor() {
               </div>
             </>
           )}
-        </div>
-
-        {/* ── Include / Exclude ── */}
-        <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Include / Exclude</p>
-          <div className="flex items-center justify-between">
-            <Label className="text-xs">Title</Label>
-            <Switch checked={selectedBlock.showTitle} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showTitle: v })} />
-          </div>
-          <div className="flex items-center justify-between">
-            <Label className="text-xs">Body Text</Label>
-            <Switch checked={selectedBlock.showText} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showText: v })} />
-          </div>
         </div>
 
         {/* Padding */}
