@@ -35,11 +35,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
 import {
   moduleSources,
   moduleCategories,
-  topicTags,
   moduleLayouts,
   editorialTextLayouts,
   editorialTypes,
@@ -48,7 +46,7 @@ import {
   type ModuleLayout,
 } from "@/lib/mock-data"
 
-/* ─── Icon Maps ─── */
+/* ── Icon Maps ── */
 
 const feedIconMap: Record<string, React.ElementType> = {
   globe: Globe,
@@ -88,43 +86,32 @@ const insightIconMap: Record<string, React.ElementType> = {
   globe: Globe,
 }
 
-/* ─── Layout Family Labels ─── */
-
-const familyLabels: Record<string, string> = {
-  compact: "Compact",
-  feature: "Feature",
-  social: "Social",
-  data: "Data",
-  "editorial-text": "Text",
-}
-
-/* ─── Layout Visual Preview Component ─── */
+/* ── Layout Visual Preview (template card style) ── */
 
 function LayoutPreview({ layout }: { layout: ModuleLayout }) {
   const { family, columns, imagePlacement } = layout
 
-  // Editorial / text layouts
   if (family === "editorial-text") {
     const lineCount = layout.id === "short-form" ? 3 : layout.id === "long-form" ? 8 : 5
     return (
-      <div className="h-28 rounded-lg bg-muted/40 border border-border p-3 flex flex-col gap-1.5 overflow-hidden">
+      <div className="flex flex-col gap-1.5 overflow-hidden">
         {imagePlacement !== "None" && (
-          <div className="w-full h-6 rounded-sm bg-border/60 mb-1 shrink-0" />
+          <div className="w-full h-6 rounded bg-muted-foreground/8 mb-0.5 shrink-0" />
         )}
-        <div className="w-20 h-2 rounded-full bg-primary/25" />
+        <div className="w-16 h-2 rounded-full bg-muted-foreground/12" />
         {Array.from({ length: lineCount }).map((_, i) => (
           <div
             key={i}
-            className="h-1.5 rounded-full bg-border"
-            style={{ width: `${60 + Math.random() * 40}%` }}
+            className="h-1.5 rounded-full bg-muted-foreground/8"
+            style={{ width: `${55 + Math.sin(i * 2.1) * 30 + 15}%` }}
           />
         ))}
         {layout.id === "mid-form-bullets" && (
           <div className="flex flex-col gap-1 mt-0.5 pl-2">
-            {[85, 70, 60].map((w, i) => (
+            {[80, 65, 55].map((w, i) => (
               <div key={i} className="flex items-center gap-1.5">
-                <div className="size-1 rounded-full bg-primary/30 shrink-0" />
-                <div className="h-1.5 rounded-full bg-border" style={{ width: `${w}%` }} />
+                <div className="size-1 rounded-full bg-muted-foreground/15 shrink-0" />
+                <div className="h-1.5 rounded-full bg-muted-foreground/8" style={{ width: `${w}%` }} />
               </div>
             ))}
           </div>
@@ -133,103 +120,94 @@ function LayoutPreview({ layout }: { layout: ModuleLayout }) {
     )
   }
 
-  // Social card
   if (family === "social") {
     return (
-      <div className="h-28 rounded-lg bg-muted/40 border border-border p-3 flex gap-2.5 overflow-hidden">
-        <div className="size-8 rounded-full bg-border/60 shrink-0" />
+      <div className="flex gap-2.5 overflow-hidden">
+        <div className="size-8 rounded-full bg-muted-foreground/10 shrink-0" />
         <div className="flex-1 flex flex-col gap-1.5">
-          <div className="w-16 h-1.5 rounded-full bg-primary/25" />
-          <div className="w-full h-1.5 rounded-full bg-border" />
-          <div className="w-4/5 h-1.5 rounded-full bg-border" />
-          <div className="w-3/5 h-1.5 rounded-full bg-border" />
+          <div className="w-14 h-1.5 rounded-full bg-muted-foreground/12" />
+          <div className="w-full h-1.5 rounded-full bg-muted-foreground/8" />
+          <div className="w-4/5 h-1.5 rounded-full bg-muted-foreground/8" />
+          <div className="w-3/5 h-1.5 rounded-full bg-muted-foreground/8" />
         </div>
       </div>
     )
   }
 
-  // Data layouts
   if (family === "data") {
     if (columns === 1) {
-      // Big stat block
       return (
-        <div className="h-28 rounded-lg bg-muted/40 border border-border p-3 flex flex-col items-center justify-center gap-1.5">
-          <div className="text-xl font-bold text-primary/30">87%</div>
-          <div className="w-20 h-1.5 rounded-full bg-border" />
-          <div className="w-16 h-1 rounded-full bg-border" />
+        <div className="flex flex-col items-center justify-center gap-1.5 py-2">
+          <div className="text-xl font-bold text-muted-foreground/15">87%</div>
+          <div className="w-16 h-1.5 rounded-full bg-muted-foreground/8" />
+          <div className="w-12 h-1 rounded-full bg-muted-foreground/6" />
         </div>
       )
     }
     if (columns === 3) {
-      // 3-stat grid
       return (
-        <div className="h-28 rounded-lg bg-muted/40 border border-border p-3 flex items-center justify-center gap-4">
+        <div className="flex items-center justify-center gap-4 py-2">
           {["87%", "2.4x", "$12M"].map((v, i) => (
             <div key={i} className="flex flex-col items-center gap-1">
-              <div className="text-sm font-bold text-primary/30">{v}</div>
-              <div className="w-8 h-1 rounded-full bg-border" />
+              <div className="text-sm font-bold text-muted-foreground/15">{v}</div>
+              <div className="w-8 h-1 rounded-full bg-muted-foreground/8" />
             </div>
           ))}
         </div>
       )
     }
-    // Comparison table (2 cols)
     return (
-      <div className="h-28 rounded-lg bg-muted/40 border border-border p-3 flex gap-2">
+      <div className="flex gap-2">
         {[0, 1].map((i) => (
-          <div key={i} className="flex-1 flex flex-col gap-1.5 border border-border rounded-sm p-1.5">
-            <div className="w-10 h-1.5 rounded-full bg-primary/25" />
-            <div className="w-full h-1 rounded-full bg-border" />
-            <div className="w-3/4 h-1 rounded-full bg-border" />
-            <div className="w-full h-1 rounded-full bg-border" />
+          <div key={i} className="flex-1 flex flex-col gap-1.5 border border-muted-foreground/8 rounded p-2">
+            <div className="w-10 h-1.5 rounded-full bg-muted-foreground/12" />
+            <div className="w-full h-1 rounded-full bg-muted-foreground/6" />
+            <div className="w-3/4 h-1 rounded-full bg-muted-foreground/6" />
           </div>
         ))}
       </div>
     )
   }
 
-  // Feature layouts
   if (family === "feature") {
     if (columns === 2) {
-      // Split feature
       return (
-        <div className="h-28 rounded-lg bg-muted/40 border border-border p-2 flex gap-2 overflow-hidden">
-          <div className="w-2/5 rounded-sm bg-border/60 shrink-0" />
-          <div className="flex-1 flex flex-col gap-1.5 py-1">
-            <div className="w-16 h-2 rounded-full bg-primary/25" />
-            <div className="w-full h-1.5 rounded-full bg-border" />
-            <div className="w-4/5 h-1.5 rounded-full bg-border" />
-            <div className="w-3/5 h-1.5 rounded-full bg-border" />
+        <div className="flex gap-2.5 overflow-hidden">
+          <div className="w-2/5 rounded bg-muted-foreground/8 shrink-0 min-h-[60px]" />
+          <div className="flex-1 flex flex-col gap-1.5 py-0.5">
+            <div className="w-14 h-2 rounded-full bg-muted-foreground/12" />
+            <div className="w-full h-1.5 rounded-full bg-muted-foreground/8" />
+            <div className="w-4/5 h-1.5 rounded-full bg-muted-foreground/8" />
+            <div className="w-3/5 h-1.5 rounded-full bg-muted-foreground/8" />
           </div>
         </div>
       )
     }
-    // Editorial block
     return (
-      <div className="h-28 rounded-lg bg-muted/40 border border-border p-2 flex flex-col gap-1.5 overflow-hidden">
-        <div className="w-full h-10 rounded-sm bg-border/60 shrink-0" />
-        <div className="w-20 h-2 rounded-full bg-primary/25" />
-        <div className="w-full h-1.5 rounded-full bg-border" />
-        <div className="w-4/5 h-1.5 rounded-full bg-border" />
+      <div className="flex flex-col gap-1.5 overflow-hidden">
+        <div className="w-full h-12 rounded bg-muted-foreground/8 shrink-0" />
+        <div className="w-16 h-2 rounded-full bg-muted-foreground/12" />
+        <div className="w-full h-1.5 rounded-full bg-muted-foreground/8" />
+        <div className="w-4/5 h-1.5 rounded-full bg-muted-foreground/8" />
       </div>
     )
   }
 
-  // Compact layouts (default)
+  // Compact
   return (
-    <div className="h-28 rounded-lg bg-muted/40 border border-border p-2 flex gap-1.5 overflow-hidden">
+    <div className="flex gap-2 overflow-hidden">
       {Array.from({ length: columns }).map((_, i) => (
-        <div key={i} className="flex-1 flex flex-col gap-1">
-          <div className="flex-1 rounded-sm bg-border/60" />
-          <div className="w-4/5 h-1 rounded-full bg-border" />
-          <div className="w-3/5 h-1 rounded-full bg-border" />
+        <div key={i} className="flex-1 flex flex-col gap-1.5">
+          <div className="flex-1 rounded bg-muted-foreground/8 min-h-[40px]" />
+          <div className="w-4/5 h-1.5 rounded-full bg-muted-foreground/8" />
+          <div className="w-3/5 h-1.5 rounded-full bg-muted-foreground/8" />
         </div>
       ))}
     </div>
   )
 }
 
-/* ─── Step Progress Indicator ─── */
+/* ── Step Indicator ── */
 
 function StepIndicator({ step, totalSteps }: { step: number; totalSteps: number }) {
   const labels = ["Module Type", "Layout Style", "Topic"]
@@ -241,17 +219,13 @@ function StepIndicator({ step, totalSteps }: { step: number; totalSteps: number 
         const isDone = stepNum < step
         return (
           <div key={label} className="flex items-center gap-2">
-            {i > 0 && (
-              <div className={`w-8 h-px ${isDone ? "bg-primary" : "bg-border"}`} />
-            )}
+            {i > 0 && <div className={`w-8 h-px ${isDone ? "bg-primary" : "bg-border"}`} />}
             <div className="flex items-center gap-1.5">
               <div
                 className={`flex size-6 items-center justify-center rounded-full text-[10px] font-semibold transition-colors ${
-                  isDone
+                  isDone || isActive
                     ? "bg-primary text-primary-foreground"
-                    : isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground"
+                    : "bg-muted text-muted-foreground"
                 }`}
               >
                 {isDone ? <Check className="size-3" /> : stepNum}
@@ -271,7 +245,41 @@ function StepIndicator({ step, totalSteps }: { step: number; totalSteps: number 
   )
 }
 
-/* ─── Main Component ─── */
+/* ── Sidebar source list (for Feeds tab) ── */
+
+function SourceSidebar({
+  category,
+  onSelect,
+}: {
+  category: ModuleSourceCategory
+  onSelect: (id: string) => void
+}) {
+  const sources = category === "all" ? moduleSources : moduleSources.filter((s) => s.category === category)
+
+  return (
+    <div className="w-56 shrink-0 border-r border-border bg-card overflow-y-auto">
+      <div className="flex flex-col py-1">
+        {sources.map((source) => {
+          const Icon = feedIconMap[source.icon] || Globe
+          return (
+            <button
+              key={source.id}
+              onClick={() => onSelect(source.id)}
+              className="flex items-center gap-2.5 px-4 py-2.5 text-left hover:bg-accent transition-colors"
+            >
+              <div className={`flex size-7 shrink-0 items-center justify-center rounded-lg ${source.color}`}>
+                <Icon className="size-3.5" />
+              </div>
+              <span className="text-sm text-foreground truncate flex-1">{source.name}</span>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+/* ── Main Component ── */
 
 export function ModuleCreate({
   onNavigate,
@@ -285,15 +293,11 @@ export function ModuleCreate({
   const [selectedSource, setSelectedSource] = useState<string | null>(null)
   const [selectedLayout, setSelectedLayout] = useState<string | null>(null)
   const [topicValue, setTopicValue] = useState("")
-  const [selectedIndustry, setSelectedIndustry] = useState("")
 
-  /* ─── Step 1: Module Type Selection ─── */
+  /* ── Step 1 handlers ── */
 
   const filteredFeedSources = useMemo(() => {
-    let sources = moduleSources
-    if (feedCategory !== "all") {
-      sources = sources.filter((s) => s.category === feedCategory)
-    }
+    let sources = feedCategory === "all" ? moduleSources : moduleSources.filter((s) => s.category === feedCategory)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
       sources = sources.filter(
@@ -320,7 +324,7 @@ export function ModuleCreate({
     setStep(2)
   }
 
-  /* ─── Step 2: Layout ─── */
+  /* ── Step 2 ── */
 
   const compatibleLayouts = useMemo(() => {
     const allLayouts = [...moduleLayouts, ...editorialTextLayouts]
@@ -332,17 +336,16 @@ export function ModuleCreate({
     setStep(3)
   }
 
-  /* ─── Step 3: Topic ─── */
+  /* ── Step 3 ── */
 
   const handleFinish = () => {
-    // Navigate to editor with the configuration
     onNavigate("editor")
   }
 
   return (
     <div className="flex-1 overflow-auto">
       <div className="flex flex-col gap-0">
-        {/* Top bar with back, step indicator, and skip */}
+        {/* Top bar: back + step indicator */}
         <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-card">
           <Button
             variant="ghost"
@@ -360,11 +363,11 @@ export function ModuleCreate({
           <div className="w-24" />
         </div>
 
-        {/* Step 1: Module Type */}
+        {/* ═════════════ STEP 1: Module Type ═════════════ */}
         {step === 1 && (
           <div className="flex flex-col gap-0">
-            {/* Hero */}
-            <div className="relative overflow-hidden bg-gradient-to-b from-secondary/80 to-background px-6 pb-8 pt-10">
+            {/* Hero section: title + description + 3 tabs */}
+            <div className="border-b border-border bg-card px-6 pt-8 pb-6">
               <div className="mx-auto max-w-3xl text-center flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
                   <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl text-balance">
@@ -375,19 +378,19 @@ export function ModuleCreate({
                   </p>
                 </div>
 
-                {/* Main Tabs: Feeds / Insights / Editorial */}
-                <div className="flex items-center justify-center gap-1">
+                <div className="flex items-center justify-center gap-1.5">
                   {(["feeds", "insights", "editorial"] as const).map((tab) => (
                     <button
                       key={tab}
                       onClick={() => {
                         setMainTab(tab)
                         setSearchQuery("")
+                        setFeedCategory("all")
                       }}
                       className={`px-5 py-2 text-sm font-semibold rounded-full transition-colors ${
                         mainTab === tab
                           ? "bg-primary text-primary-foreground shadow-sm"
-                          : "bg-card text-muted-foreground hover:text-foreground hover:bg-accent border border-border"
+                          : "bg-muted text-muted-foreground hover:text-foreground hover:bg-accent"
                       }`}
                     >
                       {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -397,17 +400,39 @@ export function ModuleCreate({
               </div>
             </div>
 
-            {/* Tab Content */}
+            {/* ── FEEDS TAB ── */}
             {mainTab === "feeds" && (
-              <>
-                {/* Search & Category Filters */}
+              <div className="flex flex-col gap-0">
+                {/* Category pills centered */}
                 <div className="px-6 py-4 border-b border-border">
-                  <div className="mx-auto max-w-5xl flex flex-col gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                  <div className="flex items-center justify-center gap-1.5">
+                    {moduleCategories.map((cat) => (
+                      <button
+                        key={cat.id}
+                        onClick={() => {
+                          setFeedCategory(cat.id)
+                          setSearchQuery("")
+                        }}
+                        className={`px-4 py-1.5 text-xs font-medium rounded-full transition-colors ${
+                          feedCategory === cat.id
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground hover:text-foreground hover:bg-accent"
+                        }`}
+                      >
+                        {cat.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Custom: URL field + Generate centered above cards */}
+                {feedCategory === "custom" && (
+                  <div className="px-6 py-5 border-b border-border">
+                    <div className="mx-auto max-w-lg flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Globe className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                         <Input
-                          placeholder="Enter a website URL or search for a source..."
+                          placeholder="Enter a website URL..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           className="pl-9 h-10 text-sm"
@@ -418,95 +443,63 @@ export function ModuleCreate({
                         <ArrowRight className="size-3.5" />
                       </Button>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      {moduleCategories.map((cat) => (
-                        <button
-                          key={cat.id}
-                          onClick={() => setFeedCategory(cat.id)}
-                          className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
-                            feedCategory === cat.id
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted text-muted-foreground hover:text-foreground hover:bg-accent"
-                          }`}
-                        >
-                          {cat.label}
-                        </button>
-                      ))}
-                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Topic Tags */}
-                <div className="px-6 py-3 border-b border-border">
-                  <div className="mx-auto max-w-5xl">
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {topicTags.map((tag) => (
-                        <Badge
-                          key={tag.label}
-                          variant="outline"
-                          className="cursor-pointer text-[11px] font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
-                        >
-                          {tag.label}
-                          <span className="ml-1 opacity-50">{tag.count}</span>
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                {/* Main content: sidebar + source cards */}
+                <div className="flex min-h-[500px]">
+                  {/* Left sidebar source list */}
+                  <SourceSidebar category={feedCategory} onSelect={handleSelectSource} />
 
-                {/* Source Grid */}
-                <div className="px-6 py-6">
-                  <div className="mx-auto max-w-5xl">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                      {filteredFeedSources.map((source) => {
-                        const Icon = feedIconMap[source.icon] || Globe
-                        return (
-                          <Card
-                            key={source.id}
-                            className="group cursor-pointer hover:shadow-md hover:border-primary/30 transition-all duration-200"
-                            onClick={() => handleSelectSource(source.id)}
-                          >
-                            <CardContent className="p-4 flex items-center gap-3">
-                              <div className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${source.color}`}>
-                                <Icon className="size-5" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors truncate">
-                                  {source.name}
-                                </h3>
-                                <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
-                                  {source.description}
-                                </p>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        )
-                      })}
-                    </div>
-
-                    {filteredFeedSources.length === 0 && (
+                  {/* Source cards grid */}
+                  <div className="flex-1 p-6 overflow-y-auto">
+                    {filteredFeedSources.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {filteredFeedSources.map((source) => {
+                          const Icon = feedIconMap[source.icon] || Globe
+                          return (
+                            <Card
+                              key={source.id}
+                              className="group cursor-pointer hover:shadow-md hover:border-primary/30 transition-all duration-200"
+                              onClick={() => handleSelectSource(source.id)}
+                            >
+                              <CardContent className="p-4 flex items-center gap-3">
+                                <div className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${source.color}`}>
+                                  <Icon className="size-5" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors truncate">
+                                    {source.name}
+                                  </h3>
+                                  <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
+                                    {source.description}
+                                  </p>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          )
+                        })}
+                      </div>
+                    ) : (
                       <div className="flex flex-col items-center justify-center py-16 text-center">
                         <div className="flex size-12 items-center justify-center rounded-full bg-muted mb-3">
                           <Search className="size-5 text-muted-foreground" />
                         </div>
                         <p className="text-sm font-medium text-foreground">No sources found</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Try a different search or category.
-                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">Try a different category.</p>
                       </div>
                     )}
                   </div>
                 </div>
-              </>
+              </div>
             )}
 
+            {/* ── INSIGHTS TAB ── */}
             {mainTab === "insights" && (
               <div className="px-6 py-6">
                 <div className="mx-auto max-w-4xl flex flex-col gap-5">
                   <div>
-                    <h3 className="text-sm font-semibold text-foreground mb-1">
-                      Choose an insight topic
-                    </h3>
+                    <h3 className="text-sm font-semibold text-foreground mb-1">Choose an insight topic</h3>
                     <p className="text-xs text-muted-foreground">
                       Data-driven modules that surface statistics, trends, and analysis for your audience.
                     </p>
@@ -533,9 +526,7 @@ export function ModuleCreate({
                                   {topic.count}
                                 </Badge>
                               </div>
-                              <p className="text-[11px] text-muted-foreground mt-0.5">
-                                {topic.description}
-                              </p>
+                              <p className="text-[11px] text-muted-foreground mt-0.5">{topic.description}</p>
                             </div>
                           </CardContent>
                         </Card>
@@ -546,13 +537,12 @@ export function ModuleCreate({
               </div>
             )}
 
+            {/* ── EDITORIAL TAB ── */}
             {mainTab === "editorial" && (
               <div className="px-6 py-6">
                 <div className="mx-auto max-w-2xl flex flex-col gap-5">
                   <div>
-                    <h3 className="text-sm font-semibold text-foreground mb-1">
-                      Choose an editorial module type
-                    </h3>
+                    <h3 className="text-sm font-semibold text-foreground mb-1">Choose an editorial module type</h3>
                     <p className="text-xs text-muted-foreground">
                       Voice-driven modules written from your perspective. These add personality and opinion to your emails.
                     </p>
@@ -590,83 +580,51 @@ export function ModuleCreate({
           </div>
         )}
 
-        {/* Step 2: Layout Selection */}
+        {/* ═════════════ STEP 2: Layout Selection ═════════════ */}
         {step === 2 && (
           <div className="px-6 py-8">
-            <div className="mx-auto max-w-5xl flex flex-col gap-6">
+            <div className="mx-auto max-w-5xl flex flex-col gap-8">
               <div className="text-center flex flex-col gap-1.5">
                 <h2 className="text-2xl font-bold tracking-tight text-foreground text-balance">
                   Choose a Module Layout
                 </h2>
                 <p className="text-sm text-muted-foreground max-w-lg mx-auto text-pretty">
-                  Select how your content will be visually presented in the email. Each layout is optimized for different content types.
+                  Select how your content will be visually presented in the email.
                 </p>
               </div>
 
-              {/* Group by family */}
-              {(() => {
-                const families = [...new Set(compatibleLayouts.map((l) => l.family))]
-                return families.map((fam) => {
-                  const layouts = compatibleLayouts.filter((l) => l.family === fam)
-                  return (
-                    <div key={fam} className="flex flex-col gap-3">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[10px] uppercase tracking-wider font-semibold">
-                          {familyLabels[fam] || fam}
-                        </Badge>
-                        <Separator className="flex-1" />
+              {/* Flat grid of layout cards -- uniform sizing, template card style */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {compatibleLayouts.map((layout) => (
+                  <Card
+                    key={layout.id}
+                    className={`group cursor-pointer transition-all duration-200 ${
+                      selectedLayout === layout.id
+                        ? "border-primary shadow-md ring-2 ring-primary/20"
+                        : "hover:shadow-md hover:border-primary/30"
+                    }`}
+                    onClick={() => handleSelectLayout(layout.id)}
+                  >
+                    <CardContent className="p-0 flex flex-col">
+                      {/* Preview area -- uniform height */}
+                      <div className="p-4 pb-3 h-36 flex flex-col justify-center rounded-t-lg bg-muted/30">
+                        <LayoutPreview layout={layout} />
                       </div>
-                      <div className={`grid gap-3 ${
-                        layouts.length === 1 ? "grid-cols-1 max-w-sm" : layouts.length === 2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                      }`}>
-                        {layouts.map((layout) => (
-                          <Card
-                            key={layout.id}
-                            className={`group cursor-pointer transition-all duration-200 ${
-                              selectedLayout === layout.id
-                                ? "border-primary shadow-md ring-2 ring-primary/20"
-                                : "hover:shadow-md hover:border-primary/30"
-                            }`}
-                            onClick={() => handleSelectLayout(layout.id)}
-                          >
-                            <CardContent className="p-4 flex flex-col gap-3">
-                              <LayoutPreview layout={layout} />
-                              <div>
-                                <div className="flex items-center justify-between">
-                                  <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                                    {layout.name}
-                                  </h3>
-                                  <span className="text-[10px] text-muted-foreground">
-                                    {layout.columns} col{layout.columns > 1 ? "s" : ""}
-                                  </span>
-                                </div>
-                                <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
-                                  {layout.description}
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
-                                  {layout.mobileBehavior}
-                                </Badge>
-                                {layout.imagePlacement !== "None" && (
-                                  <Badge variant="outline" className="text-[9px] px-1.5 py-0">
-                                    {layout.imagePlacement}
-                                  </Badge>
-                                )}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
+                      {/* Title */}
+                      <div className="px-4 py-3 border-t border-border">
+                        <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors text-center truncate">
+                          {layout.name}
+                        </h3>
                       </div>
-                    </div>
-                  )
-                })
-              })()}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </div>
         )}
 
-        {/* Step 3: Topic Configuration */}
+        {/* ═════════════ STEP 3: Topic ═════════════ */}
         {step === 3 && (
           <div className="px-6 py-8">
             <div className="mx-auto max-w-xl flex flex-col gap-6">
@@ -684,7 +642,7 @@ export function ModuleCreate({
                   <div className="flex flex-col gap-1.5">
                     <Label className="text-sm font-medium">Topic or Keyword</Label>
                     <Input
-                      placeholder="e.g. AI in healthcare, SaaS growth strategies, remote work trends..."
+                      placeholder="Enter a Topic, Keyword or Phrase"
                       value={topicValue}
                       onChange={(e) => setTopicValue(e.target.value)}
                       className="h-10"
@@ -694,43 +652,26 @@ export function ModuleCreate({
                     </p>
                   </div>
 
-                  <Separator />
-
-                  <div className="flex flex-col gap-1.5">
-                    <Label className="text-sm font-medium">Industry (optional)</Label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {["Education", "SaaS", "Healthcare", "Marketing", "Finance", "E-Commerce", "Real Estate"].map(
-                        (ind) => (
-                          <button
-                            key={ind}
-                            onClick={() => setSelectedIndustry(selectedIndustry === ind ? "" : ind)}
-                            className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors border ${
-                              selectedIndustry === ind
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "border-border text-muted-foreground hover:text-foreground hover:bg-accent"
-                            }`}
-                          >
-                            {ind}
-                          </button>
-                        )
-                      )}
-                    </div>
-                  </div>
-
-                  <Separator />
-
                   <div className="flex flex-col gap-2">
-                    <Label className="text-sm font-medium">Suggested topics</Label>
+                    <Label className="text-sm font-medium">Suggested Topics and Keywords</Label>
                     <div className="flex flex-wrap gap-1.5">
                       {[
                         "AI in Enterprise",
-                        "Remote Work Trends",
+                        "Remote Work",
+                        "SaaS Growth",
                         "Climate Tech",
                         "Creator Economy",
-                        "Web3 & Crypto",
-                        "Mental Health at Work",
                         "Startup Funding",
-                        "EdTech Innovation",
+                        "EdTech",
+                        "Healthcare AI",
+                        "Productivity Tools",
+                        "Market Trends",
+                        "Leadership",
+                        "Digital Marketing",
+                        "Supply Chain",
+                        "Cybersecurity",
+                        "Mental Health at Work",
+                        "Web3",
                       ].map((sug) => (
                         <Badge
                           key={sug}
@@ -744,12 +685,10 @@ export function ModuleCreate({
                     </div>
                   </div>
 
-                  <Separator />
-
                   <Button
                     onClick={handleFinish}
                     disabled={!topicValue.trim()}
-                    className="w-full gap-1.5 font-semibold"
+                    className="w-full gap-1.5 font-semibold mt-2"
                     size="lg"
                   >
                     <Sparkles className="size-4" />

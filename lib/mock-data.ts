@@ -45,7 +45,7 @@ export type ContentSource = {
 
 /* ─── Module Source Types ─── */
 
-export type ModuleSourceCategory = "all" | "social" | "news" | "media" | "custom"
+export type ModuleSourceCategory = "all" | "social" | "news" | "media" | "sports" | "custom"
 
 export type ModuleSource = ContentSource & {
   category: ModuleSourceCategory
@@ -273,6 +273,7 @@ export const moduleCategories: { id: ModuleSourceCategory; label: string }[] = [
   { id: "social", label: "Social" },
   { id: "news", label: "News" },
   { id: "media", label: "Media" },
+  { id: "sports", label: "Sports" },
   { id: "custom", label: "Custom" },
 ]
 
@@ -303,6 +304,9 @@ export const moduleSources: ModuleSource[] = [
   { id: "guardian", name: "The Guardian", icon: "newspaper", description: "World news and opinion from The Guardian.", color: "bg-chart-1/10 text-chart-1", category: "news" },
   { id: "cnn", name: "CNN", icon: "newspaper", description: "Breaking news and in-depth coverage from CNN.", color: "bg-destructive/10 text-destructive", category: "news" },
   { id: "forbes", name: "Forbes", icon: "newspaper", description: "Business, investing, and technology from Forbes.", color: "bg-foreground/10 text-foreground", category: "news" },
+  { id: "espn", name: "ESPN", icon: "newspaper", description: "Sports news, scores, and analysis from ESPN.", color: "bg-destructive/10 text-destructive", category: "sports" },
+  { id: "bleacher-report", name: "Bleacher Report", icon: "newspaper", description: "Sports highlights, commentary, and trending stories.", color: "bg-chart-4/10 text-chart-4", category: "sports" },
+  { id: "the-athletic", name: "The Athletic", icon: "newspaper", description: "In-depth sports journalism and analysis.", color: "bg-chart-2/10 text-chart-2", category: "sports" },
 ]
 
 export const contentSources: ContentSource[] = moduleSources.slice(0, 6).map(({ category, popular, ...rest }) => rest)

@@ -5,7 +5,8 @@ import {
   Plus,
   Pencil,
   Trash2,
-  MoreHorizontal,
+  Copy,
+  Eye,
   Search,
   Newspaper,
   MessageCircle,
@@ -13,11 +14,7 @@ import {
   Globe,
   FileText,
   Rss,
-  Target,
-  ListChecks,
-  Sparkles,
   Mail,
-  TrendingUp,
   PenLine,
   BarChart3,
 } from "lucide-react"
@@ -25,13 +22,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { mockModules, mockEmails, moduleLayouts, editorialTextLayouts, type Module } from "@/lib/mock-data"
 
 const sourceIconMap: Record<string, React.ElementType> = {
@@ -45,22 +35,22 @@ const sourceIconMap: Record<string, React.ElementType> = {
   "market-data": BarChart3,
 }
 
-/* ─── Visual mini-preview of a module ─── */
+/* ── Visual mini-preview of a module ── */
 function ModulePreview({ mod }: { mod: Module }) {
   const layout = [...moduleLayouts, ...editorialTextLayouts].find((l) => l.id === mod.layoutId)
   const cols = layout?.columns ?? 1
 
   if (mod.moduleType === "editorial") {
     return (
-      <div className="h-28 rounded-md bg-muted/40 border border-border p-3 flex flex-col gap-1.5 overflow-hidden">
-        <div className="w-16 h-1.5 rounded-full bg-primary/30" />
-        <div className="w-full h-1.5 rounded-full bg-border" />
-        <div className="w-4/5 h-1.5 rounded-full bg-border" />
-        <div className="w-3/5 h-1.5 rounded-full bg-border" />
+      <div className="h-32 rounded-lg bg-muted/50 p-4 flex flex-col gap-1.5 overflow-hidden">
+        <div className="w-16 h-2 rounded-full bg-muted-foreground/15" />
+        <div className="w-full h-1.5 rounded-full bg-muted-foreground/10 mt-1" />
+        <div className="w-4/5 h-1.5 rounded-full bg-muted-foreground/10" />
+        <div className="w-3/5 h-1.5 rounded-full bg-muted-foreground/10" />
         {mod.length === "Long" && (
           <>
-            <div className="w-full h-1.5 rounded-full bg-border mt-1" />
-            <div className="w-4/5 h-1.5 rounded-full bg-border" />
+            <div className="w-full h-1.5 rounded-full bg-muted-foreground/10 mt-1" />
+            <div className="w-4/5 h-1.5 rounded-full bg-muted-foreground/10" />
           </>
         )}
       </div>
@@ -69,51 +59,47 @@ function ModulePreview({ mod }: { mod: Module }) {
 
   if (mod.moduleType === "insights") {
     return (
-      <div className="h-28 rounded-md bg-muted/40 border border-border p-3 flex items-center justify-center gap-3 overflow-hidden">
+      <div className="h-32 rounded-lg bg-muted/50 p-4 flex items-center justify-center gap-4 overflow-hidden">
         {Array.from({ length: Math.min(cols, 3) }).map((_, i) => (
           <div key={i} className="flex flex-col items-center gap-1">
-            <div className="text-lg font-bold text-primary/40">
+            <div className="text-lg font-bold text-muted-foreground/20">
               {["87%", "2.4x", "$12M"][i]}
             </div>
-            <div className="w-10 h-1 rounded-full bg-border" />
+            <div className="w-10 h-1 rounded-full bg-muted-foreground/10" />
           </div>
         ))}
       </div>
     )
   }
 
-  // Feeds
   return (
-    <div className="h-28 rounded-md bg-muted/40 border border-border p-2 flex gap-1.5 overflow-hidden">
+    <div className="h-32 rounded-lg bg-muted/50 p-3 flex gap-2 overflow-hidden">
       {Array.from({ length: Math.min(cols, 3) }).map((_, i) => (
-        <div key={i} className="flex-1 flex flex-col gap-1">
-          <div className="flex-1 rounded-sm bg-border/60" />
-          <div className="w-4/5 h-1 rounded-full bg-border" />
-          <div className="w-3/5 h-1 rounded-full bg-border" />
+        <div key={i} className="flex-1 flex flex-col gap-1.5">
+          <div className="flex-1 rounded bg-muted-foreground/8" />
+          <div className="w-4/5 h-1.5 rounded-full bg-muted-foreground/10" />
+          <div className="w-3/5 h-1.5 rounded-full bg-muted-foreground/10" />
         </div>
       ))}
     </div>
   )
 }
 
-/* ─── Module Card ─── */
+/* ── Module Card ── */
 function ModuleCard({
   mod,
   emailsUsedIn,
   onEdit,
-  onDelete,
-  onRename,
 }: {
   mod: Module
   emailsUsedIn: string[]
   onEdit: () => void
-  onDelete: () => void
-  onRename: () => void
 }) {
-  const SourceIcon = sourceIconMap[mod.sourceType] || Globe
+  const typeLabel =
+    mod.moduleType === "feeds" ? "Feed" : mod.moduleType === "insights" ? "Insight" : "Editorial"
 
   return (
-    <Card className="group hover:shadow-md hover:border-primary/20 transition-all">
+    <Card className="group relative hover:shadow-lg hover:border-primary/25 transition-all duration-200 overflow-hidden">
       <CardContent className="p-0">
         {/* Visual Preview */}
         <div className="p-3 pb-0">
@@ -122,107 +108,59 @@ function ModuleCard({
 
         {/* Content */}
         <div className="p-3 flex flex-col gap-2">
-          {/* Header row */}
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold text-foreground truncate">
-                {mod.name}
-              </h3>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <SourceIcon className="size-3 text-muted-foreground shrink-0" />
-                <span className="text-[11px] text-muted-foreground truncate">
-                  {mod.source}
-                </span>
-                <span className="text-[11px] text-muted-foreground">
-                  &middot;
-                </span>
-                <span className="text-[11px] text-muted-foreground capitalize">
-                  {mod.moduleType}
-                </span>
-              </div>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <MoreHorizontal className="size-3.5" />
-                  <span className="sr-only">Module actions</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-36">
-                <DropdownMenuItem onClick={onEdit}>
-                  <Pencil className="size-3.5 mr-2" />
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={onRename}>
-                  <FileText className="size-3.5 mr-2" />
-                  Rename
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
-                  <Trash2 className="size-3.5 mr-2" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          {/* Summary */}
-          <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
-            {mod.summary}
-          </p>
-
-          {/* Tags & Status */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <Badge
-              variant={mod.status === "ready" ? "default" : "secondary"}
-              className="text-[9px] px-1.5 py-0"
-            >
-              {mod.status === "ready" ? "Ready" : "Draft"}
-            </Badge>
-            {mod.tags.slice(0, 2).map((tag) => (
-              <Badge key={tag} variant="outline" className="text-[9px] px-1.5 py-0">
-                {tag}
-              </Badge>
-            ))}
-          </div>
+          <h3 className="text-sm font-bold text-foreground truncate">{mod.name}</h3>
+          <Badge
+            variant="secondary"
+            className="w-fit text-[10px] px-2 py-0 bg-primary/6 text-muted-foreground border-0"
+          >
+            {typeLabel}
+          </Badge>
 
           {/* Used in emails */}
           {emailsUsedIn.length > 0 && (
-            <div className="flex items-center gap-1 pt-1 border-t border-border mt-0.5">
+            <div className="flex items-center gap-1.5 pt-1.5 border-t border-border mt-0.5">
               <Mail className="size-3 text-muted-foreground shrink-0" />
-              <span className="text-[10px] text-muted-foreground truncate">
+              <span className="text-[11px] text-muted-foreground truncate">
                 Used in {emailsUsedIn.join(", ")}
               </span>
             </div>
           )}
+        </div>
 
-          {/* AI indicators */}
-          <div className="flex items-center gap-2">
-            {mod.commentary.bottomLine && (
-              <div className="flex items-center gap-0.5 text-[10px] text-primary">
-                <Target className="size-2.5" />
-                <span>Bottom Line</span>
-              </div>
-            )}
-            {mod.commentary.whyItMatters && (
-              <div className="flex items-center gap-0.5 text-[10px] text-primary">
-                <ListChecks className="size-2.5" />
-                <span>Why It Matters</span>
-              </div>
-            )}
-          </div>
+        {/* Hover action bar at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 bg-card border-t border-border px-3 py-2 flex items-center justify-center gap-1 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200">
+          <button
+            onClick={onEdit}
+            className="flex items-center justify-center size-8 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
+            title="Edit"
+          >
+            <Pencil className="size-3.5" />
+          </button>
+          <button
+            className="flex items-center justify-center size-8 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
+            title="Preview"
+          >
+            <Eye className="size-3.5" />
+          </button>
+          <button
+            className="flex items-center justify-center size-8 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/8 transition-colors"
+            title="Duplicate"
+          >
+            <Copy className="size-3.5" />
+          </button>
+          <button
+            className="flex items-center justify-center size-8 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/8 transition-colors"
+            title="Delete"
+          >
+            <Trash2 className="size-3.5" />
+          </button>
         </div>
       </CardContent>
     </Card>
   )
 }
 
-/* ─── Main Component ─── */
-
+/* ── Main Component ── */
 export function ModulesIndex({
   onNavigate,
 }: {
@@ -231,7 +169,6 @@ export function ModulesIndex({
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState<"all" | "feeds" | "insights" | "editorial">("all")
 
-  // Build email usage map
   const emailUsageMap = new Map<string, string[]>()
   mockEmails.forEach((email) => {
     email.moduleIds.forEach((modId) => {
@@ -263,9 +200,7 @@ export function ModulesIndex({
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-foreground text-balance">
-              Modules
-            </h2>
+            <h2 className="text-2xl font-bold tracking-tight text-foreground text-balance">Modules</h2>
             <p className="text-muted-foreground mt-1 text-sm">
               Your saved content modules. Each module is a reusable building block for your emails.
             </p>
@@ -305,22 +240,6 @@ export function ModulesIndex({
           </div>
         </div>
 
-        {/* Stats bar */}
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <Sparkles className="size-3.5 text-primary" />
-            <span>{mockModules.filter((m) => m.status === "ready").length} ready</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <TrendingUp className="size-3.5" />
-            <span>{mockModules.filter((m) => m.status === "draft").length} drafts</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Mail className="size-3.5" />
-            <span>{new Set(mockEmails.flatMap((e) => e.moduleIds)).size} used in emails</span>
-          </div>
-        </div>
-
         {/* Module Grid */}
         {filteredModules.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -330,8 +249,6 @@ export function ModulesIndex({
                 mod={mod}
                 emailsUsedIn={emailUsageMap.get(mod.id) || []}
                 onEdit={() => onNavigate("editor")}
-                onDelete={() => {}}
-                onRename={() => {}}
               />
             ))}
           </div>
