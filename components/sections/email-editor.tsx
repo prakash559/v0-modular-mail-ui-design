@@ -52,6 +52,14 @@ import {
   FileText,
   Compass,
   Megaphone,
+  Copy,
+  Palette,
+  SlidersHorizontal,
+  Filter,
+  ToggleLeft,
+  Ban,
+  Clock,
+  Wrench,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -59,6 +67,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Select,
   SelectContent,
@@ -215,6 +224,7 @@ function LayoutWireframe({ layout }: { layout: (typeof moduleLayouts)[0] }) {
 
 /* ─── Types ─── */
 type EditableComponent = "heading" | "body" | "image" | "bottomLine" | "whyItMatters"
+type EditingTab = "data" | "style" | "filters"
 
 type CanvasBlock = {
   id: string
@@ -229,9 +239,82 @@ type CanvasBlock = {
   padding: number
   headingText: string
   bodyText: string
+  topicPhrase: string
+  tileLabel: string
+  bgColor: string
+  titleColor: string
+  textColor: string
+  fontFamily: string
+  showImage: boolean
+  showTitle: boolean
+  showText: boolean
+  showCta: boolean
+  ctaCopy: string
+  /* Filters */
+  globalFilter: boolean
+  filterNoImages: boolean
+  filterNoDescription: boolean
+  filterNoDates: boolean
+  filterNoSecureLinks: boolean
+  filterDuplicateDesc: boolean
+  filterDuplicateTitles: boolean
+  cleanTitleEnabled: boolean
+  whitelistKeywords: string
+  whitelistApplyTitle: boolean
+  whitelistApplyDesc: boolean
+  whitelistApplyLink: boolean
+  whitelistApplyImage: boolean
+  blacklistKeywords: string
+  blacklistApplyTitle: boolean
+  blacklistApplyDesc: boolean
+  blacklistApplyLink: boolean
+  blacklistApplyImage: boolean
+  autoHideOlderPosts: boolean
+  autoHidePeriod: string
+  autoHideOlderThan: string
 }
 
+type SidebarMode = "add-module" | "edit-module"
 type SidebarStep = "tiles" | "layouts" | "topic"
+
+const defaultBlockFields = {
+  tone: "Professional",
+  bottomLine: true,
+  whyItMatters: false,
+  alignment: "left" as const,
+  colorStyle: "neutral" as const,
+  padding: 16,
+  bgColor: "#ffffff",
+  titleColor: "#111111",
+  textColor: "#666666",
+  fontFamily: "sans-serif",
+  showImage: true,
+  showTitle: true,
+  showText: true,
+  showCta: true,
+  ctaCopy: "Read More",
+  globalFilter: true,
+  filterNoImages: true,
+  filterNoDescription: false,
+  filterNoDates: false,
+  filterNoSecureLinks: false,
+  filterDuplicateDesc: false,
+  filterDuplicateTitles: false,
+  cleanTitleEnabled: true,
+  whitelistKeywords: "",
+  whitelistApplyTitle: true,
+  whitelistApplyDesc: true,
+  whitelistApplyLink: false,
+  whitelistApplyImage: false,
+  blacklistKeywords: "",
+  blacklistApplyTitle: true,
+  blacklistApplyDesc: true,
+  blacklistApplyLink: false,
+  blacklistApplyImage: false,
+  autoHideOlderPosts: false,
+  autoHidePeriod: "days",
+  autoHideOlderThan: "7",
+}
 
 export function EmailEditor() {
   const [canvasBlocks, setCanvasBlocks] = useState<CanvasBlock[]>([
@@ -240,30 +323,26 @@ export function EmailEditor() {
       moduleId: "mod-1",
       name: "Business Analytics Trends",
       source: "Google News",
-      tone: "Professional",
-      bottomLine: true,
-      whyItMatters: false,
-      alignment: "left",
-      colorStyle: "primary",
-      padding: 16,
+      topicPhrase: "AI in business analytics",
+      tileLabel: "Articles",
       headingText: "Business Analytics Trends",
       bodyText:
         "Top business analytics trends reshaping how companies make data-driven decisions in 2026. AI-powered dashboards and predictive models lead the charge.",
+      ...defaultBlockFields,
     },
     {
       id: "block-2",
       moduleId: "mod-2",
       name: "EdTech Weekly Roundup",
       source: "Reddit",
-      tone: "Conversational",
-      bottomLine: false,
-      whyItMatters: true,
-      alignment: "left",
-      colorStyle: "neutral",
-      padding: 16,
+      topicPhrase: "edtech innovation",
+      tileLabel: "Roundup",
       headingText: "EdTech Weekly Roundup",
       bodyText:
         "The most discussed EdTech topics this week from r/edtech and r/education, including new classroom tools and curriculum innovations.",
+      ...defaultBlockFields,
+      bottomLine: false,
+      whyItMatters: true,
     },
   ])
 
@@ -279,19 +358,19 @@ export function EmailEditor() {
   const [draggingBlockId, setDraggingBlockId] = useState<string | null>(null)
 
   /* Left sidebar state */
+  const [sidebarMode, setSidebarMode] = useState<SidebarMode>("add-module")
   const [activeTab, setActiveTab] = useState<"feeds" | "insights" | "editorial">("feeds")
   const [sidebarStep, setSidebarStep] = useState<SidebarStep>("tiles")
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null)
   const [selectedLayoutId, setSelectedLayoutId] = useState<string | null>(null)
   const [topicKeyword, setTopicKeyword] = useState("")
+  const [editingTab, setEditingTab] = useState<EditingTab>("data")
 
   const selectedBlock = canvasBlocks.find((b) => b.id === selectedBlockId)
-  const showRightPanel = selectedBlockId !== null && selectedComponent !== null
 
   const activeTiles =
     activeTab === "feeds" ? feedTiles : activeTab === "insights" ? insightTiles : editorialTiles
 
-  /* Compatible layouts for selected module type */
   const compatibleLayouts = moduleLayouts.filter((l) =>
     l.compatibleModules.includes(activeTab === "feeds" ? "feeds" : activeTab === "insights" ? "insights" : "editorial")
   )
@@ -305,10 +384,6 @@ export function EmailEditor() {
     "marketing automation",
     "data privacy",
     "tech layoffs",
-    "product-led growth",
-    "Web3 adoption",
-    "climate tech",
-    "future of work",
   ]
 
   /* ─── Canvas helpers ─── */
@@ -318,14 +393,14 @@ export function EmailEditor() {
       moduleId: mod.id,
       name: mod.name,
       source: mod.source,
+      topicPhrase: "",
+      tileLabel: "Feed",
+      headingText: mod.name,
+      bodyText: mod.summary,
+      ...defaultBlockFields,
       tone: mod.tone,
       bottomLine: mod.commentary.bottomLine,
       whyItMatters: mod.commentary.whyItMatters,
-      alignment: "left",
-      colorStyle: "neutral",
-      padding: 16,
-      headingText: mod.name,
-      bodyText: mod.summary,
     }
     setCanvasBlocks((prev) => [...prev, newBlock])
   }, [])
@@ -337,14 +412,13 @@ export function EmailEditor() {
         moduleId: `new-${Date.now()}`,
         name: `${tileLabel}: ${topic}`,
         source: activeTab === "feeds" ? "Feed" : activeTab === "insights" ? "Insight" : "Editorial",
-        tone: "Professional",
-        bottomLine: activeTab !== "editorial",
-        whyItMatters: activeTab === "insights",
-        alignment: "left",
-        colorStyle: "neutral",
-        padding: 16,
+        topicPhrase: topic,
+        tileLabel,
         headingText: `${tileLabel}: ${topic}`,
         bodyText: `AI-generated ${activeTab} content about "${topic}" using ${layoutName} layout. This content will be populated by ModularMail's AI engine.`,
+        ...defaultBlockFields,
+        bottomLine: activeTab !== "editorial",
+        whyItMatters: activeTab === "insights",
       }
       setCanvasBlocks((prev) => [...prev, newBlock])
     },
@@ -355,10 +429,23 @@ export function EmailEditor() {
     setCanvasBlocks((prev) => prev.filter((b) => b.id !== id))
     setSelectedBlockId((prev) => {
       if (prev === id) {
+        setSidebarMode("add-module")
         setSelectedComponent(null)
         return null
       }
       return prev
+    })
+  }, [])
+
+  const duplicateBlock = useCallback((id: string) => {
+    setCanvasBlocks((prev) => {
+      const idx = prev.findIndex((b) => b.id === id)
+      if (idx === -1) return prev
+      const original = prev[idx]
+      const copy: CanvasBlock = { ...original, id: `block-${Date.now()}`, name: `${original.name} (copy)`, headingText: `${original.headingText} (copy)` }
+      const next = [...prev]
+      next.splice(idx + 1, 0, copy)
+      return next
     })
   }, [])
 
@@ -413,14 +500,25 @@ export function EmailEditor() {
     setDraggingBlockId(null)
   }
 
+  /* Click a module block to edit it */
+  const handleBlockClick = (blockId: string) => {
+    setSelectedBlockId(blockId)
+    setSelectedComponent(null)
+    setSidebarMode("edit-module")
+    setEditingTab("data")
+  }
+
   const handleComponentClick = (blockId: string, component: EditableComponent) => {
     setSelectedBlockId(blockId)
     setSelectedComponent(component)
+    setSidebarMode("edit-module")
+    setEditingTab("data")
   }
 
-  const closeRightPanel = () => {
+  const exitEditMode = () => {
     setSelectedBlockId(null)
     setSelectedComponent(null)
+    setSidebarMode("add-module")
   }
 
   /* ─── Sidebar flow actions ─── */
@@ -440,7 +538,6 @@ export function EmailEditor() {
     if (tile && layout && topicKeyword.trim()) {
       addNewModuleToCanvas(tile.label, layout.name, topicKeyword.trim())
     }
-    // Reset
     setSidebarStep("tiles")
     setSelectedTileId(null)
     setSelectedLayoutId(null)
@@ -457,107 +554,6 @@ export function EmailEditor() {
       setSelectedTileId(null)
     }
   }
-
-  /* ─── Component labels & icons ─── */
-  const componentMeta: Record<EditableComponent, { label: string; icon: React.ReactNode }> = {
-    heading: { label: "Heading", icon: <Type className="size-3.5" /> },
-    body: { label: "Body Text", icon: <AlignLeft className="size-3.5" /> },
-    image: { label: "Image", icon: <Image className="size-3.5" /> },
-    bottomLine: { label: "Bottom Line", icon: <Target className="size-3.5" /> },
-    whyItMatters: { label: "Why It Matters", icon: <ListChecks className="size-3.5" /> },
-  }
-
-  /* ─── Module floating toolbar ─── */
-  const ModuleToolbar = ({ block, index }: { block: CanvasBlock; index: number }) => (
-    <div className="absolute -top-3.5 right-2 flex items-center gap-0.5 bg-card rounded-md border border-border shadow-md px-1 py-0.5 z-10">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className="size-6 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Save className="size-3" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="top">Save Block</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className="size-6 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              onClick={(e) => {
-                e.stopPropagation()
-                deleteBlock(block.id)
-              }}
-            >
-              <Trash2 className="size-3" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="top">Delete</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className="size-6 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              onClick={(e) => {
-                e.stopPropagation()
-                handleComponentClick(block.id, "heading")
-              }}
-            >
-              <Pencil className="size-3" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="top">Edit</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className="size-6 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-grab active:cursor-grabbing"
-              draggable
-              onDragStart={(e) => handleDragStart(e, block.id)}
-            >
-              <GripVertical className="size-3" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="top">Move</TooltipContent>
-        </Tooltip>
-        <div className="flex flex-col -my-0.5">
-          <button
-            className="size-4 flex items-center justify-center rounded text-muted-foreground hover:text-foreground disabled:opacity-30"
-            disabled={index === 0}
-            onClick={(e) => {
-              e.stopPropagation()
-              moveBlockDirection(block.id, "up")
-            }}
-          >
-            <ChevronUp className="size-2.5" />
-          </button>
-          <button
-            className="size-4 flex items-center justify-center rounded text-muted-foreground hover:text-foreground disabled:opacity-30"
-            disabled={index === canvasBlocks.length - 1}
-            onClick={(e) => {
-              e.stopPropagation()
-              moveBlockDirection(block.id, "down")
-            }}
-          >
-            <ChevronDown className="size-2.5" />
-          </button>
-        </div>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className="size-6 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Code className="size-3" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent side="top">HTML</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    </div>
-  )
 
   /* ─── Editable component wrapper ─── */
   const EditableWrapper = ({
@@ -593,225 +589,418 @@ export function EmailEditor() {
     )
   }
 
-  /* ─── Right Panel Content ─── */
-  const renderRightPanelContent = () => {
-    if (!selectedBlock || !selectedComponent) return null
+  /* ─── Render Data editing tab ─── */
+  const renderDataTab = () => {
+    if (!selectedBlock) return null
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium">Module Name</Label>
+          <Input
+            value={selectedBlock.headingText}
+            onChange={(e) => updateBlock(selectedBlock.id, { headingText: e.target.value, name: e.target.value })}
+            className="text-sm h-8"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium">Body Text</Label>
+          <textarea
+            value={selectedBlock.bodyText}
+            onChange={(e) => updateBlock(selectedBlock.id, { bodyText: e.target.value })}
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px] resize-y focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium">Topic / Keyword</Label>
+          <Input
+            value={selectedBlock.topicPhrase}
+            onChange={(e) => updateBlock(selectedBlock.id, { topicPhrase: e.target.value })}
+            placeholder="Enter a Topic, Keyword or Phrase"
+            className="text-sm h-8"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium">Tone</Label>
+          <Select
+            value={selectedBlock.tone}
+            onValueChange={(v) => updateBlock(selectedBlock.id, { tone: v })}
+          >
+            <SelectTrigger className="text-sm h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {tones.map((t) => (
+                <SelectItem key={t} value={t}>{t}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium">Text Alignment</Label>
+          <div className="flex items-center gap-1">
+            {(["left", "center", "right"] as const).map((align) => {
+              const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
+              return (
+                <button
+                  key={align}
+                  className={`flex-1 flex items-center justify-center h-8 rounded-md border text-xs transition-colors ${
+                    selectedBlock.alignment === align
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border text-muted-foreground hover:bg-muted"
+                  }`}
+                  onClick={() => updateBlock(selectedBlock.id, { alignment: align })}
+                >
+                  <Icon className="size-3.5" />
+                </button>
+              )
+            })}
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <Label className="text-xs font-medium">Bottom Line</Label>
+          <Switch
+            checked={selectedBlock.bottomLine}
+            onCheckedChange={(v) => updateBlock(selectedBlock.id, { bottomLine: v })}
+          />
+        </div>
+        <div className="flex items-center justify-between">
+          <Label className="text-xs font-medium">Why It Matters</Label>
+          <Switch
+            checked={selectedBlock.whyItMatters}
+            onCheckedChange={(v) => updateBlock(selectedBlock.id, { whyItMatters: v })}
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium">AI Summary Prompt</Label>
+          <div className="flex items-center gap-2">
+            <Input placeholder="e.g. Summarize in one sentence..." className="text-sm h-8" />
+            <Button size="sm" variant="secondary" className="h-8 px-2 shrink-0">
+              <Sparkles className="size-3" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
-    switch (selectedComponent) {
-      case "heading":
-        return (
-          <div className="flex flex-col gap-4">
+  /* ─── Render Style editing tab ─── */
+  const renderStyleTab = () => {
+    if (!selectedBlock) return null
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium">Background Color</Label>
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={selectedBlock.bgColor}
+              onChange={(e) => updateBlock(selectedBlock.id, { bgColor: e.target.value })}
+              className="size-8 rounded border border-border cursor-pointer"
+            />
+            <Input
+              value={selectedBlock.bgColor}
+              onChange={(e) => updateBlock(selectedBlock.id, { bgColor: e.target.value })}
+              className="text-sm h-8 font-mono"
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium">Title Color</Label>
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={selectedBlock.titleColor}
+              onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
+              className="size-8 rounded border border-border cursor-pointer"
+            />
+            <Input
+              value={selectedBlock.titleColor}
+              onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
+              className="text-sm h-8 font-mono"
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium">Text Color</Label>
+          <div className="flex items-center gap-2">
+            <input
+              type="color"
+              value={selectedBlock.textColor}
+              onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
+              className="size-8 rounded border border-border cursor-pointer"
+            />
+            <Input
+              value={selectedBlock.textColor}
+              onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
+              className="text-sm h-8 font-mono"
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium">Font Family</Label>
+          <Select
+            value={selectedBlock.fontFamily}
+            onValueChange={(v) => updateBlock(selectedBlock.id, { fontFamily: v })}
+          >
+            <SelectTrigger className="text-sm h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="sans-serif">Sans Serif</SelectItem>
+              <SelectItem value="serif">Serif</SelectItem>
+              <SelectItem value="monospace">Monospace</SelectItem>
+              <SelectItem value="georgia">Georgia</SelectItem>
+              <SelectItem value="arial">Arial</SelectItem>
+              <SelectItem value="helvetica">Helvetica</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium">Justification</Label>
+          <div className="flex items-center gap-1">
+            {(["left", "center", "right"] as const).map((align) => {
+              const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
+              return (
+                <button
+                  key={align}
+                  className={`flex-1 flex items-center justify-center h-8 rounded-md border text-xs transition-colors ${
+                    selectedBlock.alignment === align
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border text-muted-foreground hover:bg-muted"
+                  }`}
+                  onClick={() => updateBlock(selectedBlock.id, { alignment: align })}
+                >
+                  <Icon className="size-3.5" />
+                </button>
+              )
+            })}
+          </div>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-medium">Padding ({selectedBlock.padding}px)</Label>
+          <Slider
+            value={[selectedBlock.padding]}
+            onValueChange={([v]) => updateBlock(selectedBlock.id, { padding: v })}
+            min={8}
+            max={40}
+            step={4}
+          />
+        </div>
+        <div className="border-t border-border pt-3 flex flex-col gap-3">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Include / Exclude</p>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Image</Label>
+            <Switch checked={selectedBlock.showImage} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showImage: v })} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Title</Label>
+            <Switch checked={selectedBlock.showTitle} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showTitle: v })} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Text</Label>
+            <Switch checked={selectedBlock.showText} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showText: v })} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">CTA Button</Label>
+            <Switch checked={selectedBlock.showCta} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showCta: v })} />
+          </div>
+          {selectedBlock.showCta && (
             <div className="flex flex-col gap-1.5">
-              <Label className="text-xs">Heading Text</Label>
+              <Label className="text-xs">CTA Copy</Label>
               <Input
-                value={selectedBlock.headingText}
-                onChange={(e) => updateBlock(selectedBlock.id, { headingText: e.target.value })}
+                value={selectedBlock.ctaCopy}
+                onChange={(e) => updateBlock(selectedBlock.id, { ctaCopy: e.target.value })}
                 className="text-sm h-8"
               />
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs">Text Alignment</Label>
-              <div className="flex items-center gap-1">
-                {(["left", "center", "right"] as const).map((align) => {
-                  const Icon =
-                    align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
-                  return (
-                    <button
-                      key={align}
-                      className={`flex-1 flex items-center justify-center h-8 rounded-md border text-xs transition-colors ${
-                        selectedBlock.alignment === align
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "border-border text-muted-foreground hover:bg-muted"
-                      }`}
-                      onClick={() => updateBlock(selectedBlock.id, { alignment: align })}
-                    >
-                      <Icon className="size-3.5" />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs">Override Tone</Label>
-              <Select
-                value={selectedBlock.tone}
-                onValueChange={(v) => updateBlock(selectedBlock.id, { tone: v })}
-              >
-                <SelectTrigger className="text-sm h-8">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {tones.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {t}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        )
+          )}
+        </div>
+      </div>
+    )
+  }
 
-      case "body":
-        return (
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs">Body Text</Label>
-              <textarea
-                value={selectedBlock.bodyText}
-                onChange={(e) => updateBlock(selectedBlock.id, { bodyText: e.target.value })}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[100px] resize-y focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              />
+  /* ─── Render Filters tab ─── */
+  const renderFiltersTab = () => {
+    if (!selectedBlock) return null
+    return (
+      <div className="flex flex-col gap-4">
+        {/* Global Filter */}
+        <div className="rounded-lg border border-border p-3 flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Filter className="size-3.5 text-primary" />
+              <Label className="text-xs font-semibold">Global Filter</Label>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs">Text Alignment</Label>
-              <div className="flex items-center gap-1">
-                {(["left", "center", "right"] as const).map((align) => {
-                  const Icon =
-                    align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
-                  return (
-                    <button
-                      key={align}
-                      className={`flex-1 flex items-center justify-center h-8 rounded-md border text-xs transition-colors ${
-                        selectedBlock.alignment === align
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "border-border text-muted-foreground hover:bg-muted"
-                      }`}
-                      onClick={() => updateBlock(selectedBlock.id, { alignment: align })}
-                    >
-                      <Icon className="size-3.5" />
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs">Padding ({selectedBlock.padding}px)</Label>
-              <Slider
-                value={[selectedBlock.padding]}
-                onValueChange={([v]) => updateBlock(selectedBlock.id, { padding: v })}
-                min={8}
-                max={40}
-                step={4}
-              />
-            </div>
+            <Switch checked={selectedBlock.globalFilter} onCheckedChange={(v) => updateBlock(selectedBlock.id, { globalFilter: v })} />
           </div>
-        )
+        </div>
 
-      case "image":
-        return (
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs">Image Source</Label>
-              <Select defaultValue="ai">
-                <SelectTrigger className="text-sm h-8">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ai">AI Generated</SelectItem>
-                  <SelectItem value="source">From Source</SelectItem>
-                  <SelectItem value="upload">Upload</SelectItem>
-                  <SelectItem value="url">Image URL</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="rounded-lg border border-dashed border-border bg-muted/30 p-6 flex flex-col items-center gap-2">
-              <Image className="size-6 text-muted-foreground/50" />
-              <p className="text-[11px] text-muted-foreground">Click to upload or drag an image</p>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs">Alt Text</Label>
-              <Input placeholder="Describe the image..." className="text-sm h-8" />
-            </div>
+        {/* Auto-hide posts with */}
+        <div className="rounded-lg border border-border p-3 flex flex-col gap-3">
+          <div className="flex items-center gap-1.5">
+            <Ban className="size-3.5 text-muted-foreground" />
+            <p className="text-xs font-semibold text-foreground">Auto hide posts with:</p>
           </div>
-        )
-
-      case "bottomLine":
-        return (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs">Show Bottom Line</Label>
-              <Switch
-                checked={selectedBlock.bottomLine}
-                onCheckedChange={(v) => updateBlock(selectedBlock.id, { bottomLine: v })}
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs">Bottom Line Style</Label>
-              <div className="flex items-center gap-1">
-                {(["primary", "secondary", "neutral"] as const).map((style) => (
-                  <button
-                    key={style}
-                    className={`flex-1 h-8 rounded-md border text-[10px] font-medium capitalize transition-colors ${
-                      selectedBlock.colorStyle === style
-                        ? "bg-primary text-primary-foreground border-primary"
-                        : "border-border text-muted-foreground hover:bg-muted"
-                    }`}
-                    onClick={() => updateBlock(selectedBlock.id, { colorStyle: style })}
-                  >
-                    {style}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs">AI Summary Prompt</Label>
-              <div className="flex items-center gap-2">
-                <Input placeholder="e.g. Summarize in one sentence..." className="text-sm h-8" />
-                <Button size="sm" variant="secondary" className="h-8 px-2 shrink-0">
-                  <Sparkles className="size-3" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        )
-
-      case "whyItMatters":
-        return (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs">Show Why It Matters</Label>
-              <Switch
-                checked={selectedBlock.whyItMatters}
-                onCheckedChange={(v) => updateBlock(selectedBlock.id, { whyItMatters: v })}
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs">Context Angle</Label>
-              <Select defaultValue="relevance">
-                <SelectTrigger className="text-sm h-8">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="relevance">Audience Relevance</SelectItem>
-                  <SelectItem value="trend">Industry Trend</SelectItem>
-                  <SelectItem value="action">Call to Action</SelectItem>
-                  <SelectItem value="custom">Custom Prompt</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs">AI Context Prompt</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="e.g. Explain impact on educators..."
-                  className="text-sm h-8"
+          <p className="text-[10px] text-muted-foreground">Select conditions under which posts will be hidden</p>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { key: "filterNoImages", label: "No images" },
+              { key: "filterNoSecureLinks", label: "No secure links" },
+              { key: "filterNoDescription", label: "No description" },
+              { key: "filterDuplicateDesc", label: "Duplicate description" },
+              { key: "filterNoDates", label: "No dates" },
+              { key: "filterDuplicateTitles", label: "Duplicate titles" },
+            ].map((item) => (
+              <div key={item.key} className="flex items-center gap-1.5">
+                <Checkbox
+                  id={item.key}
+                  checked={selectedBlock[item.key as keyof CanvasBlock] as boolean}
+                  onCheckedChange={(v) => updateBlock(selectedBlock.id, { [item.key]: v })}
                 />
-                <Button size="sm" variant="secondary" className="h-8 px-2 shrink-0">
-                  <Sparkles className="size-3" />
-                </Button>
+                <label htmlFor={item.key} className="text-[10px] text-foreground cursor-pointer">{item.label}</label>
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Clean title */}
+        <div className="rounded-lg border border-border p-3 flex flex-col gap-2">
+          <div className="flex items-center gap-1.5">
+            <Type className="size-3.5 text-muted-foreground" />
+            <p className="text-xs font-semibold text-foreground">Clean title</p>
+          </div>
+          <p className="text-[10px] text-muted-foreground">Remove terms or website name from the post title</p>
+          <div className="flex items-center justify-between">
+            <Label className="text-[10px]">Enable auto-cleaner</Label>
+            <Switch checked={selectedBlock.cleanTitleEnabled} onCheckedChange={(v) => updateBlock(selectedBlock.id, { cleanTitleEnabled: v })} />
+          </div>
+        </div>
+
+        {/* Whitelist */}
+        <div className="rounded-lg border border-border p-3 flex flex-col gap-2">
+          <div className="flex items-center gap-1.5">
+            <CheckSquare className="size-3.5 text-muted-foreground" />
+            <p className="text-xs font-semibold text-foreground">Whitelist</p>
+          </div>
+          <p className="text-[10px] text-muted-foreground">Show only posts that contain your selected keywords</p>
+          <Input
+            placeholder="Add whitelist keyword"
+            value={selectedBlock.whitelistKeywords}
+            onChange={(e) => updateBlock(selectedBlock.id, { whitelistKeywords: e.target.value })}
+            className="text-xs h-7"
+          />
+          <div className="flex flex-col gap-1">
+            <p className="text-[10px] text-muted-foreground font-medium">Apply To</p>
+            <div className="flex items-center gap-3">
+              {[
+                { key: "whitelistApplyTitle", label: "Title" },
+                { key: "whitelistApplyDesc", label: "Description" },
+                { key: "whitelistApplyLink", label: "Link" },
+                { key: "whitelistApplyImage", label: "Image URL" },
+              ].map((item) => (
+                <div key={item.key} className="flex items-center gap-1">
+                  <Checkbox
+                    id={`wl-${item.key}`}
+                    checked={selectedBlock[item.key as keyof CanvasBlock] as boolean}
+                    onCheckedChange={(v) => updateBlock(selectedBlock.id, { [item.key]: v })}
+                  />
+                  <label htmlFor={`wl-${item.key}`} className="text-[10px] text-foreground cursor-pointer">{item.label}</label>
+                </div>
+              ))}
             </div>
           </div>
-        )
-    }
+        </div>
+
+        {/* Blacklist */}
+        <div className="rounded-lg border border-border p-3 flex flex-col gap-2">
+          <div className="flex items-center gap-1.5">
+            <Shield className="size-3.5 text-muted-foreground" />
+            <p className="text-xs font-semibold text-foreground">Blacklist</p>
+          </div>
+          <p className="text-[10px] text-muted-foreground">Hide posts that contain your selected keywords</p>
+          <Input
+            placeholder="Add blacklist keyword"
+            value={selectedBlock.blacklistKeywords}
+            onChange={(e) => updateBlock(selectedBlock.id, { blacklistKeywords: e.target.value })}
+            className="text-xs h-7"
+          />
+          <div className="flex flex-col gap-1">
+            <p className="text-[10px] text-muted-foreground font-medium">Apply To</p>
+            <div className="flex items-center gap-3">
+              {[
+                { key: "blacklistApplyTitle", label: "Title" },
+                { key: "blacklistApplyDesc", label: "Description" },
+                { key: "blacklistApplyLink", label: "Link" },
+                { key: "blacklistApplyImage", label: "Image URL" },
+              ].map((item) => (
+                <div key={item.key} className="flex items-center gap-1">
+                  <Checkbox
+                    id={`bl-${item.key}`}
+                    checked={selectedBlock[item.key as keyof CanvasBlock] as boolean}
+                    onCheckedChange={(v) => updateBlock(selectedBlock.id, { [item.key]: v })}
+                  />
+                  <label htmlFor={`bl-${item.key}`} className="text-[10px] text-foreground cursor-pointer">{item.label}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Auto-hide older posts */}
+        <div className="rounded-lg border border-border p-3 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <Clock className="size-3.5 text-muted-foreground" />
+              <p className="text-xs font-semibold text-foreground">Auto-hide older posts</p>
+            </div>
+            <Switch checked={selectedBlock.autoHideOlderPosts} onCheckedChange={(v) => updateBlock(selectedBlock.id, { autoHideOlderPosts: v })} />
+          </div>
+          {selectedBlock.autoHideOlderPosts && (
+            <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-0.5">
+                <Label className="text-[10px] text-muted-foreground">Period</Label>
+                <Select value={selectedBlock.autoHidePeriod} onValueChange={(v) => updateBlock(selectedBlock.id, { autoHidePeriod: v })}>
+                  <SelectTrigger className="text-xs h-7 w-20"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="days">Days</SelectItem>
+                    <SelectItem value="weeks">Weeks</SelectItem>
+                    <SelectItem value="months">Months</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <Label className="text-[10px] text-muted-foreground">Older than</Label>
+                <Input
+                  type="number"
+                  value={selectedBlock.autoHideOlderThan}
+                  onChange={(e) => updateBlock(selectedBlock.id, { autoHideOlderThan: e.target.value })}
+                  className="text-xs h-7 w-16"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Advanced rules */}
+        <div className="rounded-lg border border-border p-3 flex flex-col gap-2">
+          <div className="flex items-center gap-1.5">
+            <Wrench className="size-3.5 text-muted-foreground" />
+            <p className="text-xs font-semibold text-foreground">Advanced rules to modify posts</p>
+          </div>
+          <p className="text-[10px] text-muted-foreground">Apply rules to modify titles, descriptions, links, or hide posts</p>
+          <Button variant="outline" size="sm" className="text-xs h-7 w-fit gap-1 text-primary border-primary/30 hover:bg-primary/5">
+            <Plus className="size-3" />
+            Add Rule
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       {/* ─── Top Toolbar ─── */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
-        {/* Left: empty spacer */}
         <div className="w-36" />
 
         {/* Center: Device toggle (icon-only) */}
@@ -874,14 +1063,11 @@ export function EmailEditor() {
               <TooltipContent side="bottom">Redo</TooltipContent>
             </Tooltip>
           </TooltipProvider>
-
           <div className="w-px h-5 bg-border mx-1" />
-
           <Button variant="ghost" size="sm" className="text-xs h-8 gap-1.5">
             <Save className="size-3.5" />
             Save
           </Button>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="text-xs h-8 gap-1">
@@ -895,7 +1081,6 @@ export function EmailEditor() {
               <DropdownMenuItem>Send Test Email</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="sm" className="text-xs h-8 gap-1.5">
@@ -908,9 +1093,7 @@ export function EmailEditor() {
               <DropdownMenuItem>Send via Mailchimp</DropdownMenuItem>
               <DropdownMenuItem>Send via HubSpot</DropdownMenuItem>
               <DropdownMenuItem>Send via Klaviyo</DropdownMenuItem>
-              <DropdownMenuItem className="border-t border-border mt-1 pt-1">
-                Download HTML
-              </DropdownMenuItem>
+              <DropdownMenuItem className="border-t border-border mt-1 pt-1">Download HTML</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -919,345 +1102,503 @@ export function EmailEditor() {
       {/* ─── Main Area ─── */}
       <div className="flex flex-1 overflow-hidden">
         {/* ─── Left Sidebar ─── */}
-        <div className="w-64 border-r border-border bg-card flex flex-col shrink-0">
-          {/* Tab header */}
-          <div className="p-2 border-b border-border">
-            <div className="flex items-center rounded-lg bg-muted p-0.5">
-              {(["feeds", "insights", "editorial"] as const).map((tab) => (
-                <button
-                  key={tab}
-                  className={`flex-1 px-2 py-1.5 text-[11px] font-medium rounded-md transition-colors capitalize ${
-                    activeTab === tab
-                      ? "bg-card text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                  onClick={() => {
-                    setActiveTab(tab)
-                    setSidebarStep("tiles")
-                    setSelectedTileId(null)
-                    setSelectedLayoutId(null)
-                    setTopicKeyword("")
-                  }}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-          </div>
+        <div className="w-72 border-r border-border bg-card flex flex-col shrink-0">
+          {sidebarMode === "add-module" ? (
+            <>
+              {/* Tab header */}
+              <div className="p-2.5 border-b border-border">
+                <div className="flex items-center rounded-lg bg-muted p-0.5">
+                  {(["feeds", "insights", "editorial"] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      className={`flex-1 px-2 py-1.5 text-[11px] font-medium rounded-md transition-colors capitalize ${
+                        activeTab === tab
+                          ? "bg-card text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                      onClick={() => {
+                        setActiveTab(tab)
+                        setSidebarStep("tiles")
+                        setSelectedTileId(null)
+                        setSelectedLayoutId(null)
+                        setTopicKeyword("")
+                      }}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          <ScrollArea className="flex-1">
-            {/* ── Step: Tiles ── */}
-            {sidebarStep === "tiles" && (
-              <div className="p-2.5 flex flex-col gap-1">
-                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-1 mb-1">
-                  Select a module type
-                </p>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {activeTiles.map((tile) => {
-                    const TileIcon = tile.icon
+              <ScrollArea className="flex-1">
+                {/* ── Step: Tiles ── */}
+                {sidebarStep === "tiles" && (
+                  <div className="p-3 flex flex-col gap-1.5">
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-1 mb-1">
+                      Select a module type
+                    </p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {activeTiles.map((tile) => {
+                        const TileIcon = tile.icon
+                        return (
+                          <button
+                            key={tile.id}
+                            className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-background p-3 hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm transition-all"
+                            onClick={() => handleTileSelect(tile.id)}
+                          >
+                            <TileIcon className="size-4 text-muted-foreground" />
+                            <span className="text-[11px] font-medium text-foreground">{tile.label}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Step: Layouts ── */}
+                {sidebarStep === "layouts" && (
+                  <div className="p-3 flex flex-col gap-2">
+                    <button
+                      className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary transition-colors self-start"
+                      onClick={handleSidebarBack}
+                    >
+                      <ChevronLeft className="size-3.5" />
+                      Back
+                    </button>
+                    <p className="text-xs font-semibold text-foreground px-1">
+                      Choose a Layout
+                    </p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {compatibleLayouts.map((layout) => (
+                        <button
+                          key={layout.id}
+                          className={`flex flex-col rounded-lg border bg-background overflow-hidden hover:border-primary/40 hover:shadow-sm transition-all ${
+                            selectedLayoutId === layout.id
+                              ? "border-primary ring-1 ring-primary/30"
+                              : "border-border"
+                          }`}
+                          onClick={() => handleLayoutSelect(layout.id)}
+                        >
+                          <div className="w-full aspect-[4/3] border-b border-border bg-muted/30 flex items-center justify-center p-2">
+                            <LayoutWireframe layout={layout} />
+                          </div>
+                          <div className="px-2 py-1.5">
+                            <span className="text-[10px] font-medium text-foreground leading-tight line-clamp-1">
+                              {layout.name}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Step: Topic ── */}
+                {sidebarStep === "topic" && (
+                  <div className="p-3 flex flex-col gap-3">
+                    <button
+                      className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary transition-colors self-start"
+                      onClick={handleSidebarBack}
+                    >
+                      <ChevronLeft className="size-3.5" />
+                      Back
+                    </button>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground mb-1">
+                        What topic or keyword?
+                      </p>
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">
+                        Give the AI context so it can generate relevant content for this module.
+                      </p>
+                    </div>
+                    <Input
+                      placeholder="Enter a Topic, Keyword or Phrase"
+                      value={topicKeyword}
+                      onChange={(e) => setTopicKeyword(e.target.value)}
+                      className="text-xs h-8"
+                    />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground mb-1.5">Suggested</p>
+                      <div className="flex flex-wrap gap-1">
+                        {suggestedTopics.map((t) => (
+                          <button
+                            key={t}
+                            className="text-[10px] px-2 py-0.5 rounded-full border border-border bg-background hover:bg-primary/5 hover:border-primary/30 transition-colors text-muted-foreground hover:text-foreground"
+                            onClick={() => setTopicKeyword(t)}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      className="w-full text-xs h-8 gap-1.5 mt-1"
+                      disabled={!topicKeyword.trim()}
+                      onClick={handleAddModule}
+                    >
+                      <Plus className="size-3.5" />
+                      Add Module to Email
+                    </Button>
+                  </div>
+                )}
+              </ScrollArea>
+            </>
+          ) : (
+            /* ─── Edit Module Mode ─── */
+            <>
+              <div className="p-2.5 border-b border-border flex flex-col gap-2">
+                <button
+                  className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary transition-colors self-start"
+                  onClick={exitEditMode}
+                >
+                  <ChevronLeft className="size-3.5" />
+                  Back to modules
+                </button>
+                {selectedBlock && (
+                  <p className="text-xs font-semibold text-foreground truncate px-0.5">{selectedBlock.name}</p>
+                )}
+                <div className="flex items-center rounded-lg bg-muted p-0.5">
+                  {(["data", "style", "filters"] as const).map((tab) => {
+                    const TabIcon = tab === "data" ? SlidersHorizontal : tab === "style" ? Palette : Filter
                     return (
                       <button
-                        key={tile.id}
-                        className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-background p-3 hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm transition-all"
-                        onClick={() => handleTileSelect(tile.id)}
+                        key={tab}
+                        className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 text-[11px] font-medium rounded-md transition-colors capitalize ${
+                          editingTab === tab
+                            ? "bg-card text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                        onClick={() => setEditingTab(tab)}
                       >
-                        <TileIcon className="size-4 text-muted-foreground" />
-                        <span className="text-[11px] font-medium text-foreground">
-                          {tile.label}
-                        </span>
+                        <TabIcon className="size-3" />
+                        {tab}
                       </button>
                     )
                   })}
                 </div>
               </div>
-            )}
-
-            {/* ── Step: Layouts ── */}
-            {sidebarStep === "layouts" && (
-              <div className="p-2.5 flex flex-col gap-2">
-                <button
-                  className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors self-start"
-                  onClick={handleSidebarBack}
-                >
-                  <ChevronLeft className="size-3" />
-                  Back
-                </button>
-                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-1">
-                  Choose a layout
-                </p>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {compatibleLayouts.map((layout) => (
-                    <button
-                      key={layout.id}
-                      className={`flex flex-col rounded-lg border bg-background overflow-hidden hover:border-primary/40 hover:shadow-sm transition-all ${
-                        selectedLayoutId === layout.id
-                          ? "border-primary ring-1 ring-primary/30"
-                          : "border-border"
-                      }`}
-                      onClick={() => handleLayoutSelect(layout.id)}
-                    >
-                      <div className="w-full h-16 bg-muted/40 flex items-center justify-center p-1">
-                        <LayoutWireframe layout={layout} />
-                      </div>
-                      <div className="p-1.5">
-                        <span className="text-[10px] font-medium text-foreground leading-tight line-clamp-1">
-                          {layout.name}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
+              <ScrollArea className="flex-1">
+                <div className="p-3">
+                  {editingTab === "data" && renderDataTab()}
+                  {editingTab === "style" && renderStyleTab()}
+                  {editingTab === "filters" && renderFiltersTab()}
                 </div>
-              </div>
-            )}
-
-            {/* ── Step: Topic ── */}
-            {sidebarStep === "topic" && (
-              <div className="p-2.5 flex flex-col gap-3">
-                <button
-                  className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors self-start"
-                  onClick={handleSidebarBack}
-                >
-                  <ChevronLeft className="size-3" />
-                  Back
-                </button>
-                <div>
-                  <p className="text-xs font-semibold text-foreground mb-1">
-                    What topic or keyword?
-                  </p>
-                  <p className="text-[10px] text-muted-foreground leading-relaxed">
-                    Give the AI context so it can generate relevant content for this module.
-                  </p>
-                </div>
-                <Input
-                  placeholder="Enter a Topic, Keyword or Phrase"
-                  value={topicKeyword}
-                  onChange={(e) => setTopicKeyword(e.target.value)}
-                  className="text-xs h-8"
-                />
-                <div>
-                  <p className="text-[10px] text-muted-foreground mb-1.5">Suggested</p>
-                  <div className="flex flex-wrap gap-1">
-                    {suggestedTopics.slice(0, 8).map((t) => (
-                      <button
-                        key={t}
-                        className="text-[10px] px-2 py-0.5 rounded-full border border-border bg-background hover:bg-primary/5 hover:border-primary/30 transition-colors text-muted-foreground hover:text-foreground"
-                        onClick={() => setTopicKeyword(t)}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  className="w-full text-xs h-8 gap-1.5 mt-1"
-                  disabled={!topicKeyword.trim()}
-                  onClick={handleAddModule}
-                >
-                  <Plus className="size-3.5" />
-                  Add Module to Email
-                </Button>
-              </div>
-            )}
-          </ScrollArea>
+              </ScrollArea>
+            </>
+          )}
         </div>
 
         {/* ─── Center Canvas ─── */}
         <div
           className="flex-1 bg-muted/30 overflow-auto"
           onClick={() => {
-            setSelectedBlockId(null)
-            setSelectedComponent(null)
+            exitEditMode()
           }}
         >
           <div className="flex justify-center py-8 px-4">
-            <div
-              className={`bg-card rounded-xl shadow-lg border border-border transition-all ${
-                previewMode === "desktop" ? "w-[650px]" : "w-[375px]"
-              }`}
-            >
-              {/* Email Header */}
-              <div className="p-6 border-b border-border">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="size-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs">
-                    M
-                  </div>
-                  <span className="text-sm font-semibold text-foreground">ModularMail</span>
-                </div>
-                <h2 className="text-lg font-bold text-foreground">Your Weekly Digest</h2>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Curated content just for you
-                </p>
-              </div>
-
-              {/* Canvas Blocks */}
+            <div className="relative flex">
+              {/* The email template */}
               <div
-                className="p-4 min-h-[300px]"
-                onDragOver={(e) => {
-                  e.preventDefault()
-                  if (canvasBlocks.length === 0) setDragOverIndex(0)
-                }}
-                onDrop={(e) => {
-                  if (canvasBlocks.length === 0) handleDrop(e, 0)
-                }}
+                className={`bg-card rounded-xl shadow-lg border border-border transition-all ${
+                  previewMode === "desktop" ? "w-[650px]" : "w-[375px]"
+                }`}
               >
-                {canvasBlocks.length === 0 ? (
-                  <div
-                    className={`flex flex-col items-center justify-center py-16 text-center border-2 border-dashed rounded-xl transition-colors ${
-                      dragOverIndex === 0 ? "border-primary bg-primary/5" : "border-border"
-                    }`}
-                  >
-                    <Blocks className="size-10 text-muted-foreground/30 mb-3" />
-                    <p className="text-sm font-medium text-foreground">Drop modules here</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Select a module type from the left panel to build your email
-                    </p>
+                {/* Email Header */}
+                <div className="p-6 border-b border-border">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="size-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs">
+                      M
+                    </div>
+                    <span className="text-sm font-semibold text-foreground">ModularMail</span>
                   </div>
-                ) : (
-                  <div className="flex flex-col gap-1">
-                    {canvasBlocks.map((block, index) => {
-                      const isModuleHovered = hoveredBlockId === block.id
-                      const isModuleSelected = selectedBlockId === block.id
+                  <h2 className="text-lg font-bold text-foreground">Your Weekly Digest</h2>
+                  <p className="text-xs text-muted-foreground mt-1">Curated content just for you</p>
+                </div>
 
-                      return (
-                        <div key={block.id} onClick={(e) => e.stopPropagation()}>
-                          {/* Drop indicator */}
-                          <div
-                            className={`h-1 rounded-full mx-2 transition-colors mb-1 ${
-                              dragOverIndex === index ? "bg-primary" : "bg-transparent"
-                            }`}
-                            onDragOver={(e) => handleDragOver(e, index)}
-                            onDrop={(e) => handleDrop(e, index)}
-                          />
+                {/* Canvas Blocks */}
+                <div
+                  className="p-4 min-h-[300px]"
+                  onDragOver={(e) => {
+                    e.preventDefault()
+                    if (canvasBlocks.length === 0) setDragOverIndex(0)
+                  }}
+                  onDrop={(e) => {
+                    if (canvasBlocks.length === 0) handleDrop(e, 0)
+                  }}
+                >
+                  {canvasBlocks.length === 0 ? (
+                    <div
+                      className={`flex flex-col items-center justify-center py-16 text-center border-2 border-dashed rounded-xl transition-colors ${
+                        dragOverIndex === 0 ? "border-primary bg-primary/5" : "border-border"
+                      }`}
+                    >
+                      <Blocks className="size-10 text-muted-foreground/30 mb-3" />
+                      <p className="text-sm font-medium text-foreground">Drop modules here</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Select a module type from the left panel to build your email
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-1">
+                      {canvasBlocks.map((block, index) => {
+                        const isModuleHovered = hoveredBlockId === block.id
+                        const isModuleSelected = selectedBlockId === block.id
 
-                          {/* Module Block */}
-                          <div
-                            className={`relative rounded-lg transition-all ${
-                              draggingBlockId === block.id ? "opacity-40" : ""
-                            } ${
-                              isModuleSelected
-                                ? "ring-2 ring-primary shadow-sm"
-                                : isModuleHovered
-                                  ? "ring-2 ring-primary/50"
-                                  : "ring-1 ring-transparent hover:ring-border"
-                            }`}
-                            onMouseEnter={() => setHoveredBlockId(block.id)}
-                            onMouseLeave={() => setHoveredBlockId(null)}
-                            style={{ padding: `${block.padding}px` }}
-                          >
-                            {/* Floating toolbar on hover */}
-                            {(isModuleHovered || isModuleSelected) && (
-                              <ModuleToolbar block={block} index={index} />
-                            )}
+                        return (
+                          <div key={block.id} onClick={(e) => e.stopPropagation()}>
+                            {/* Drop indicator */}
+                            <div
+                              className={`h-1 rounded-full mx-2 transition-colors mb-1 ${
+                                dragOverIndex === index ? "bg-primary" : "bg-transparent"
+                              }`}
+                              onDragOver={(e) => handleDragOver(e, index)}
+                              onDrop={(e) => handleDrop(e, index)}
+                            />
 
-                            {/* Module label */}
-                            {(isModuleHovered || isModuleSelected) && (
-                              <div className="absolute -top-3.5 left-2 z-10">
-                                <Badge
-                                  variant="secondary"
-                                  className="text-[9px] bg-primary/10 text-primary border-0 font-medium"
-                                >
-                                  {block.source}
-                                </Badge>
-                              </div>
-                            )}
-
-                            <div className={`text-${block.alignment}`}>
-                              <EditableWrapper blockId={block.id} component="heading">
-                                <h3 className="text-sm font-semibold text-foreground mb-1 py-1">
-                                  {block.headingText}
-                                </h3>
-                              </EditableWrapper>
-
-                              <EditableWrapper blockId={block.id} component="image">
-                                <div className="w-full h-32 rounded-md bg-muted/50 border border-border flex items-center justify-center my-2">
-                                  <div className="flex flex-col items-center gap-1 text-muted-foreground/40">
-                                    <Image className="size-5" />
-                                    <span className="text-[10px]">Featured Image</span>
+                            {/* Module Block with side icon strip */}
+                            <div className="relative flex">
+                              {/* Module content area */}
+                              <div
+                                className={`flex-1 relative rounded-lg transition-all cursor-pointer ${
+                                  draggingBlockId === block.id ? "opacity-40" : ""
+                                } ${
+                                  isModuleSelected
+                                    ? "ring-[2.5px] ring-primary shadow-sm"
+                                    : isModuleHovered
+                                      ? "ring-[2.5px] ring-primary/50"
+                                      : "ring-1 ring-transparent hover:ring-border"
+                                }`}
+                                onMouseEnter={() => setHoveredBlockId(block.id)}
+                                onMouseLeave={() => setHoveredBlockId(null)}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleBlockClick(block.id)
+                                }}
+                                style={{ padding: `${block.padding}px` }}
+                              >
+                                {/* Module label: tile name + topic phrase (top right, above blue line) */}
+                                {(isModuleHovered || isModuleSelected) && (
+                                  <div className="absolute -top-6 right-0 flex items-center gap-1.5 z-10">
+                                    <span className="text-[10px] font-semibold text-foreground">{block.tileLabel}</span>
+                                    {block.topicPhrase && (
+                                      <>
+                                        <span className="text-[10px] text-muted-foreground">|</span>
+                                        <span className="text-[10px] text-muted-foreground italic">{block.topicPhrase}</span>
+                                      </>
+                                    )}
                                   </div>
+                                )}
+
+                                <div className={`text-${block.alignment}`}>
+                                  {block.showTitle && (
+                                    <EditableWrapper blockId={block.id} component="heading">
+                                      <h3 className="text-sm font-semibold text-foreground mb-1 py-1">
+                                        {block.headingText}
+                                      </h3>
+                                    </EditableWrapper>
+                                  )}
+
+                                  {block.showImage && (
+                                    <EditableWrapper blockId={block.id} component="image">
+                                      <div className="w-full h-32 rounded-md bg-muted/50 border border-border flex items-center justify-center my-2">
+                                        <div className="flex flex-col items-center gap-1 text-muted-foreground/40">
+                                          <Image className="size-5" />
+                                          <span className="text-[10px]">Featured Image</span>
+                                        </div>
+                                      </div>
+                                    </EditableWrapper>
+                                  )}
+
+                                  {block.showText && (
+                                    <EditableWrapper blockId={block.id} component="body">
+                                      <p className="text-xs text-muted-foreground leading-relaxed py-1">
+                                        {block.bodyText}
+                                      </p>
+                                    </EditableWrapper>
+                                  )}
+
+                                  {block.bottomLine && (
+                                    <EditableWrapper blockId={block.id} component="bottomLine">
+                                      <div className="mt-3 rounded-md bg-primary/5 border border-primary/10 p-2.5">
+                                        <p className="text-[10px] font-semibold text-foreground flex items-center gap-1">
+                                          <Target className="size-3 text-primary" />
+                                          Bottom Line
+                                        </p>
+                                        <p className="text-[10px] text-muted-foreground mt-1">
+                                          Key insight summary generated by AI for this content block.
+                                        </p>
+                                      </div>
+                                    </EditableWrapper>
+                                  )}
+
+                                  {block.whyItMatters && (
+                                    <EditableWrapper blockId={block.id} component="whyItMatters">
+                                      <div className="mt-2 rounded-md bg-muted/50 border border-border p-2.5">
+                                        <p className="text-[10px] font-semibold text-foreground flex items-center gap-1">
+                                          <ListChecks className="size-3 text-primary" />
+                                          Why It Matters
+                                        </p>
+                                        <p className="text-[10px] text-muted-foreground mt-1">
+                                          Context on why this content is relevant to your audience.
+                                        </p>
+                                      </div>
+                                    </EditableWrapper>
+                                  )}
+
+                                  {block.showCta && (
+                                    <div className="mt-3">
+                                      <span className="inline-block text-[10px] font-semibold text-primary border border-primary/20 rounded px-3 py-1.5 bg-primary/5">
+                                        {block.ctaCopy}
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
-                              </EditableWrapper>
+                              </div>
 
-                              <EditableWrapper blockId={block.id} component="body">
-                                <p className="text-xs text-muted-foreground leading-relaxed py-1">
-                                  {block.bodyText}
-                                </p>
-                              </EditableWrapper>
-
-                              {block.bottomLine && (
-                                <EditableWrapper blockId={block.id} component="bottomLine">
-                                  <div className="mt-3 rounded-md bg-primary/5 border border-primary/10 p-2.5">
-                                    <p className="text-[10px] font-semibold text-foreground flex items-center gap-1">
-                                      <Target className="size-3 text-primary" />
-                                      Bottom Line
-                                    </p>
-                                    <p className="text-[10px] text-muted-foreground mt-1">
-                                      Key insight summary generated by AI for this content block.
-                                    </p>
-                                  </div>
-                                </EditableWrapper>
-                              )}
-
-                              {block.whyItMatters && (
-                                <EditableWrapper blockId={block.id} component="whyItMatters">
-                                  <div className="mt-2 rounded-md bg-muted/50 border border-border p-2.5">
-                                    <p className="text-[10px] font-semibold text-foreground flex items-center gap-1">
-                                      <ListChecks className="size-3 text-primary" />
-                                      Why It Matters
-                                    </p>
-                                    <p className="text-[10px] text-muted-foreground mt-1">
-                                      Context on why this content is relevant to your audience.
-                                    </p>
-                                  </div>
-                                </EditableWrapper>
+                              {/* Stacked action icons (outside template, in the grey zone) */}
+                              {(isModuleHovered || isModuleSelected) && (
+                                <div
+                                  className="flex flex-col items-center gap-0.5 ml-2 pt-1"
+                                  onMouseEnter={() => setHoveredBlockId(block.id)}
+                                  onMouseLeave={() => setHoveredBlockId(null)}
+                                >
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm"
+                                          onClick={(e) => { e.stopPropagation() }}
+                                        >
+                                          <Save className="size-3.5" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right">Save</TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            duplicateBlock(block.id)
+                                          }}
+                                        >
+                                          <Copy className="size-3.5" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right">Duplicate</TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            deleteBlock(block.id)
+                                          }}
+                                        >
+                                          <Trash2 className="size-3.5" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right">Delete</TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleBlockClick(block.id)
+                                          }}
+                                        >
+                                          <Pencil className="size-3.5" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right">Edit</TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm"
+                                          onClick={(e) => { e.stopPropagation() }}
+                                        >
+                                          <Code className="size-3.5" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right">HTML</TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm cursor-grab active:cursor-grabbing"
+                                          draggable
+                                          onDragStart={(e) => handleDragStart(e, block.id)}
+                                        >
+                                          <GripVertical className="size-3.5" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right">Move</TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm disabled:opacity-30"
+                                          disabled={index === 0}
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            moveBlockDirection(block.id, "up")
+                                          }}
+                                        >
+                                          <ChevronUp className="size-3.5" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right">Move Up</TooltipContent>
+                                    </Tooltip>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm disabled:opacity-30"
+                                          disabled={index === canvasBlocks.length - 1}
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            moveBlockDirection(block.id, "down")
+                                          }}
+                                        >
+                                          <ChevronDown className="size-3.5" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right">Move Down</TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
                               )}
                             </div>
                           </div>
-                        </div>
-                      )
-                    })}
-                    {/* Final drop zone */}
-                    <div
-                      className={`h-1 rounded-full mx-2 transition-colors ${
-                        dragOverIndex === canvasBlocks.length ? "bg-primary" : "bg-transparent"
-                      }`}
-                      onDragOver={(e) => handleDragOver(e, canvasBlocks.length)}
-                      onDrop={(e) => handleDrop(e, canvasBlocks.length)}
-                    />
-                  </div>
-                )}
-              </div>
+                        )
+                      })}
+                      {/* Final drop zone */}
+                      <div
+                        className={`h-1 rounded-full mx-2 transition-colors ${
+                          dragOverIndex === canvasBlocks.length ? "bg-primary" : "bg-transparent"
+                        }`}
+                        onDragOver={(e) => handleDragOver(e, canvasBlocks.length)}
+                        onDrop={(e) => handleDrop(e, canvasBlocks.length)}
+                      />
+                    </div>
+                  )}
+                </div>
 
-              {/* Email Footer */}
-              <div className="p-6 border-t border-border text-center">
-                <p className="text-[10px] text-muted-foreground">
-                  Sent via ModularMail &middot; Unsubscribe &middot; Manage Preferences
-                </p>
+                {/* Email Footer */}
+                <div className="p-6 border-t border-border text-center">
+                  <p className="text-[10px] text-muted-foreground">
+                    Sent via ModularMail &middot; Unsubscribe &middot; Manage Preferences
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* ─── Right Panel - Contextual Editor ─── */}
-        {showRightPanel && selectedBlock && selectedComponent && (
-          <div className="w-72 border-l border-border bg-card flex flex-col shrink-0 animate-in slide-in-from-right-2 duration-200">
-            <div className="p-3 border-b border-border flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {componentMeta[selectedComponent].icon}
-                <p className="text-xs font-semibold text-foreground">
-                  {componentMeta[selectedComponent].label}
-                </p>
-              </div>
-              <Button variant="ghost" size="icon" className="size-6" onClick={closeRightPanel}>
-                <X className="size-3.5" />
-                <span className="sr-only">Close panel</span>
-              </Button>
-            </div>
-            <ScrollArea className="flex-1">
-              <div className="p-3">{renderRightPanelContent()}</div>
-            </ScrollArea>
-          </div>
-        )}
       </div>
     </div>
   )
