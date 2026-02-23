@@ -441,7 +441,7 @@ export function ModuleCreate({
         {step === 1 && (
           <div className="flex flex-col gap-0">
             {/* Hero section with title + tabs */}
-            <div className="bg-card px-6 pt-10 pb-8">
+            <div className="px-6 pt-10 pb-8">
               <div className="mx-auto max-w-3xl text-center flex flex-col gap-5">
                 <div className="flex flex-col gap-2">
                   <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl text-balance">
@@ -478,7 +478,7 @@ export function ModuleCreate({
             {mainTab === "feeds" && (
               <div className="flex flex-col gap-0">
                 {/* Category pills */}
-                <div className="px-6 py-4 bg-card">
+                <div className="px-6 py-4">
                   <div className="flex items-center justify-center gap-1.5">
                     {moduleCategories.map((cat) => (
                       <button
@@ -501,7 +501,7 @@ export function ModuleCreate({
 
                 {/* Custom: URL field + Generate centered */}
                 {feedCategory === "custom" && (
-                  <div className="px-6 py-5 bg-card">
+                  <div className="px-6 py-5">
                     <div className="mx-auto max-w-lg flex items-center gap-2">
                       <div className="relative flex-1">
                         <Globe className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -523,15 +523,13 @@ export function ModuleCreate({
                 {/* Main content: sidebar catalogue + source cards */}
                 <div className="flex min-h-[500px]">
                   {/* Left sidebar: business verticals catalogue */}
-                  <div className="w-52 shrink-0 p-3">
+                  <div className="w-52 shrink-0 px-3 pt-6">
                     <div className="rounded-lg border border-border overflow-hidden">
                       <div className="flex flex-col">
-                        {businessVerticals.map((vert, i) => (
+                        {businessVerticals.map((vert) => (
                           <button
                             key={vert.label}
-                            className={`flex items-center justify-between px-3.5 py-2.5 text-left hover:bg-accent transition-colors ${
-                              i > 0 ? "border-t border-border" : ""
-                            }`}
+                            className="flex items-center justify-between px-3.5 py-2.5 text-left hover:bg-accent transition-colors"
                           >
                             <span className="text-xs text-foreground font-medium">{vert.label}</span>
                             <span className="text-[10px] text-muted-foreground font-medium">{vert.count}</span>
@@ -587,8 +585,8 @@ export function ModuleCreate({
             {/* ── INSIGHTS TAB ── */}
             {mainTab === "insights" && (
               <div className="px-6 py-8">
-                <div className="mx-auto max-w-3xl flex flex-col gap-5">
-                  <div className="flex flex-col gap-3">
+                <div className="mx-auto max-w-4xl">
+                  <div className="grid grid-cols-2 gap-3">
                     {insightTopics.map((topic) => {
                       const Icon = insightIconMap[topic.icon] || Globe
                       return (
@@ -622,8 +620,8 @@ export function ModuleCreate({
             {/* ── EDITORIAL TAB ── */}
             {mainTab === "editorial" && (
               <div className="px-6 py-8">
-                <div className="mx-auto max-w-3xl flex flex-col gap-5">
-                  <div className="flex flex-col gap-3">
+                <div className="mx-auto max-w-4xl">
+                  <div className="grid grid-cols-2 gap-3">
                     {editorialTypes.map((ed) => {
                       const Icon = editorialIconMap[ed.icon] || PenLine
                       return (
@@ -660,7 +658,7 @@ export function ModuleCreate({
         {step === 2 && (
           <div className="flex flex-col gap-0">
             {/* Header section with title + column filter pills */}
-            <div className="bg-card px-6 pt-10 pb-8">
+            <div className="px-6 pt-10 pb-8">
               <div className="mx-auto max-w-5xl text-center flex flex-col gap-5">
                 <div className="flex flex-col gap-2">
                   <h2 className="text-2xl font-bold tracking-tight text-foreground text-balance">
