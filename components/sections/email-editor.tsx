@@ -589,36 +589,66 @@ export function EmailEditor() {
     )
   }
 
+  /* ─── Track editorial length choices ─── */
+  const [bottomLineLength, setBottomLineLength] = useState<"short" | "medium" | "long">("short")
+  const [whyItMattersLength, setWhyItMattersLength] = useState<"short" | "medium" | "long">("short")
+  const [topicEditOpen, setTopicEditOpen] = useState(false)
+
   /* ─── Render Data editing tab ─── */
   const renderDataTab = () => {
     if (!selectedBlock) return null
     return (
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-xs font-medium">Module Name</Label>
-          <Input
-            value={selectedBlock.headingText}
-            onChange={(e) => updateBlock(selectedBlock.id, { headingText: e.target.value, name: e.target.value })}
-            className="text-sm h-8"
-          />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-xs font-medium">Body Text</Label>
-          <textarea
-            value={selectedBlock.bodyText}
-            onChange={(e) => updateBlock(selectedBlock.id, { bodyText: e.target.value })}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px] resize-y focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          />
-        </div>
+      <div className="flex flex-col gap-4 pb-14">
+        <p className="text-[10px] font-semibold text-foreground uppercase tracking-wider">Module Data Settings</p>
+
+        {/* Topic / Keyword */}
         <div className="flex flex-col gap-1.5">
           <Label className="text-xs font-medium">Topic / Keyword</Label>
-          <Input
-            value={selectedBlock.topicPhrase}
-            onChange={(e) => updateBlock(selectedBlock.id, { topicPhrase: e.target.value })}
-            placeholder="Enter a Topic, Keyword or Phrase"
-            className="text-sm h-8"
-          />
+          {!topicEditOpen ? (
+            <div className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2 text-sm">
+              <span className="text-foreground truncate">{selectedBlock.topicPhrase || "No topic set"}</span>
+              <button
+                className="text-[10px] font-medium text-primary hover:underline shrink-0 ml-2"
+                onClick={() => setTopicEditOpen(true)}
+              >
+                Change
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <Input
+                value={selectedBlock.topicPhrase}
+                onChange={(e) => updateBlock(selectedBlock.id, { topicPhrase: e.target.value })}
+                placeholder="Enter a Topic, Keyword or Phrase"
+                className="text-sm h-8"
+                autoFocus
+              />
+              <div className="flex flex-wrap gap-1">
+                {suggestedTopics.slice(0, 5).map((t) => (
+                  <button
+                    key={t}
+                    className="text-[10px] px-2 py-0.5 rounded-full border border-border bg-background hover:bg-primary/5 hover:border-primary/30 transition-colors text-muted-foreground hover:text-foreground"
+                    onClick={() => {
+                      updateBlock(selectedBlock.id, { topicPhrase: t })
+                    }}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="text-xs h-7 self-end"
+                onClick={() => setTopicEditOpen(false)}
+              >
+                Done
+              </Button>
+            </div>
+          )}
         </div>
+
+        {/* Tone */}
         <div className="flex flex-col gap-1.5">
           <Label className="text-xs font-medium">Tone</Label>
           <Select
@@ -635,8 +665,10 @@ export function EmailEditor() {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Alignment */}
         <div className="flex flex-col gap-1.5">
-          <Label className="text-xs font-medium">Text Alignment</Label>
+          <Label className="text-xs font-medium">Alignment</Label>
           <div className="flex items-center gap-1">
             {(["left", "center", "right"] as const).map((align) => {
               const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
@@ -656,20 +688,69 @@ export function EmailEditor() {
             })}
           </div>
         </div>
-        <div className="flex items-center justify-between">
-          <Label className="text-xs font-medium">Bottom Line</Label>
-          <Switch
-            checked={selectedBlock.bottomLine}
-            onCheckedChange={(v) => updateBlock(selectedBlock.id, { bottomLine: v })}
-          />
+
+        {/* Extra Editorial */}
+        <div className="border-t border-border pt-3 flex flex-col gap-3">
+          <p className="text-[10px] font-semibold text-foreground uppercase tracking-wider">Extra Editorial</p>
+
+          {/* Bottom Line */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-medium">Bottom Line</Label>
+              <Switch
+                checked={selectedBlock.bottomLine}
+                onCheckedChange={(v) => updateBlock(selectedBlock.id, { bottomLine: v })}
+              />
+            </div>
+            {selectedBlock.bottomLine && (
+              <div className="flex items-center gap-1">
+                {(["short", "medium", "long"] as const).map((len) => (
+                  <button
+                    key={len}
+                    className={`px-2.5 py-1 text-[10px] font-medium rounded-full transition-colors capitalize ${
+                      bottomLineLength === len
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                    onClick={() => setBottomLineLength(len)}
+                  >
+                    {len}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Why It Matters */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-medium">Why It Matters</Label>
+              <Switch
+                checked={selectedBlock.whyItMatters}
+                onCheckedChange={(v) => updateBlock(selectedBlock.id, { whyItMatters: v })}
+              />
+            </div>
+            {selectedBlock.whyItMatters && (
+              <div className="flex items-center gap-1">
+                {(["short", "medium", "long"] as const).map((len) => (
+                  <button
+                    key={len}
+                    className={`px-2.5 py-1 text-[10px] font-medium rounded-full transition-colors capitalize ${
+                      whyItMattersLength === len
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                    onClick={() => setWhyItMattersLength(len)}
+                  >
+                    {len}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-        <div className="flex items-center justify-between">
-          <Label className="text-xs font-medium">Why It Matters</Label>
-          <Switch
-            checked={selectedBlock.whyItMatters}
-            onCheckedChange={(v) => updateBlock(selectedBlock.id, { whyItMatters: v })}
-          />
-        </div>
+
+        {/* AI Summary Prompt */}
         <div className="flex flex-col gap-1.5">
           <Label className="text-xs font-medium">AI Summary Prompt</Label>
           <div className="flex items-center gap-2">
@@ -1134,7 +1215,7 @@ export function EmailEditor() {
                 {/* ── Step: Tiles ── */}
                 {sidebarStep === "tiles" && (
                   <div className="p-3 flex flex-col gap-1.5">
-                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-1 mb-1">
+                    <p className="text-[10px] font-semibold text-foreground uppercase tracking-wider px-1 mb-1">
                       Select a module type
                     </p>
                     <div className="grid grid-cols-2 gap-1.5">
@@ -1253,11 +1334,8 @@ export function EmailEditor() {
                   onClick={exitEditMode}
                 >
                   <ChevronLeft className="size-3.5" />
-                  Back to modules
+                  Modules
                 </button>
-                {selectedBlock && (
-                  <p className="text-xs font-semibold text-foreground truncate px-0.5">{selectedBlock.name}</p>
-                )}
                 <div className="flex items-center rounded-lg bg-muted p-0.5">
                   {(["data", "style", "filters"] as const).map((tab) => {
                     const TabIcon = tab === "data" ? SlidersHorizontal : tab === "style" ? Palette : Filter
@@ -1285,6 +1363,14 @@ export function EmailEditor() {
                   {editingTab === "filters" && renderFiltersTab()}
                 </div>
               </ScrollArea>
+              {editingTab === "data" && (
+                <div className="p-2.5 border-t border-border bg-card shrink-0">
+                  <Button size="sm" className="w-full text-xs h-8 gap-1.5">
+                    <Sparkles className="size-3.5" />
+                    Update Module
+                  </Button>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -1296,8 +1382,8 @@ export function EmailEditor() {
             exitEditMode()
           }}
         >
-          <div className="flex justify-center py-8 px-4">
-            <div className="relative flex">
+          <div className="flex justify-center py-8 px-16">
+            <div className="relative">
               {/* The email template */}
               <div
                 className={`bg-card rounded-xl shadow-lg border border-border transition-all ${
@@ -1356,8 +1442,8 @@ export function EmailEditor() {
                               onDrop={(e) => handleDrop(e, index)}
                             />
 
-                            {/* Module Block with side icon strip */}
-                            <div className="relative flex">
+                            {/* Module Block with icon strip positioned absolutely outside */}
+                            <div className="relative">
                               {/* Module content area */}
                               <div
                                 className={`flex-1 relative rounded-lg transition-all cursor-pointer ${
@@ -1377,16 +1463,15 @@ export function EmailEditor() {
                                 }}
                                 style={{ padding: `${block.padding}px` }}
                               >
-                                {/* Module label: tile name + topic phrase (top right, above blue line) */}
+                                {/* Module label: tile name + topic phrase as blue tag cloud (top right, above blue line) */}
                                 {(isModuleHovered || isModuleSelected) && (
-                                  <div className="absolute -top-6 right-0 flex items-center gap-1.5 z-10">
-                                    <span className="text-[10px] font-semibold text-foreground">{block.tileLabel}</span>
-                                    {block.topicPhrase && (
-                                      <>
-                                        <span className="text-[10px] text-muted-foreground">|</span>
-                                        <span className="text-[10px] text-muted-foreground italic">{block.topicPhrase}</span>
-                                      </>
-                                    )}
+                                  <div className="absolute -top-7 right-0 flex items-center gap-1 z-10">
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary-foreground bg-primary rounded-full px-2.5 py-0.5 shadow-sm">
+                                      {block.tileLabel}
+                                      {block.topicPhrase && (
+                                        <span className="text-primary-foreground/80 font-normal">&middot; {block.topicPhrase}</span>
+                                      )}
+                                    </span>
                                   </div>
                                 )}
 
@@ -1459,7 +1544,7 @@ export function EmailEditor() {
                               {/* Stacked action icons (outside template, in the grey zone) */}
                               {(isModuleHovered || isModuleSelected) && (
                                 <div
-                                  className="flex flex-col items-center gap-0.5 ml-2 pt-1"
+                                  className="absolute -right-11 top-0 flex flex-col items-center gap-0.5"
                                   onMouseEnter={() => setHoveredBlockId(block.id)}
                                   onMouseLeave={() => setHoveredBlockId(null)}
                                 >
