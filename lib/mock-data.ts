@@ -317,3 +317,12 @@ export const topicTags = [
 export const industries = ["Education", "SaaS", "Healthcare", "Marketing", "Finance", "E-Commerce", "Real Estate"]
 
 export const tones = ["Professional", "Conversational", "Academic", "Punchy", "Casual", "Authoritative"]
+
+export const suggestedModules = [
+  { id: "sug-1", name: "K-12 EdTech Trends", source: "Google News" },
+  { id: "sug-2", name: "Online Learning Platforms", source: "Reddit" },
+  { id: "sug-3", name: "Higher Ed Innovation", source: "Custom URL" },
+  { id: "sug-4", name: "Student Engagement Tools", source: "YouTube" },
+  { id: "sug-5", name: "Education Policy Updates", source: "Google News" },
+  { id: "sug-6", name: "Campus Tech Roundup", source: "TechCrunch" },
+]
