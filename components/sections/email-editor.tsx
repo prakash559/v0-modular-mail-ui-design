@@ -574,7 +574,7 @@ export function EmailEditor() {
           isSelected
             ? "outline-2 outline-dashed outline-primary outline-offset-2 bg-primary/[0.02]"
             : isHovered
-              ? "outline-1 outline-dashed outline-muted-foreground/40 outline-offset-2"
+              ? "outline-1 outline-dotted outline-primary/40 outline-offset-1"
               : ""
         }`}
         onMouseEnter={() => setHoveredComponent({ blockId, component })}
@@ -599,7 +599,7 @@ export function EmailEditor() {
     if (!selectedBlock) return null
     return (
       <div className="flex flex-col gap-4 pb-14">
-        <p className="text-[10px] font-semibold text-foreground uppercase tracking-wider">Module Data Settings</p>
+        <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Module Data Settings</p>
 
         {/* Topic / Keyword */}
         <div className="flex flex-col gap-1.5">
@@ -691,7 +691,7 @@ export function EmailEditor() {
 
         {/* Extra Editorial */}
         <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <p className="text-[10px] font-semibold text-foreground uppercase tracking-wider">Extra Editorial</p>
+          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Extra Editorial</p>
 
           {/* Bottom Line */}
           <div className="flex flex-col gap-2">
@@ -707,10 +707,10 @@ export function EmailEditor() {
                 {(["short", "medium", "long"] as const).map((len) => (
                   <button
                     key={len}
-                    className={`px-2.5 py-1 text-[10px] font-medium rounded-full transition-colors capitalize ${
+                    className={`px-2.5 py-1 text-[10px] font-medium rounded-full border transition-colors capitalize ${
                       bottomLineLength === len
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        ? "bg-primary/10 text-primary border-primary/30"
+                        : "bg-card text-muted-foreground border-border hover:bg-muted/50"
                     }`}
                     onClick={() => setBottomLineLength(len)}
                   >
@@ -735,10 +735,10 @@ export function EmailEditor() {
                 {(["short", "medium", "long"] as const).map((len) => (
                   <button
                     key={len}
-                    className={`px-2.5 py-1 text-[10px] font-medium rounded-full transition-colors capitalize ${
+                    className={`px-2.5 py-1 text-[10px] font-medium rounded-full border transition-colors capitalize ${
                       whyItMattersLength === len
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        ? "bg-primary/10 text-primary border-primary/30"
+                        : "bg-card text-muted-foreground border-border hover:bg-muted/50"
                     }`}
                     onClick={() => setWhyItMattersLength(len)}
                   >
@@ -868,7 +868,7 @@ export function EmailEditor() {
           />
         </div>
         <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Include / Exclude</p>
+          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Include / Exclude</p>
           <div className="flex items-center justify-between">
             <Label className="text-xs">Image</Label>
             <Switch checked={selectedBlock.showImage} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showImage: v })} />
@@ -1449,11 +1449,13 @@ export function EmailEditor() {
                                 className={`flex-1 relative rounded-lg transition-all cursor-pointer ${
                                   draggingBlockId === block.id ? "opacity-40" : ""
                                 } ${
-                                  isModuleSelected
+                                  isModuleSelected && !selectedComponent
                                     ? "ring-[2.5px] ring-primary shadow-sm"
-                                    : isModuleHovered
-                                      ? "ring-[2.5px] ring-primary/50"
-                                      : "ring-1 ring-transparent hover:ring-border"
+                                    : isModuleSelected && selectedComponent
+                                      ? "ring-1 ring-border"
+                                      : isModuleHovered
+                                        ? "ring-[2.5px] ring-primary/50"
+                                        : "ring-1 ring-transparent hover:ring-border"
                                 }`}
                                 onMouseEnter={() => setHoveredBlockId(block.id)}
                                 onMouseLeave={() => setHoveredBlockId(null)}
@@ -1544,54 +1546,16 @@ export function EmailEditor() {
                               {/* Stacked action icons (outside template, in the grey zone) */}
                               {(isModuleHovered || isModuleSelected) && (
                                 <div
-                                  className="absolute -right-11 top-0 flex flex-col items-center gap-0.5"
+                                  className="absolute -right-14 top-0 flex flex-col items-center gap-0.5"
                                   onMouseEnter={() => setHoveredBlockId(block.id)}
                                   onMouseLeave={() => setHoveredBlockId(null)}
                                 >
                                   <TooltipProvider>
+                                    {/* Edit */}
                                     <Tooltip>
                                       <TooltipTrigger asChild>
                                         <button
-                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm"
-                                          onClick={(e) => { e.stopPropagation() }}
-                                        >
-                                          <Save className="size-3.5" />
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent side="right">Save</TooltipContent>
-                                    </Tooltip>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button
-                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm"
-                                          onClick={(e) => {
-                                            e.stopPropagation()
-                                            duplicateBlock(block.id)
-                                          }}
-                                        >
-                                          <Copy className="size-3.5" />
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent side="right">Duplicate</TooltipContent>
-                                    </Tooltip>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button
-                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm"
-                                          onClick={(e) => {
-                                            e.stopPropagation()
-                                            deleteBlock(block.id)
-                                          }}
-                                        >
-                                          <Trash2 className="size-3.5" />
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent side="right">Delete</TooltipContent>
-                                    </Tooltip>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button
-                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm"
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-primary hover:text-primary hover:bg-primary/5 transition-colors shadow-sm"
                                           onClick={(e) => {
                                             e.stopPropagation()
                                             handleBlockClick(block.id)
@@ -1602,10 +1566,26 @@ export function EmailEditor() {
                                       </TooltipTrigger>
                                       <TooltipContent side="right">Edit</TooltipContent>
                                     </Tooltip>
+                                    {/* Duplicate */}
                                     <Tooltip>
                                       <TooltipTrigger asChild>
                                         <button
-                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm"
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-primary hover:text-primary hover:bg-primary/5 transition-colors shadow-sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            duplicateBlock(block.id)
+                                          }}
+                                        >
+                                          <Copy className="size-3.5" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right">Duplicate</TooltipContent>
+                                    </Tooltip>
+                                    {/* HTML */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-primary hover:text-primary hover:bg-primary/5 transition-colors shadow-sm"
                                           onClick={(e) => { e.stopPropagation() }}
                                         >
                                           <Code className="size-3.5" />
@@ -1613,10 +1593,11 @@ export function EmailEditor() {
                                       </TooltipTrigger>
                                       <TooltipContent side="right">HTML</TooltipContent>
                                     </Tooltip>
+                                    {/* Move (drag + up/down) */}
                                     <Tooltip>
                                       <TooltipTrigger asChild>
                                         <button
-                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm cursor-grab active:cursor-grabbing"
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-primary hover:text-primary hover:bg-primary/5 transition-colors shadow-sm cursor-grab active:cursor-grabbing"
                                           draggable
                                           onDragStart={(e) => handleDragStart(e, block.id)}
                                         >
@@ -1625,35 +1606,20 @@ export function EmailEditor() {
                                       </TooltipTrigger>
                                       <TooltipContent side="right">Move</TooltipContent>
                                     </Tooltip>
+                                    {/* Delete -- red */}
                                     <Tooltip>
                                       <TooltipTrigger asChild>
                                         <button
-                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm disabled:opacity-30"
-                                          disabled={index === 0}
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-destructive hover:text-destructive hover:bg-destructive/5 transition-colors shadow-sm"
                                           onClick={(e) => {
                                             e.stopPropagation()
-                                            moveBlockDirection(block.id, "up")
+                                            deleteBlock(block.id)
                                           }}
                                         >
-                                          <ChevronUp className="size-3.5" />
+                                          <Trash2 className="size-3.5" />
                                         </button>
                                       </TooltipTrigger>
-                                      <TooltipContent side="right">Move Up</TooltipContent>
-                                    </Tooltip>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button
-                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-sm disabled:opacity-30"
-                                          disabled={index === canvasBlocks.length - 1}
-                                          onClick={(e) => {
-                                            e.stopPropagation()
-                                            moveBlockDirection(block.id, "down")
-                                          }}
-                                        >
-                                          <ChevronDown className="size-3.5" />
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent side="right">Move Down</TooltipContent>
+                                      <TooltipContent side="right">Delete</TooltipContent>
                                     </Tooltip>
                                   </TooltipProvider>
                                 </div>
