@@ -598,7 +598,7 @@ export function EmailEditor() {
   const renderDataTab = () => {
     if (!selectedBlock) return null
     return (
-      <div className="flex flex-col gap-4 pb-14">
+      <div className="flex flex-col gap-4 pb-2">
         <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Module Data Settings</p>
 
         {/* Topic / Keyword */}
@@ -764,11 +764,58 @@ export function EmailEditor() {
     )
   }
 
+  /* ─── Additional style state ─── */
+  const [titleFont, setTitleFont] = useState("sans-serif")
+  const [titleSize, setTitleSize] = useState("16")
+  const [titleJustify, setTitleJustify] = useState<"left" | "center" | "right">("left")
+  const [bodyFont, setBodyFont] = useState("sans-serif")
+  const [bodySize, setBodySize] = useState("14")
+  const [bodyJustify, setBodyJustify] = useState<"left" | "center" | "right">("left")
+  const [imageSize, setImageSize] = useState([100])
+  const [ctaCopy, setCtaCopy] = useState("Read More")
+  const [ctaFont, setCtaFont] = useState("sans-serif")
+  const [ctaSize, setCtaSize] = useState("12")
+  const [ctaColor, setCtaColor] = useState("#2563eb")
+  const [ctaJustify, setCtaJustify] = useState<"left" | "center" | "right">("left")
+
+  const fontOptions = [
+    { value: "sans-serif", label: "Sans Serif" },
+    { value: "serif", label: "Serif" },
+    { value: "monospace", label: "Monospace" },
+    { value: "georgia", label: "Georgia" },
+    { value: "arial", label: "Arial" },
+    { value: "helvetica", label: "Helvetica" },
+  ]
+
+  const sizeOptions = ["10", "11", "12", "13", "14", "16", "18", "20", "24", "28", "32"]
+
+  const JustifyButtons = ({ value, onChange }: { value: "left" | "center" | "right"; onChange: (v: "left" | "center" | "right") => void }) => (
+    <div className="flex items-center gap-0.5">
+      {(["left", "center", "right"] as const).map((align) => {
+        const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
+        return (
+          <button
+            key={align}
+            className={`flex items-center justify-center size-7 rounded-md border text-xs transition-colors ${
+              value === align
+                ? "bg-primary text-primary-foreground border-primary"
+                : "border-border text-muted-foreground hover:bg-muted"
+            }`}
+            onClick={() => onChange(align)}
+          >
+            <Icon className="size-3" />
+          </button>
+        )
+      })}
+    </div>
+  )
+
   /* ─── Render Style editing tab ─── */
   const renderStyleTab = () => {
     if (!selectedBlock) return null
     return (
       <div className="flex flex-col gap-4">
+        {/* Background Color */}
         <div className="flex flex-col gap-1.5">
           <Label className="text-xs font-medium">Background Color</Label>
           <div className="flex items-center gap-2">
@@ -785,79 +832,206 @@ export function EmailEditor() {
             />
           </div>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-xs font-medium">Title Color</Label>
+
+        {/* ── Title ── */}
+        <div className="border-t border-border pt-3 flex flex-col gap-3">
+          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Title</p>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-[11px] text-muted-foreground">Font</Label>
+            <Select value={titleFont} onValueChange={setTitleFont}>
+              <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {fontOptions.map((f) => (
+                  <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="flex items-center gap-2">
-            <input
-              type="color"
-              value={selectedBlock.titleColor}
-              onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
-              className="size-8 rounded border border-border cursor-pointer"
-            />
-            <Input
-              value={selectedBlock.titleColor}
-              onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
-              className="text-sm h-8 font-mono"
-            />
+            <div className="flex-1 flex flex-col gap-1">
+              <Label className="text-[11px] text-muted-foreground">Size</Label>
+              <Select value={titleSize} onValueChange={setTitleSize}>
+                <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {sizeOptions.map((s) => (
+                    <SelectItem key={s} value={s}>{s}px</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label className="text-[11px] text-muted-foreground">Color</Label>
+              <div className="flex items-center gap-1">
+                <input
+                  type="color"
+                  value={selectedBlock.titleColor}
+                  onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
+                  className="size-7 rounded border border-border cursor-pointer"
+                />
+                <Input
+                  value={selectedBlock.titleColor}
+                  onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
+                  className="text-[10px] h-7 w-[72px] font-mono"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <Label className="text-[11px] text-muted-foreground">Justification</Label>
+            <JustifyButtons value={titleJustify} onChange={setTitleJustify} />
           </div>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-xs font-medium">Text Color</Label>
+
+        {/* ── Body ── */}
+        <div className="border-t border-border pt-3 flex flex-col gap-3">
+          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Body</p>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-[11px] text-muted-foreground">Font</Label>
+            <Select value={bodyFont} onValueChange={setBodyFont}>
+              <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {fontOptions.map((f) => (
+                  <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="flex items-center gap-2">
-            <input
-              type="color"
-              value={selectedBlock.textColor}
-              onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
-              className="size-8 rounded border border-border cursor-pointer"
-            />
-            <Input
-              value={selectedBlock.textColor}
-              onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
-              className="text-sm h-8 font-mono"
-            />
+            <div className="flex-1 flex flex-col gap-1">
+              <Label className="text-[11px] text-muted-foreground">Size</Label>
+              <Select value={bodySize} onValueChange={setBodySize}>
+                <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {sizeOptions.map((s) => (
+                    <SelectItem key={s} value={s}>{s}px</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <Label className="text-[11px] text-muted-foreground">Color</Label>
+              <div className="flex items-center gap-1">
+                <input
+                  type="color"
+                  value={selectedBlock.textColor}
+                  onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
+                  className="size-7 rounded border border-border cursor-pointer"
+                />
+                <Input
+                  value={selectedBlock.textColor}
+                  onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
+                  className="text-[10px] h-7 w-[72px] font-mono"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <Label className="text-[11px] text-muted-foreground">Justification</Label>
+            <JustifyButtons value={bodyJustify} onChange={setBodyJustify} />
           </div>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-xs font-medium">Font Family</Label>
-          <Select
-            value={selectedBlock.fontFamily}
-            onValueChange={(v) => updateBlock(selectedBlock.id, { fontFamily: v })}
-          >
-            <SelectTrigger className="text-sm h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="sans-serif">Sans Serif</SelectItem>
-              <SelectItem value="serif">Serif</SelectItem>
-              <SelectItem value="monospace">Monospace</SelectItem>
-              <SelectItem value="georgia">Georgia</SelectItem>
-              <SelectItem value="arial">Arial</SelectItem>
-              <SelectItem value="helvetica">Helvetica</SelectItem>
-            </SelectContent>
-          </Select>
+
+        {/* ── Image ── */}
+        <div className="border-t border-border pt-3 flex flex-col gap-3">
+          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Image</p>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Show Image</Label>
+            <Switch checked={selectedBlock.showImage} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showImage: v })} />
+          </div>
+          {selectedBlock.showImage && (
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-[11px] text-muted-foreground">Size ({imageSize[0]}%)</Label>
+              <Slider
+                value={imageSize}
+                onValueChange={setImageSize}
+                min={25}
+                max={100}
+                step={5}
+              />
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-xs font-medium">Justification</Label>
-          <div className="flex items-center gap-1">
-            {(["left", "center", "right"] as const).map((align) => {
-              const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
-              return (
-                <button
-                  key={align}
-                  className={`flex-1 flex items-center justify-center h-8 rounded-md border text-xs transition-colors ${
-                    selectedBlock.alignment === align
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "border-border text-muted-foreground hover:bg-muted"
-                  }`}
-                  onClick={() => updateBlock(selectedBlock.id, { alignment: align })}
-                >
-                  <Icon className="size-3.5" />
-                </button>
-              )
-            })}
+
+        {/* ── CTA ── */}
+        <div className="border-t border-border pt-3 flex flex-col gap-3">
+          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">CTA</p>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Show CTA</Label>
+            <Switch checked={selectedBlock.showCta} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showCta: v })} />
+          </div>
+          {selectedBlock.showCta && (
+            <>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-[11px] text-muted-foreground">Copy</Label>
+                <Input
+                  value={selectedBlock.ctaCopy}
+                  onChange={(e) => updateBlock(selectedBlock.id, { ctaCopy: e.target.value })}
+                  className="text-xs h-7"
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-[11px] text-muted-foreground">Font</Label>
+                <Select value={ctaFont} onValueChange={setCtaFont}>
+                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {fontOptions.map((f) => (
+                      <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 flex flex-col gap-1">
+                  <Label className="text-[11px] text-muted-foreground">Size</Label>
+                  <Select value={ctaSize} onValueChange={setCtaSize}>
+                    <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {sizeOptions.map((s) => (
+                        <SelectItem key={s} value={s}>{s}px</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <Label className="text-[11px] text-muted-foreground">Color</Label>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="color"
+                      value={ctaColor}
+                      onChange={(e) => setCtaColor(e.target.value)}
+                      className="size-7 rounded border border-border cursor-pointer"
+                    />
+                    <Input
+                      value={ctaColor}
+                      onChange={(e) => setCtaColor(e.target.value)}
+                      className="text-[10px] h-7 w-[72px] font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <Label className="text-[11px] text-muted-foreground">Justification</Label>
+                <JustifyButtons value={ctaJustify} onChange={setCtaJustify} />
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* ── Include / Exclude ── */}
+        <div className="border-t border-border pt-3 flex flex-col gap-3">
+          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Include / Exclude</p>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Title</Label>
+            <Switch checked={selectedBlock.showTitle} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showTitle: v })} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Body Text</Label>
+            <Switch checked={selectedBlock.showText} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showText: v })} />
           </div>
         </div>
-        <div className="flex flex-col gap-1.5">
+
+        {/* Padding */}
+        <div className="border-t border-border pt-3 flex flex-col gap-1.5">
           <Label className="text-xs font-medium">Padding ({selectedBlock.padding}px)</Label>
           <Slider
             value={[selectedBlock.padding]}
@@ -866,35 +1040,6 @@ export function EmailEditor() {
             max={40}
             step={4}
           />
-        </div>
-        <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Include / Exclude</p>
-          <div className="flex items-center justify-between">
-            <Label className="text-xs">Image</Label>
-            <Switch checked={selectedBlock.showImage} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showImage: v })} />
-          </div>
-          <div className="flex items-center justify-between">
-            <Label className="text-xs">Title</Label>
-            <Switch checked={selectedBlock.showTitle} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showTitle: v })} />
-          </div>
-          <div className="flex items-center justify-between">
-            <Label className="text-xs">Text</Label>
-            <Switch checked={selectedBlock.showText} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showText: v })} />
-          </div>
-          <div className="flex items-center justify-between">
-            <Label className="text-xs">CTA Button</Label>
-            <Switch checked={selectedBlock.showCta} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showCta: v })} />
-          </div>
-          {selectedBlock.showCta && (
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs">CTA Copy</Label>
-              <Input
-                value={selectedBlock.ctaCopy}
-                onChange={(e) => updateBlock(selectedBlock.id, { ctaCopy: e.target.value })}
-                className="text-sm h-8"
-              />
-            </div>
-          )}
         </div>
       </div>
     )
@@ -1079,7 +1224,7 @@ export function EmailEditor() {
   }
 
   return (
-    <div className="flex flex-col flex-1 overflow-hidden">
+    <div className="flex flex-col flex-1 h-full overflow-hidden">
       {/* ─── Top Toolbar ─── */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
         <div className="w-36" />
@@ -1181,9 +1326,9 @@ export function EmailEditor() {
       </div>
 
       {/* ─── Main Area ─── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* ─── Left Sidebar ─── */}
-        <div className="w-72 border-r border-border bg-card flex flex-col shrink-0">
+        <div className="w-72 border-r border-border bg-card flex flex-col shrink-0 h-full overflow-hidden">
           {sidebarMode === "add-module" ? (
             <>
               {/* Tab header */}
@@ -1364,8 +1509,8 @@ export function EmailEditor() {
                 </div>
               </ScrollArea>
               {editingTab === "data" && (
-                <div className="p-2.5 border-t border-border bg-card shrink-0">
-                  <Button size="sm" className="w-full text-xs h-8 gap-1.5">
+                <div className="p-2.5 border-t border-border bg-card shrink-0 shadow-[0_-2px_8px_rgba(0,0,0,0.06)]">
+                  <Button size="sm" className="w-full text-xs h-9 gap-1.5 font-semibold">
                     <Sparkles className="size-3.5" />
                     Update Module
                   </Button>
@@ -1377,7 +1522,7 @@ export function EmailEditor() {
 
         {/* ─── Center Canvas ─── */}
         <div
-          className="flex-1 bg-muted/30 overflow-auto"
+          className="flex-1 bg-muted/30 overflow-y-auto overflow-x-hidden h-full"
           onClick={() => {
             exitEditMode()
           }}
