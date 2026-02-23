@@ -823,12 +823,12 @@ export function EmailEditor() {
               type="color"
               value={selectedBlock.bgColor}
               onChange={(e) => updateBlock(selectedBlock.id, { bgColor: e.target.value })}
-              className="size-8 rounded border border-border cursor-pointer"
+              className="size-7 shrink-0 rounded border border-border cursor-pointer"
             />
             <Input
               value={selectedBlock.bgColor}
               onChange={(e) => updateBlock(selectedBlock.id, { bgColor: e.target.value })}
-              className="text-sm h-8 font-mono"
+              className="text-xs h-7 min-w-0 font-mono"
             />
           </div>
         </div>
@@ -847,33 +847,31 @@ export function EmailEditor() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 flex flex-col gap-1">
-              <Label className="text-[11px] text-muted-foreground">Size</Label>
-              <Select value={titleSize} onValueChange={setTitleSize}>
-                <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {sizeOptions.map((s) => (
-                    <SelectItem key={s} value={s}>{s}px</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label className="text-[11px] text-muted-foreground">Color</Label>
-              <div className="flex items-center gap-1">
-                <input
-                  type="color"
-                  value={selectedBlock.titleColor}
-                  onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
-                  className="size-7 rounded border border-border cursor-pointer"
-                />
-                <Input
-                  value={selectedBlock.titleColor}
-                  onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
-                  className="text-[10px] h-7 w-[72px] font-mono"
-                />
-              </div>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-[11px] text-muted-foreground">Size</Label>
+            <Select value={titleSize} onValueChange={setTitleSize}>
+              <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {sizeOptions.map((s) => (
+                  <SelectItem key={s} value={s}>{s}px</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-[11px] text-muted-foreground">Color</Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={selectedBlock.titleColor}
+                onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
+                className="size-7 shrink-0 rounded border border-border cursor-pointer"
+              />
+              <Input
+                value={selectedBlock.titleColor}
+                onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
+                className="text-xs h-7 min-w-0 font-mono"
+              />
             </div>
           </div>
           <div className="flex flex-col gap-1">
@@ -896,33 +894,31 @@ export function EmailEditor() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 flex flex-col gap-1">
-              <Label className="text-[11px] text-muted-foreground">Size</Label>
-              <Select value={bodySize} onValueChange={setBodySize}>
-                <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {sizeOptions.map((s) => (
-                    <SelectItem key={s} value={s}>{s}px</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label className="text-[11px] text-muted-foreground">Color</Label>
-              <div className="flex items-center gap-1">
-                <input
-                  type="color"
-                  value={selectedBlock.textColor}
-                  onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
-                  className="size-7 rounded border border-border cursor-pointer"
-                />
-                <Input
-                  value={selectedBlock.textColor}
-                  onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
-                  className="text-[10px] h-7 w-[72px] font-mono"
-                />
-              </div>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-[11px] text-muted-foreground">Size</Label>
+            <Select value={bodySize} onValueChange={setBodySize}>
+              <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {sizeOptions.map((s) => (
+                  <SelectItem key={s} value={s}>{s}px</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-[11px] text-muted-foreground">Color</Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={selectedBlock.textColor}
+                onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
+                className="size-7 shrink-0 rounded border border-border cursor-pointer"
+              />
+              <Input
+                value={selectedBlock.textColor}
+                onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
+                className="text-xs h-7 min-w-0 font-mono"
+              />
             </div>
           </div>
           <div className="flex flex-col gap-1">
@@ -980,33 +976,31 @@ export function EmailEditor() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 flex flex-col gap-1">
-                  <Label className="text-[11px] text-muted-foreground">Size</Label>
-                  <Select value={ctaSize} onValueChange={setCtaSize}>
-                    <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {sizeOptions.map((s) => (
-                        <SelectItem key={s} value={s}>{s}px</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <Label className="text-[11px] text-muted-foreground">Color</Label>
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="color"
-                      value={ctaColor}
-                      onChange={(e) => setCtaColor(e.target.value)}
-                      className="size-7 rounded border border-border cursor-pointer"
-                    />
-                    <Input
-                      value={ctaColor}
-                      onChange={(e) => setCtaColor(e.target.value)}
-                      className="text-[10px] h-7 w-[72px] font-mono"
-                    />
-                  </div>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-[11px] text-muted-foreground">Size</Label>
+                <Select value={ctaSize} onValueChange={setCtaSize}>
+                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {sizeOptions.map((s) => (
+                      <SelectItem key={s} value={s}>{s}px</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label className="text-[11px] text-muted-foreground">Color</Label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={ctaColor}
+                    onChange={(e) => setCtaColor(e.target.value)}
+                    className="size-7 shrink-0 rounded border border-border cursor-pointer"
+                  />
+                  <Input
+                    value={ctaColor}
+                    onChange={(e) => setCtaColor(e.target.value)}
+                    className="text-xs h-7 min-w-0 font-mono"
+                  />
                 </div>
               </div>
               <div className="flex flex-col gap-1">
