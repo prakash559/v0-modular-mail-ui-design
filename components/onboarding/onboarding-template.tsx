@@ -245,30 +245,28 @@ export function OnboardingTemplate({
                     onNext()
                   }}
                 >
-                  {/* Hover Select label or selected check */}
-                  {isSelected ? (
-                    <div className="absolute top-3 right-3 size-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center z-10">
-                      <Check className="size-3" />
+                  {/* Title + description at top, with Select on hover */}
+                  <div className="px-5 pt-5 pb-2 flex flex-col gap-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-sm font-semibold text-foreground">{tmpl.name}</h3>
+                      {isSelected ? (
+                        <div className="size-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                          <Check className="size-3" />
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center text-[11px] font-semibold text-primary-foreground bg-primary rounded-md px-2.5 py-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                          Select
+                        </span>
+                      )}
                     </div>
-                  ) : (
-                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                      <span className="inline-flex items-center text-[11px] font-semibold text-primary-foreground bg-primary rounded-md px-2.5 py-1 shadow-sm">
-                        Select
-                      </span>
-                    </div>
-                  )}
+                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{tmpl.description}</p>
+                  </div>
 
-                  {/* Illustration */}
-                  <div className="px-5 pt-5 pb-3">
+                  {/* Illustration below */}
+                  <div className="px-5 pb-5 pt-1">
                     <div className="rounded-lg border border-border bg-background p-3.5 flex items-center justify-center h-[130px]">
                       {tmpl.illustration}
                     </div>
-                  </div>
-
-                  {/* Text */}
-                  <div className="px-5 pb-5 flex flex-col gap-1">
-                    <h3 className="text-sm font-semibold text-foreground">{tmpl.name}</h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{tmpl.description}</p>
                   </div>
                 </button>
               )

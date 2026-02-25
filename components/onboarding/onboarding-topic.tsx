@@ -209,7 +209,7 @@ export function OnboardingTopic({
             />
             <Button
               size="sm"
-              className="absolute right-2 top-1/2 -translate-y-1/2 gap-1.5 rounded-lg px-5 h-9"
+              className="absolute right-2 top-1/2 -translate-y-1/2 gap-1.5 rounded-lg px-5 h-9 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
               onClick={onNext}
               disabled={!value.trim()}
             >
