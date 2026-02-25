@@ -94,47 +94,25 @@ import { mockModules, moduleLayouts, tones } from "@/lib/mock-data"
 const feedTiles = [
   { id: "articles", label: "Articles", icon: Newspaper },
   { id: "podcasts", label: "Podcasts", icon: Headphones },
-  { id: "videos", label: "Videos", icon: Play },
+  { id: "video", label: "Video", icon: Play },
   { id: "news", label: "News", icon: Globe },
   { id: "social", label: "Social", icon: MessageCircle },
-  { id: "highlights", label: "Highlights", icon: Star },
-  { id: "roundup", label: "Roundup", icon: Blocks },
   { id: "headlines", label: "Headlines", icon: FileText },
-  { id: "trending", label: "Trending", icon: TrendingUp },
-  { id: "resources", label: "Resources", icon: BookOpen },
-  { id: "spotlight", label: "Spotlight", icon: Search },
-  { id: "data-feed", label: "Data Feed", icon: BarChart3 },
-]
-
-const insightTiles = [
-  { id: "tip", label: "Tip", icon: Lightbulb },
-  { id: "insight", label: "Insight", icon: Sparkles },
-  { id: "breakdown", label: "Breakdown", icon: TrendingUp },
-  { id: "explainer", label: "Explainer", icon: Zap },
-  { id: "takeaways", label: "Takeaways", icon: List },
-  { id: "strategy", label: "Strategy", icon: Target },
-  { id: "trend", label: "Trend", icon: Rocket },
-  { id: "analysis", label: "Analysis", icon: BarChart3 },
-  { id: "checklist", label: "Checklist", icon: CheckSquare },
-  { id: "myth", label: "Myth", icon: Shield },
-  { id: "data", label: "Data", icon: Hash },
-  { id: "framework", label: "Framework", icon: Blocks },
 ]
 
 const editorialTiles = [
-  { id: "welcome", label: "Welcome", icon: PenLine },
-  { id: "editorial", label: "Editorial", icon: FileText },
-  { id: "perspective", label: "Perspective", icon: Compass },
-  { id: "commentary", label: "Commentary", icon: Megaphone },
-  { id: "focus", label: "Focus", icon: Target },
-  { id: "viewpoint", label: "Viewpoint", icon: EyeIcon },
-  { id: "context", label: "Context", icon: Globe },
-  { id: "opinion", label: "Opinion", icon: MessageCircle },
-  { id: "outlook", label: "Outlook", icon: TrendingUp },
-  { id: "reflection", label: "Reflection", icon: BookOpen },
-  { id: "from-us", label: "From Us", icon: Briefcase },
-  { id: "note", label: "Note", icon: PenLine },
+  { id: "intro-tips", label: "Intro Tips", icon: Lightbulb },
+  { id: "insight", label: "Insight", icon: Sparkles },
+  { id: "breakdown", label: "Breakdown", icon: TrendingUp },
+  { id: "perspectives", label: "Perspectives", icon: Compass },
+  { id: "explainer", label: "Explainer", icon: Zap },
+  { id: "takeaways", label: "Takeaways", icon: List },
+  { id: "trends", label: "Trends", icon: Rocket },
+  { id: "checklist", label: "Checklist", icon: CheckSquare },
+  { id: "outro", label: "Outro", icon: PenLine },
 ]
+
+const savedTiles: typeof feedTiles = []
 
 /* ─── Layout wireframe renderer ─── */
 function LayoutWireframe({ layout }: { layout: (typeof moduleLayouts)[0] }) {
@@ -359,7 +337,7 @@ export function EmailEditor() {
 
   /* Left sidebar state */
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("add-module")
-  const [activeTab, setActiveTab] = useState<"feeds" | "insights" | "editorial">("feeds")
+  const [activeTab, setActiveTab] = useState<"feeds" | "editorial" | "saved">("feeds")
   const [sidebarStep, setSidebarStep] = useState<SidebarStep>("tiles")
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null)
   const [selectedLayoutId, setSelectedLayoutId] = useState<string | null>(null)
@@ -369,11 +347,15 @@ export function EmailEditor() {
   const selectedBlock = canvasBlocks.find((b) => b.id === selectedBlockId)
 
   const activeTiles =
-    activeTab === "feeds" ? feedTiles : activeTab === "insights" ? insightTiles : editorialTiles
+    activeTab === "feeds" ? feedTiles : activeTab === "editorial" ? editorialTiles : savedTiles
 
-  const compatibleLayouts = moduleLayouts.filter((l) =>
-    l.compatibleModules.includes(activeTab === "feeds" ? "feeds" : activeTab === "insights" ? "insights" : "editorial")
-  )
+  const isEditorialTab = activeTab === "editorial"
+
+  const compatibleLayouts = isEditorialTab
+    ? [] // editorial uses short/medium/long copy, not standard layouts
+    : moduleLayouts.filter((l) =>
+        l.compatibleModules.includes("feeds")
+      )
 
   const suggestedTopics = [
     "AI in business",
@@ -411,14 +393,14 @@ export function EmailEditor() {
         id: `block-${Date.now()}`,
         moduleId: `new-${Date.now()}`,
         name: `${tileLabel}: ${topic}`,
-        source: activeTab === "feeds" ? "Feed" : activeTab === "insights" ? "Insight" : "Editorial",
+        source: activeTab === "feeds" ? "Feed" : activeTab === "editorial" ? "Editorial" : "Saved",
         topicPhrase: topic,
         tileLabel,
         headingText: `${tileLabel}: ${topic}`,
         bodyText: `AI-generated ${activeTab} content about "${topic}" using ${layoutName} layout. This content will be populated by ModularMail's AI engine.`,
         ...defaultBlockFields,
         bottomLine: activeTab !== "editorial",
-        whyItMatters: activeTab === "insights",
+        whyItMatters: activeTab === "editorial",
       }
       setCanvasBlocks((prev) => [...prev, newBlock])
     },
@@ -524,12 +506,43 @@ export function EmailEditor() {
   /* ─── Sidebar flow actions ─── */
   const handleTileSelect = (tileId: string) => {
     setSelectedTileId(tileId)
-    setSidebarStep("layouts")
+    setSidebarStep("topic")
+  }
+
+  const handleTopicContinue = () => {
+    if (!topicKeyword.trim()) return
+    if (isEditorialTab) {
+      // Editorial skips standard layouts -- go to editorial copy length
+      setSidebarStep("layouts")
+    } else {
+      setSidebarStep("layouts")
+    }
   }
 
   const handleLayoutSelect = (layoutId: string) => {
     setSelectedLayoutId(layoutId)
-    setSidebarStep("topic")
+    // Immediately add and reset
+    const tile = activeTiles.find((t) => t.id === selectedTileId)
+    const layout = moduleLayouts.find((l) => l.id === layoutId)
+    if (tile && layout && topicKeyword.trim()) {
+      addNewModuleToCanvas(tile.label, layout.name, topicKeyword.trim())
+    }
+    setSidebarStep("tiles")
+    setSelectedTileId(null)
+    setSelectedLayoutId(null)
+    setTopicKeyword("")
+  }
+
+  const handleEditorialLayoutSelect = (copyLength: "short" | "medium" | "long") => {
+    const tile = activeTiles.find((t) => t.id === selectedTileId)
+    if (tile && topicKeyword.trim()) {
+      const layoutName = `${copyLength.charAt(0).toUpperCase() + copyLength.slice(1)} Copy`
+      addNewModuleToCanvas(tile.label, layoutName, topicKeyword.trim())
+    }
+    setSidebarStep("tiles")
+    setSelectedTileId(null)
+    setSelectedLayoutId(null)
+    setTopicKeyword("")
   }
 
   const handleAddModule = () => {
@@ -545,13 +558,13 @@ export function EmailEditor() {
   }
 
   const handleSidebarBack = () => {
-    if (sidebarStep === "topic") {
-      setSidebarStep("layouts")
+    if (sidebarStep === "layouts") {
+      setSidebarStep("topic")
       setSelectedLayoutId(null)
-      setTopicKeyword("")
-    } else if (sidebarStep === "layouts") {
+    } else if (sidebarStep === "topic") {
       setSidebarStep("tiles")
       setSelectedTileId(null)
+      setTopicKeyword("")
     }
   }
 
@@ -1325,9 +1338,10 @@ export function EmailEditor() {
           {sidebarMode === "add-module" ? (
             <>
               {/* Tab header */}
-              <div className="p-2.5 border-b border-border">
+              <div className="p-2.5 border-b border-border flex flex-col gap-1.5">
+                <p className="text-xs font-semibold text-foreground">Content Types:</p>
                 <div className="flex items-center rounded-lg bg-muted p-0.5">
-                  {(["feeds", "insights", "editorial"] as const).map((tab) => (
+                  {(["feeds", "editorial", "saved"] as const).map((tab) => (
                     <button
                       key={tab}
                       className={`flex-1 px-2 py-1.5 text-[11px] font-medium rounded-md transition-colors capitalize ${
@@ -1353,66 +1367,33 @@ export function EmailEditor() {
                 {/* ── Step: Tiles ── */}
                 {sidebarStep === "tiles" && (
                   <div className="p-3 flex flex-col gap-1.5">
-                    <p className="text-[10px] font-semibold text-foreground uppercase tracking-wider px-1 mb-1">
-                      Select a module type
-                    </p>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {activeTiles.map((tile) => {
-                        const TileIcon = tile.icon
-                        return (
-                          <button
-                            key={tile.id}
-                            className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-background p-3 hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm transition-all"
-                            onClick={() => handleTileSelect(tile.id)}
-                          >
-                            <TileIcon className="size-4 text-muted-foreground" />
-                            <span className="text-[11px] font-medium text-foreground">{tile.label}</span>
-                          </button>
-                        )
-                      })}
-                    </div>
+                    {activeTiles.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-10 text-center">
+                        <Blocks className="size-8 text-muted-foreground/30 mb-2" />
+                        <p className="text-xs font-medium text-muted-foreground">No saved modules yet</p>
+                        <p className="text-[10px] text-muted-foreground/70 mt-0.5">Saved modules will appear here</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {activeTiles.map((tile) => {
+                          const TileIcon = tile.icon
+                          return (
+                            <button
+                              key={tile.id}
+                              className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-background p-3 hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm transition-all"
+                              onClick={() => handleTileSelect(tile.id)}
+                            >
+                              <TileIcon className="size-4 text-muted-foreground" />
+                              <span className="text-[11px] font-medium text-foreground">{tile.label}</span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {/* ── Step: Layouts ── */}
-                {sidebarStep === "layouts" && (
-                  <div className="p-3 flex flex-col gap-2">
-                    <button
-                      className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary transition-colors self-start"
-                      onClick={handleSidebarBack}
-                    >
-                      <ChevronLeft className="size-3.5" />
-                      Back
-                    </button>
-                    <p className="text-xs font-semibold text-foreground px-1">
-                      Choose a Layout
-                    </p>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {compatibleLayouts.map((layout) => (
-                        <button
-                          key={layout.id}
-                          className={`flex flex-col rounded-lg border bg-background overflow-hidden hover:border-primary/40 hover:shadow-sm transition-all ${
-                            selectedLayoutId === layout.id
-                              ? "border-primary ring-1 ring-primary/30"
-                              : "border-border"
-                          }`}
-                          onClick={() => handleLayoutSelect(layout.id)}
-                        >
-                          <div className="w-full aspect-[4/3] border-b border-border bg-muted/30 flex items-center justify-center p-2">
-                            <LayoutWireframe layout={layout} />
-                          </div>
-                          <div className="px-2 py-1.5">
-                            <span className="text-[10px] font-medium text-foreground leading-tight line-clamp-1">
-                              {layout.name}
-                            </span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* ── Step: Topic ── */}
+                {/* ── Step: Topic (now comes before layouts) ── */}
                 {sidebarStep === "topic" && (
                   <div className="p-3 flex flex-col gap-3">
                     <button
@@ -1454,11 +1435,84 @@ export function EmailEditor() {
                       size="sm"
                       className="w-full text-xs h-8 gap-1.5 mt-1"
                       disabled={!topicKeyword.trim()}
-                      onClick={handleAddModule}
+                      onClick={handleTopicContinue}
                     >
-                      <Plus className="size-3.5" />
-                      Add Module to Email
+                      <ArrowRight className="size-3.5" />
+                      Continue
                     </Button>
+                  </div>
+                )}
+
+                {/* ── Step: Layouts (after topic) ── */}
+                {sidebarStep === "layouts" && (
+                  <div className="p-3 flex flex-col gap-2">
+                    <button
+                      className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary transition-colors self-start"
+                      onClick={handleSidebarBack}
+                    >
+                      <ChevronLeft className="size-3.5" />
+                      Back
+                    </button>
+                    <p className="text-xs font-semibold text-foreground px-1">
+                      Choose a Layout
+                    </p>
+
+                    {isEditorialTab ? (
+                      /* Editorial: Short / Medium / Long copy options */
+                      <div className="flex flex-col gap-1.5">
+                        {([
+                          { id: "short", label: "Short Copy", desc: "A concise 2-3 sentence block. Quick and scannable.", lines: 2 },
+                          { id: "medium", label: "Medium Copy", desc: "A short paragraph with room for context. 4-6 sentences.", lines: 4 },
+                          { id: "long", label: "Long Copy", desc: "A full editorial section with depth and narrative. 8+ sentences.", lines: 7 },
+                        ] as const).map((opt) => (
+                          <button
+                            key={opt.id}
+                            className="flex flex-col rounded-lg border border-border bg-background overflow-hidden hover:border-primary/40 hover:shadow-sm transition-all text-left"
+                            onClick={() => handleEditorialLayoutSelect(opt.id)}
+                          >
+                            {/* Text wireframe */}
+                            <div className="w-full border-b border-border bg-muted/30 flex flex-col gap-1 p-3">
+                              <div className="h-2 w-16 rounded-full bg-muted-foreground/15" />
+                              {Array.from({ length: opt.lines }).map((_, i) => (
+                                <div
+                                  key={i}
+                                  className="h-1.5 rounded-full bg-muted-foreground/10"
+                                  style={{ width: i === opt.lines - 1 ? "60%" : "100%" }}
+                                />
+                              ))}
+                            </div>
+                            <div className="px-3 py-2">
+                              <span className="text-[11px] font-medium text-foreground">{opt.label}</span>
+                              <p className="text-[10px] text-muted-foreground leading-relaxed mt-0.5">{opt.desc}</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      /* Feeds: Standard layout grid */
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {compatibleLayouts.map((layout) => (
+                          <button
+                            key={layout.id}
+                            className={`flex flex-col rounded-lg border bg-background overflow-hidden hover:border-primary/40 hover:shadow-sm transition-all ${
+                              selectedLayoutId === layout.id
+                                ? "border-primary ring-1 ring-primary/30"
+                                : "border-border"
+                            }`}
+                            onClick={() => handleLayoutSelect(layout.id)}
+                          >
+                            <div className="w-full aspect-[4/3] border-b border-border bg-muted/30 flex items-center justify-center p-2">
+                              <LayoutWireframe layout={layout} />
+                            </div>
+                            <div className="px-2 py-1.5">
+                              <span className="text-[10px] font-medium text-foreground leading-tight line-clamp-1">
+                                {layout.name}
+                              </span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </ScrollArea>
