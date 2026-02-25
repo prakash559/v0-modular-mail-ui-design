@@ -194,7 +194,7 @@ export function OnboardingTopic({
             </p>
           </div>
 
-          {/* Input */}
+          {/* Input with inline CTA */}
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <input
@@ -205,8 +205,17 @@ export function OnboardingTopic({
                 setSearch(v)
               }}
               placeholder="Enter a topic or phrase"
-              className="w-full pl-11 pr-4 h-12 text-sm rounded-xl border border-border bg-card shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+              className="w-full pl-11 pr-32 h-13 text-sm rounded-xl border border-border bg-card shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
             />
+            <Button
+              size="sm"
+              className="absolute right-2 top-1/2 -translate-y-1/2 gap-1.5 rounded-lg px-5 h-9"
+              onClick={onNext}
+              disabled={!value.trim()}
+            >
+              Continue
+              <ArrowRight className="size-3.5" />
+            </Button>
           </div>
 
           {/* Topic categories grid */}
@@ -259,18 +268,7 @@ export function OnboardingTopic({
         </div>
       </div>
 
-      {/* Sticky CTA always visible at bottom */}
-      <div className="border-t border-border bg-background px-6 py-4 flex justify-center shrink-0">
-        <Button
-          size="lg"
-          className="gap-2 rounded-xl px-10 min-w-[200px]"
-          onClick={onNext}
-          disabled={!value.trim()}
-        >
-          Continue
-          <ArrowRight className="size-4" />
-        </Button>
-      </div>
+
     </div>
   )
 }
