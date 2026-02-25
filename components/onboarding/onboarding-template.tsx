@@ -137,73 +137,80 @@ export function OnboardingTemplate({
   onBack: () => void
 }) {
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12 flex flex-col gap-8">
-      {/* Back + Heading */}
-      <div className="flex flex-col gap-4">
-        <button
-          className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors self-start"
-          onClick={onBack}
-        >
-          <ChevronLeft className="size-4" />
-          Back
-        </button>
-        <div className="text-center flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground text-balance">
-            Choose a template theme
-          </h1>
-          <p className="text-muted-foreground text-balance max-w-lg mx-auto">
-            Pick a layout style for your email. You can customize everything later in the editor.
-          </p>
-        </div>
-      </div>
-
-      {/* Templates grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {templates.map((tmpl) => {
-          const isSelected = selected === tmpl.id
-          return (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-4xl mx-auto px-6 py-12 flex flex-col gap-8">
+          {/* Back + Heading */}
+          <div className="flex flex-col gap-4">
             <button
-              key={tmpl.id}
-              className={`group relative flex flex-col rounded-xl border text-left transition-all ${
-                isSelected
-                  ? "border-primary ring-2 ring-primary/20 bg-card shadow-sm"
-                  : "border-border bg-card hover:border-primary/30 hover:shadow-sm"
-              }`}
-              onClick={() => onSelect(tmpl.id)}
+              className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors self-start"
+              onClick={onBack}
             >
-              {/* Selected check */}
-              {isSelected && (
-                <div className="absolute top-3 right-3 size-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-                  <Check className="size-3" />
-                </div>
-              )}
-
-              {/* Illustration */}
-              <div className="px-5 pt-5 pb-3">
-                <div className="rounded-lg border border-border bg-background p-3.5 flex items-center justify-center min-h-[120px]">
-                  {tmpl.illustration}
-                </div>
-              </div>
-
-              {/* Text */}
-              <div className="px-5 pb-5 flex flex-col gap-1">
-                <h3 className="text-sm font-semibold text-foreground">{tmpl.name}</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">{tmpl.description}</p>
-              </div>
+              <ChevronLeft className="size-4" />
+              Back
             </button>
-          )
-        })}
+            <div className="text-center flex flex-col gap-2">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground text-balance">
+                Choose a template theme
+              </h1>
+              <p className="text-muted-foreground text-balance max-w-lg mx-auto">
+                Pick a layout style for your email. You can customize everything later in the editor.
+              </p>
+            </div>
+          </div>
+
+          {/* Templates grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {templates.map((tmpl) => {
+              const isSelected = selected === tmpl.id
+              return (
+                <button
+                  key={tmpl.id}
+                  className={`group relative flex flex-col rounded-xl border text-left transition-all ${
+                    isSelected
+                      ? "border-primary ring-2 ring-primary/20 bg-card shadow-sm"
+                      : "border-border bg-card hover:border-primary/30 hover:shadow-sm"
+                  }`}
+                  onClick={() => onSelect(tmpl.id)}
+                >
+                  {/* Selected check */}
+                  {isSelected && (
+                    <div className="absolute top-3 right-3 size-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                      <Check className="size-3" />
+                    </div>
+                  )}
+
+                  {/* Illustration */}
+                  <div className="px-5 pt-5 pb-3">
+                    <div className="rounded-lg border border-border bg-background p-3.5 flex items-center justify-center min-h-[120px]">
+                      {tmpl.illustration}
+                    </div>
+                  </div>
+
+                  {/* Text */}
+                  <div className="px-5 pb-5 flex flex-col gap-1">
+                    <h3 className="text-sm font-semibold text-foreground">{tmpl.name}</h3>
+                    <p className="text-xs text-muted-foreground leading-relaxed">{tmpl.description}</p>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </div>
       </div>
 
-      {/* Continue */}
-      {selected && (
-        <div className="flex justify-center">
-          <Button size="lg" className="gap-2 rounded-xl px-8" onClick={onNext}>
-            Continue
-            <ArrowRight className="size-4" />
-          </Button>
-        </div>
-      )}
+      {/* Sticky CTA always visible at bottom -- same position as topic step */}
+      <div className="border-t border-border bg-background px-6 py-4 flex justify-center shrink-0">
+        <Button
+          size="lg"
+          className="gap-2 rounded-xl px-10 min-w-[200px]"
+          onClick={onNext}
+          disabled={!selected}
+        >
+          Continue
+          <ArrowRight className="size-4" />
+        </Button>
+      </div>
     </div>
   )
 }

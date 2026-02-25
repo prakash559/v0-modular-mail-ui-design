@@ -1,8 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Search, ArrowRight, Sparkles } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { Search, ArrowRight, Sparkles, Hash } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const topicCategories: {
@@ -12,89 +11,137 @@ const topicCategories: {
   {
     category: "Technology",
     topics: [
-      "Latest developments in artificial intelligence and machine learning",
-      "Cybersecurity threats and data protection strategies",
-      "Cloud computing trends and enterprise adoption",
-      "Emerging programming languages and developer tools",
-      "Web3 and decentralized application development",
-      "The future of remote work technology",
+      "AI trends",
+      "Cloud computing",
+      "Cybersecurity updates",
+      "SaaS tools and platforms",
+      "Developer productivity",
+      "No-code movement",
+      "Machine learning applications",
+      "Tech startup funding",
+      "Open source software",
+      "Digital transformation strategies",
+      "DevOps best practices",
+      "Edge computing",
     ],
   },
   {
     category: "Business",
     topics: [
-      "Small business growth strategies and tactics",
-      "Marketing automation and digital advertising",
-      "Venture capital funding rounds and startup valuations",
-      "Leadership and management best practices",
-      "E-commerce trends and online retail innovation",
-      "Supply chain optimization and logistics",
+      "Startup growth",
+      "Remote work culture",
+      "Supply chain trends",
+      "B2B sales strategies",
+      "Small business marketing",
+      "Leadership insights",
+      "Mergers and acquisitions",
+      "Business automation",
+      "Customer retention tactics",
+      "Scaling a SaaS business",
+      "Franchise opportunities",
+      "Corporate innovation",
     ],
   },
   {
     category: "Finance",
     topics: [
-      "Stock market analysis and investment strategies",
-      "Cryptocurrency market trends and regulation",
-      "Personal finance tips and wealth management",
-      "Real estate market updates and forecasts",
-      "Fintech innovation and digital banking",
-      "Economic policy and global market outlook",
+      "Stock market updates",
+      "Crypto regulation",
+      "Personal budgeting",
+      "Real estate investing",
+      "Fintech innovation",
+      "Retirement planning",
+      "Venture capital trends",
+      "Economic forecasts",
+      "Banking disruption",
+      "Wealth management tips",
+      "Tax planning strategies",
+      "ESG investing",
     ],
   },
   {
     category: "Health & Wellness",
     topics: [
-      "Mental health awareness and workplace wellbeing",
-      "Nutrition science and healthy eating habits",
-      "Fitness trends and exercise science research",
-      "Healthcare technology and digital health platforms",
-      "Medical research breakthroughs and clinical trials",
-      "Mindfulness and stress management techniques",
+      "Mental health",
+      "Nutrition science",
+      "Fitness and recovery",
+      "Healthcare technology",
+      "Workplace wellbeing",
+      "Sleep optimization",
+      "Preventive medicine",
+      "Mindfulness practices",
+      "Telehealth platforms",
+      "Women's health research",
+      "Gut health and microbiome",
+      "Health policy updates",
     ],
   },
   {
     category: "Science",
     topics: [
-      "Space exploration and aerospace engineering advances",
-      "Climate change research and sustainability solutions",
-      "Biotechnology innovations and gene editing progress",
-      "Quantum computing research and applications",
-      "Renewable energy technology and green infrastructure",
-      "Neuroscience discoveries and brain research",
+      "Space exploration",
+      "Climate research",
+      "Biotech breakthroughs",
+      "Quantum computing",
+      "Renewable energy",
+      "Neuroscience discoveries",
+      "Ocean conservation",
+      "Genetics and CRISPR",
+      "Sustainable materials",
+      "Astronomy and astrophysics",
+      "Lab-grown food",
+      "Environmental policy",
     ],
   },
   {
     category: "Marketing",
     topics: [
-      "Content marketing strategies and storytelling techniques",
-      "Social media marketing trends and platform updates",
-      "SEO best practices and search algorithm changes",
-      "Email marketing optimization and deliverability",
-      "Brand building and customer experience design",
-      "Influencer marketing and creator economy trends",
+      "Content strategy",
+      "SEO updates",
+      "Email marketing tips",
+      "Social media trends",
+      "Brand storytelling",
+      "Influencer marketing",
+      "Paid media optimization",
+      "Marketing analytics",
+      "Growth hacking tactics",
+      "Community building",
+      "Video marketing",
+      "Conversion rate optimization",
     ],
   },
   {
     category: "Education",
     topics: [
-      "EdTech innovations and online learning platforms",
-      "K-12 curriculum development and teaching methods",
-      "Higher education trends and university admissions",
-      "Professional development and skill-building programs",
-      "Student engagement tools and classroom technology",
-      "Education policy changes and funding updates",
+      "EdTech tools",
+      "Online learning trends",
+      "Skill development",
+      "University admissions",
+      "Classroom innovation",
+      "Corporate training",
+      "STEM education",
+      "Lifelong learning",
+      "Student engagement",
+      "Education policy",
+      "Micro-credentials",
+      "Language learning apps",
     ],
   },
   {
     category: "Lifestyle",
     topics: [
-      "Travel destinations and adventure planning guides",
-      "Fashion trends and sustainable style choices",
-      "Home design and interior decoration ideas",
-      "Food culture and restaurant industry trends",
-      "Photography techniques and visual storytelling",
-      "Parenting tips and family wellness strategies",
+      "Travel guides",
+      "Sustainable fashion",
+      "Interior design",
+      "Food and dining trends",
+      "Photography tips",
+      "Parenting advice",
+      "Personal development",
+      "Minimalist living",
+      "Pet care trends",
+      "Outdoor adventures",
+      "DIY and crafting",
+      "Book recommendations",
     ],
   },
 ]
@@ -111,107 +158,118 @@ export function OnboardingTopic({
   const [search, setSearch] = useState("")
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
 
-  const filteredCategories = search.trim()
+  const filterTerm = search.trim() && !topicCategories.some(c => c.topics.includes(search)) ? search : ""
+
+  const filteredCategories = filterTerm
     ? topicCategories
         .map((cat) => ({
           ...cat,
           topics: cat.topics.filter((t) =>
-            t.toLowerCase().includes(search.toLowerCase())
+            t.toLowerCase().includes(filterTerm.toLowerCase())
           ),
         }))
         .filter((cat) => cat.topics.length > 0)
     : topicCategories
 
+  const handleTopicClick = (topic: string) => {
+    onChange(topic)
+    setSearch(topic)
+  }
+
   return (
-    <div className="max-w-3xl mx-auto px-6 py-12 flex flex-col gap-8">
-      {/* Heading */}
-      <div className="text-center flex flex-col gap-3">
-        <div className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-primary bg-primary/10 rounded-full px-3 py-1 self-center">
-          <Sparkles className="size-3" />
-          Let{"'"}s get started
-        </div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground text-balance">
-          What topic will your email cover?
-        </h1>
-        <p className="text-muted-foreground text-balance max-w-lg mx-auto">
-          Enter a topic, keyword, or phrase that describes the content you want to curate. You can also browse ideas below.
-        </p>
-      </div>
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-3xl mx-auto px-6 py-12 flex flex-col gap-8">
+          {/* Heading */}
+          <div className="text-center flex flex-col gap-3">
+            <div className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-primary bg-primary/10 rounded-full px-3 py-1 self-center">
+              <Sparkles className="size-3" />
+              {"Let's get started"}
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground text-balance">
+              What Topic Should Your Email Cover?
+            </h1>
+            <p className="text-muted-foreground text-balance max-w-lg mx-auto">
+              Enter a topic, keyword, or phrase that describes the content you want to curate. You can also browse ideas below.
+            </p>
+          </div>
 
-      {/* Input */}
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-        <Input
-          value={value || search}
-          onChange={(e) => {
-            const v = e.target.value
-            onChange(v)
-            setSearch(v)
-          }}
-          placeholder="e.g. Latest developments in artificial intelligence and machine learning"
-          className="pl-11 pr-4 h-12 text-sm rounded-xl border-border shadow-sm"
-        />
-      </div>
+          {/* Input */}
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <input
+              value={value || search}
+              onChange={(e) => {
+                const v = e.target.value
+                onChange(v)
+                setSearch(v)
+              }}
+              placeholder="Enter a topic or phrase"
+              className="w-full pl-11 pr-4 h-12 text-sm rounded-xl border border-border bg-card shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+            />
+          </div>
 
-      {/* Continue button */}
-      {value.trim().length > 0 && (
-        <div className="flex justify-center">
-          <Button size="lg" className="gap-2 rounded-xl px-8" onClick={onNext}>
-            Continue
-            <ArrowRight className="size-4" />
-          </Button>
-        </div>
-      )}
+          {/* Topic categories grid */}
+          <div className="flex flex-col gap-3">
+            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">
+              Topics by Industry
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {filteredCategories.map((cat) => {
+                const isExpanded = expandedCategory === cat.category
+                const visibleTopics = isExpanded ? cat.topics : cat.topics.slice(0, 6)
 
-      {/* Topic categories grid */}
-      <div className="flex flex-col gap-2">
-        <p className="text-xs font-semibold text-foreground uppercase tracking-wider">
-          Topics by Industry
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {filteredCategories.map((cat) => {
-            const isExpanded = expandedCategory === cat.category
-            const visibleTopics = isExpanded ? cat.topics : cat.topics.slice(0, 3)
-
-            return (
-              <div
-                key={cat.category}
-                className="rounded-xl border border-border bg-card p-4 flex flex-col gap-2.5"
-              >
-                <h3 className="text-sm font-semibold text-foreground">{cat.category}</h3>
-                <ul className="flex flex-col gap-1">
-                  {visibleTopics.map((topic) => (
-                    <li key={topic}>
-                      <button
-                        className={`w-full text-left text-[13px] leading-relaxed px-2.5 py-1.5 rounded-lg transition-colors ${
-                          value === topic
-                            ? "bg-primary/10 text-primary font-medium"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                        }`}
-                        onClick={() => {
-                          onChange(topic)
-                          setSearch(topic)
-                        }}
-                      >
-                        {topic}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-                {cat.topics.length > 3 && (
-                  <button
-                    className="text-[11px] font-medium text-primary hover:underline self-start px-2.5"
-                    onClick={() =>
-                      setExpandedCategory(isExpanded ? null : cat.category)
-                    }
+                return (
+                  <div
+                    key={cat.category}
+                    className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3"
                   >
-                    {isExpanded ? "Show less" : `More ${cat.category} Topics`}
-                  </button>
-                )}
-              </div>
-            )
-          })}
+                    <h3 className="text-sm font-semibold text-foreground">{cat.category}</h3>
+                    <div className="flex flex-wrap gap-1.5">
+                      {visibleTopics.map((topic) => (
+                        <button
+                          key={topic}
+                          className={`inline-flex items-center gap-1 text-[13px] leading-snug px-2.5 py-1.5 rounded-lg border transition-colors ${
+                            value === topic
+                              ? "bg-primary/10 text-primary border-primary/30 font-medium"
+                              : "bg-background text-foreground border-border hover:bg-muted hover:border-muted-foreground/20"
+                          }`}
+                          onClick={() => handleTopicClick(topic)}
+                        >
+                          <Hash className="size-3 opacity-40 shrink-0" />
+                          {topic}
+                        </button>
+                      ))}
+                    </div>
+                    {cat.topics.length > 6 && (
+                      <button
+                        className="text-[11px] font-medium text-primary hover:underline self-start"
+                        onClick={() =>
+                          setExpandedCategory(isExpanded ? null : cat.category)
+                        }
+                      >
+                        {isExpanded ? "Show less" : `+${cat.topics.length - 6} more`}
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
         </div>
+      </div>
+
+      {/* Sticky CTA always visible at bottom */}
+      <div className="border-t border-border bg-background px-6 py-4 flex justify-center shrink-0">
+        <Button
+          size="lg"
+          className="gap-2 rounded-xl px-10 min-w-[200px]"
+          onClick={onNext}
+          disabled={!value.trim()}
+        >
+          Continue
+          <ArrowRight className="size-4" />
+        </Button>
       </div>
     </div>
   )
