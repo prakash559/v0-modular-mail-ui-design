@@ -60,6 +60,10 @@ import {
   Ban,
   Clock,
   Wrench,
+  Minus,
+  Bold,
+  Italic,
+  Underline,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -679,29 +683,6 @@ export function EmailEditor() {
           </Select>
         </div>
 
-        {/* Alignment */}
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-xs font-medium">Alignment</Label>
-          <div className="flex items-center gap-1">
-            {(["left", "center", "right"] as const).map((align) => {
-              const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
-              return (
-                <button
-                  key={align}
-                  className={`flex-1 flex items-center justify-center h-8 rounded-md border text-xs transition-colors ${
-                    selectedBlock.alignment === align
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "border-border text-muted-foreground hover:bg-muted"
-                  }`}
-                  onClick={() => updateBlock(selectedBlock.id, { alignment: align })}
-                >
-                  <Icon className="size-3.5" />
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
         {/* Extra Editorial */}
         <div className="border-t border-border pt-3 flex flex-col gap-3">
           <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Extra Editorial</p>
@@ -778,274 +759,233 @@ export function EmailEditor() {
   }
 
   /* ─── Additional style state ─── */
-  const [titleFont, setTitleFont] = useState("sans-serif")
-  const [titleSize, setTitleSize] = useState("16")
-  const [titleJustify, setTitleJustify] = useState<"left" | "center" | "right">("left")
-  const [bodyFont, setBodyFont] = useState("sans-serif")
-  const [bodySize, setBodySize] = useState("14")
-  const [bodyJustify, setBodyJustify] = useState<"left" | "center" | "right">("left")
+  const [titleFontSize, setTitleFontSize] = useState(20)
+  const [titleFontHeight, setTitleFontHeight] = useState(26)
+  const [titleBold, setTitleBold] = useState(true)
+  const [titleItalic, setTitleItalic] = useState(false)
+  const [titleAlign, setTitleAlign] = useState<"left" | "center" | "right">("left")
+  const [titleClipLines, setTitleClipLines] = useState(1)
+
+  const [descFontSize, setDescFontSize] = useState(15)
+  const [descFontHeight, setDescFontHeight] = useState(26)
+  const [descAlign, setDescAlign] = useState<"left" | "center" | "right">("left")
+  const [descClipLines, setDescClipLines] = useState(5)
+
+  const [ctaLabel, setCtaLabel] = useState("Read more")
+  const [ctaFontSize, setCtaFontSize] = useState(15)
+  const [ctaColor, setCtaColor] = useState("#197DF9")
+  const [ctaBold, setCtaBold] = useState(false)
+  const [ctaUnderline, setCtaUnderline] = useState(false)
+  const [ctaAlign, setCtaAlign] = useState<"left" | "center" | "right">("left")
+
   const [imageSize, setImageSize] = useState([100])
-  const [ctaCopy, setCtaCopy] = useState("Read More")
-  const [ctaFont, setCtaFont] = useState("sans-serif")
-  const [ctaSize, setCtaSize] = useState("12")
-  const [ctaColor, setCtaColor] = useState("#2563eb")
-  const [ctaJustify, setCtaJustify] = useState<"left" | "center" | "right">("left")
 
-  const fontOptions = [
-    { value: "sans-serif", label: "Sans Serif" },
-    { value: "serif", label: "Serif" },
-    { value: "monospace", label: "Monospace" },
-    { value: "georgia", label: "Georgia" },
-    { value: "arial", label: "Arial" },
-    { value: "helvetica", label: "Helvetica" },
-  ]
+  /* Collapsible section state */
+  const [openStyleSections, setOpenStyleSections] = useState<Record<string, boolean>>({
+    title: true,
+    description: true,
+    cta: true,
+    image: true,
+    general: true,
+  })
 
-  const sizeOptions = ["10", "11", "12", "13", "14", "16", "18", "20", "24", "28", "32"]
+  const toggleStyleSection = (key: string) => {
+    setOpenStyleSections((prev) => ({ ...prev, [key]: !prev[key] }))
+  }
 
-  const JustifyButtons = ({ value, onChange }: { value: "left" | "center" | "right"; onChange: (v: "left" | "center" | "right") => void }) => (
-    <div className="flex items-center gap-0.5">
-      {(["left", "center", "right"] as const).map((align) => {
-        const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
-        return (
-          <button
-            key={align}
-            className={`flex items-center justify-center size-7 rounded-md border text-xs transition-colors ${
-              value === align
-                ? "bg-primary text-primary-foreground border-primary"
-                : "border-border text-muted-foreground hover:bg-muted"
-            }`}
-            onClick={() => onChange(align)}
-          >
-            <Icon className="size-3" />
-          </button>
-        )
-      })}
+  /* ─── Reusable style controls ─── */
+  const NumberStepper = ({ label, value, onChange, min = 1, max = 100 }: { label: string; value: number; onChange: (v: number) => void; min?: number; max?: number }) => (
+    <div className="flex items-center justify-between py-1.5">
+      <Label className="text-xs text-foreground">{label}</Label>
+      <div className="flex items-center border border-border rounded-md overflow-hidden">
+        <button
+          className="size-7 flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
+          onClick={() => onChange(Math.max(min, value - 1))}
+        >
+          <Minus className="size-3" />
+        </button>
+        <span className="w-9 text-center text-xs font-medium text-foreground tabular-nums">{value}</span>
+        <button
+          className="size-7 flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
+          onClick={() => onChange(Math.min(max, value + 1))}
+        >
+          <Plus className="size-3" />
+        </button>
+      </div>
     </div>
+  )
+
+  const ColorRow = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
+    <div className="flex items-center justify-between py-1.5">
+      <Label className="text-xs text-foreground">{label}</Label>
+      <div className="flex items-center gap-1.5">
+        <div className="flex items-center border border-border rounded-md overflow-hidden h-7">
+          <span className="text-[10px] text-muted-foreground pl-2 pr-0.5">#</span>
+          <input
+            value={value.replace("#", "").toUpperCase()}
+            onChange={(e) => onChange(`#${e.target.value}`)}
+            className="w-[72px] text-xs h-7 bg-transparent outline-none pr-1 font-mono"
+          />
+        </div>
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="size-7 shrink-0 rounded border border-border cursor-pointer"
+        />
+      </div>
+    </div>
+  )
+
+  const AlignRow = ({ label, value, onChange }: { label: string; value: "left" | "center" | "right"; onChange: (v: "left" | "center" | "right") => void }) => (
+    <div className="flex items-center justify-between py-1.5">
+      <Label className="text-xs text-foreground">{label}</Label>
+      <div className="flex items-center rounded-md overflow-hidden border border-border">
+        {(["left", "center", "right"] as const).map((align) => {
+          const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
+          return (
+            <button
+              key={align}
+              className={`size-7 flex items-center justify-center transition-colors ${
+                value === align
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+              onClick={() => onChange(align)}
+            >
+              <Icon className="size-3" />
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+
+  const ToggleRow = ({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) => (
+    <div className="flex items-center justify-between py-1.5">
+      <Label className="text-xs text-foreground">{label}</Label>
+      <Switch checked={checked} onCheckedChange={onChange} />
+    </div>
+  )
+
+  const SectionHeader = ({ label, sectionKey, enableSwitch, enabled, onToggle }: { label: string; sectionKey: string; enableSwitch?: boolean; enabled?: boolean; onToggle?: (v: boolean) => void }) => (
+    <button
+      className="flex items-center justify-between w-full py-2 group"
+      onClick={() => toggleStyleSection(sectionKey)}
+    >
+      <div className="flex items-center gap-2">
+        <ChevronDown className={`size-3.5 text-muted-foreground transition-transform ${openStyleSections[sectionKey] ? "" : "-rotate-90"}`} />
+        <span className="text-xs font-semibold text-foreground uppercase tracking-wider">{label}</span>
+      </div>
+      {enableSwitch && (
+        <div onClick={(e) => e.stopPropagation()}>
+          <Switch checked={enabled} onCheckedChange={onToggle} />
+        </div>
+      )}
+    </button>
   )
 
   /* ─── Render Style editing tab ─── */
   const renderStyleTab = () => {
     if (!selectedBlock) return null
     return (
-      <div className="flex flex-col gap-4">
-        {/* Background Color */}
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-xs font-medium">Background Color</Label>
-          <div className="flex items-center gap-2">
-            <input
-              type="color"
-              value={selectedBlock.bgColor}
-              onChange={(e) => updateBlock(selectedBlock.id, { bgColor: e.target.value })}
-              className="size-7 shrink-0 rounded border border-border cursor-pointer"
-            />
-            <Input
-              value={selectedBlock.bgColor}
-              onChange={(e) => updateBlock(selectedBlock.id, { bgColor: e.target.value })}
-              className="text-xs h-7 min-w-0 font-mono"
-            />
-          </div>
-        </div>
-
+      <div className="flex flex-col divide-y divide-border">
         {/* ── Title ── */}
-        <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Title</p>
-            <Switch checked={selectedBlock.showTitle} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showTitle: v })} />
-          </div>
-          {selectedBlock.showTitle && (
-            <>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Font</Label>
-                <Select value={titleFont} onValueChange={setTitleFont}>
-                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {fontOptions.map((f) => (
-                      <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Size</Label>
-                <Select value={titleSize} onValueChange={setTitleSize}>
-                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {sizeOptions.map((s) => (
-                      <SelectItem key={s} value={s}>{s}px</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Color</Label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={selectedBlock.titleColor}
-                    onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
-                    className="size-7 shrink-0 rounded border border-border cursor-pointer"
-                  />
-                  <Input
-                    value={selectedBlock.titleColor}
-                    onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
-                    className="text-xs h-7 min-w-0 font-mono"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-[11px] text-muted-foreground">Justification</Label>
-                <JustifyButtons value={titleJustify} onChange={setTitleJustify} />
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* ── Body ── */}
-        <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Body</p>
-            <Switch checked={selectedBlock.showText} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showText: v })} />
-          </div>
-          {selectedBlock.showText && (
-            <>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Font</Label>
-                <Select value={bodyFont} onValueChange={setBodyFont}>
-                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {fontOptions.map((f) => (
-                      <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Size</Label>
-                <Select value={bodySize} onValueChange={setBodySize}>
-                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {sizeOptions.map((s) => (
-                      <SelectItem key={s} value={s}>{s}px</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Color</Label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={selectedBlock.textColor}
-                    onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
-                    className="size-7 shrink-0 rounded border border-border cursor-pointer"
-                  />
-                  <Input
-                    value={selectedBlock.textColor}
-                    onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
-                    className="text-xs h-7 min-w-0 font-mono"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-[11px] text-muted-foreground">Justification</Label>
-                <JustifyButtons value={bodyJustify} onChange={setBodyJustify} />
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* ── Image ── */}
-        <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Image</p>
-            <Switch checked={selectedBlock.showImage} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showImage: v })} />
-          </div>
-          {selectedBlock.showImage && (
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-[11px] text-muted-foreground">Size ({imageSize[0]}%)</Label>
-              <Slider
-                value={imageSize}
-                onValueChange={setImageSize}
-                min={25}
-                max={100}
-                step={5}
-              />
+        <div className="flex flex-col">
+          <SectionHeader label="Title" sectionKey="title" enableSwitch enabled={selectedBlock.showTitle} onToggle={(v) => updateBlock(selectedBlock.id, { showTitle: v })} />
+          {openStyleSections.title && selectedBlock.showTitle && (
+            <div className="flex flex-col pb-3">
+              <NumberStepper label="Font size" value={titleFontSize} onChange={setTitleFontSize} min={8} max={72} />
+              <NumberStepper label="Font height" value={titleFontHeight} onChange={setTitleFontHeight} min={8} max={80} />
+              <ToggleRow label="Bold font" checked={titleBold} onChange={setTitleBold} />
+              <ToggleRow label="Italic font" checked={titleItalic} onChange={setTitleItalic} />
+              <ColorRow label="Color" value={selectedBlock.titleColor} onChange={(v) => updateBlock(selectedBlock.id, { titleColor: v })} />
+              <AlignRow label="Align" value={titleAlign} onChange={setTitleAlign} />
+              <NumberStepper label="Clip after X lines" value={titleClipLines} onChange={setTitleClipLines} min={1} max={10} />
             </div>
           )}
         </div>
 
-        {/* ── CTA ── */}
-        <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">CTA</p>
-            <Switch checked={selectedBlock.showCta} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showCta: v })} />
-          </div>
-          {selectedBlock.showCta && (
-            <>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Copy</Label>
-                <Input
-                  value={selectedBlock.ctaCopy}
-                  onChange={(e) => updateBlock(selectedBlock.id, { ctaCopy: e.target.value })}
-                  className="text-xs h-7"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Font</Label>
-                <Select value={ctaFont} onValueChange={setCtaFont}>
-                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {fontOptions.map((f) => (
-                      <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Size</Label>
-                <Select value={ctaSize} onValueChange={setCtaSize}>
-                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {sizeOptions.map((s) => (
-                      <SelectItem key={s} value={s}>{s}px</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Color</Label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={ctaColor}
-                    onChange={(e) => setCtaColor(e.target.value)}
-                    className="size-7 shrink-0 rounded border border-border cursor-pointer"
-                  />
-                  <Input
-                    value={ctaColor}
-                    onChange={(e) => setCtaColor(e.target.value)}
-                    className="text-xs h-7 min-w-0 font-mono"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-[11px] text-muted-foreground">Justification</Label>
-                <JustifyButtons value={ctaJustify} onChange={setCtaJustify} />
-              </div>
-            </>
+        {/* ── Description ── */}
+        <div className="flex flex-col">
+          <SectionHeader label="Description" sectionKey="description" enableSwitch enabled={selectedBlock.showText} onToggle={(v) => updateBlock(selectedBlock.id, { showText: v })} />
+          {openStyleSections.description && selectedBlock.showText && (
+            <div className="flex flex-col pb-3">
+              <NumberStepper label="Font size" value={descFontSize} onChange={setDescFontSize} min={8} max={72} />
+              <NumberStepper label="Font height" value={descFontHeight} onChange={setDescFontHeight} min={8} max={80} />
+              <ColorRow label="Color" value={selectedBlock.textColor} onChange={(v) => updateBlock(selectedBlock.id, { textColor: v })} />
+              <AlignRow label="Align" value={descAlign} onChange={setDescAlign} />
+              <NumberStepper label="Clip after X lines" value={descClipLines} onChange={setDescClipLines} min={1} max={20} />
+            </div>
           )}
         </div>
 
-        {/* Padding */}
-        <div className="border-t border-border pt-3 flex flex-col gap-1.5">
-          <Label className="text-xs font-medium">Padding ({selectedBlock.padding}px)</Label>
-          <Slider
-            value={[selectedBlock.padding]}
-            onValueChange={([v]) => updateBlock(selectedBlock.id, { padding: v })}
-            min={8}
-            max={40}
-            step={4}
-          />
+        {/* ── Call To Action ── */}
+        <div className="flex flex-col">
+          <SectionHeader label="Call To Action" sectionKey="cta" enableSwitch enabled={selectedBlock.showCta} onToggle={(v) => updateBlock(selectedBlock.id, { showCta: v })} />
+          {openStyleSections.cta && selectedBlock.showCta && (
+            <div className="flex flex-col pb-3">
+              <div className="flex items-center justify-between py-1.5">
+                <Label className="text-xs text-foreground">Read More Label</Label>
+                <Input
+                  value={ctaLabel}
+                  onChange={(e) => {
+                    setCtaLabel(e.target.value)
+                    updateBlock(selectedBlock.id, { ctaCopy: e.target.value })
+                  }}
+                  className="text-xs h-7 w-[120px] text-right"
+                />
+              </div>
+              <NumberStepper label="Font size" value={ctaFontSize} onChange={setCtaFontSize} min={8} max={72} />
+              <ColorRow label="Read More Color" value={ctaColor} onChange={setCtaColor} />
+              <ToggleRow label="Bold font" checked={ctaBold} onChange={setCtaBold} />
+              <ToggleRow label="Underline" checked={ctaUnderline} onChange={setCtaUnderline} />
+              <AlignRow label="Align" value={ctaAlign} onChange={setCtaAlign} />
+            </div>
+          )}
+        </div>
+
+        {/* ── Image ── */}
+        <div className="flex flex-col">
+          <SectionHeader label="Image" sectionKey="image" enableSwitch enabled={selectedBlock.showImage} onToggle={(v) => updateBlock(selectedBlock.id, { showImage: v })} />
+          {openStyleSections.image && selectedBlock.showImage && (
+            <div className="flex flex-col pb-3">
+              <div className="flex items-center justify-between py-1.5">
+                <Label className="text-xs text-foreground">Size ({imageSize[0]}%)</Label>
+                <div className="w-[140px]">
+                  <Slider
+                    value={imageSize}
+                    onValueChange={setImageSize}
+                    min={25}
+                    max={100}
+                    step={5}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── General ── */}
+        <div className="flex flex-col">
+          <SectionHeader label="General" sectionKey="general" />
+          {openStyleSections.general && (
+            <div className="flex flex-col pb-3">
+              <ColorRow label="Background Color" value={selectedBlock.bgColor} onChange={(v) => updateBlock(selectedBlock.id, { bgColor: v })} />
+              <div className="flex items-center justify-between py-1.5">
+                <Label className="text-xs text-foreground">Padding ({selectedBlock.padding}px)</Label>
+                <div className="w-[140px]">
+                  <Slider
+                    value={[selectedBlock.padding]}
+                    onValueChange={([v]) => updateBlock(selectedBlock.id, { padding: v })}
+                    min={8}
+                    max={40}
+                    step={4}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     )
@@ -1758,33 +1698,7 @@ export function EmailEditor() {
                                       </TooltipTrigger>
                                       <TooltipContent side="right">Edit</TooltipContent>
                                     </Tooltip>
-                                    {/* Duplicate */}
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button
-                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-primary hover:text-primary hover:bg-primary/5 transition-colors shadow-sm"
-                                          onClick={(e) => {
-                                            e.stopPropagation()
-                                            duplicateBlock(block.id)
-                                          }}
-                                        >
-                                          <Copy className="size-3.5" />
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent side="right">Duplicate</TooltipContent>
-                                    </Tooltip>
-                                    {/* HTML */}
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button
-                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-primary hover:text-primary hover:bg-primary/5 transition-colors shadow-sm"
-                                          onClick={(e) => { e.stopPropagation() }}
-                                        >
-                                          <Code className="size-3.5" />
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent side="right">HTML</TooltipContent>
-                                    </Tooltip>
+
                                     {/* Move (drag + up/down) */}
                                     <Tooltip>
                                       <TooltipTrigger asChild>
