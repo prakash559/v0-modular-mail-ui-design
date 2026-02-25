@@ -1423,7 +1423,7 @@ export function EmailEditor() {
                         {suggestedTopics.map((t) => (
                           <button
                             key={t}
-                            className="text-[10px] px-2 py-0.5 rounded-full border border-border bg-background hover:bg-primary/5 hover:border-primary/30 transition-colors text-muted-foreground hover:text-foreground"
+                            className="text-[10px] px-2 py-0.5 rounded-full border border-border bg-background hover:bg-primary/5 hover:border-primary/30 transition-colors text-foreground"
                             onClick={() => setTopicKeyword(t)}
                           >
                             {t}
