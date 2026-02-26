@@ -99,6 +99,9 @@ export function SettingsPage() {
 
           {/* ── Account Settings ── */}
           <TabsContent value="account" className="flex flex-col gap-4">
+            <div className="flex justify-end">
+              <Button>Save Account Settings</Button>
+            </div>
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Profile</CardTitle>
@@ -192,13 +195,13 @@ export function SettingsPage() {
               </CardContent>
             </Card>
 
-            <div className="flex justify-end">
-              <Button>Save Account Settings</Button>
-            </div>
           </TabsContent>
 
           {/* ── Module Settings ── */}
           <TabsContent value="modules" className="flex flex-col gap-4">
+            <div className="flex justify-end">
+              <Button>Save Module Settings</Button>
+            </div>
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Module Defaults</CardTitle>
@@ -275,13 +278,13 @@ export function SettingsPage() {
               </CardContent>
             </Card>
 
-            <div className="flex justify-end">
-              <Button>Save Module Settings</Button>
-            </div>
           </TabsContent>
 
           {/* ── Email Settings ── */}
           <TabsContent value="email" className="flex flex-col gap-4">
+            <div className="flex justify-end">
+              <Button>Save Email Settings</Button>
+            </div>
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Email Defaults</CardTitle>
@@ -375,9 +378,6 @@ export function SettingsPage() {
               </CardContent>
             </Card>
 
-            <div className="flex justify-end">
-              <Button>Save Email Settings</Button>
-            </div>
           </TabsContent>
 
           {/* ── Integrations ── */}
