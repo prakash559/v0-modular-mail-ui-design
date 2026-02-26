@@ -1,11 +1,69 @@
 "use client"
 
-import { Blocks, Layout, Mail, ArrowRight, Clock, Sparkles } from "lucide-react"
+import { Blocks, Layout, Mail, ArrowRight, Clock, Sparkles, Eye, Settings2, Hash } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { mockModules, mockEmails, suggestedModules } from "@/lib/mock-data"
+import { mockModules, mockEmails } from "@/lib/mock-data"
+
+/* ─── Trending module data ─── */
+const trendingModules = [
+  {
+    id: "trend-1",
+    title: "AI-Powered Student Assessment",
+    source: "Google News",
+    sourceIcon: "newspaper",
+    keyword: "AI in Education",
+    excerpt: "Universities are rolling out AI-driven assessment tools that adapt to individual student progress, reducing grading time by 40% while improving feedback quality.",
+    category: "Technology",
+  },
+  {
+    id: "trend-2",
+    title: "Remote Work Productivity Report",
+    source: "LinkedIn",
+    sourceIcon: "briefcase",
+    keyword: "Remote Work",
+    excerpt: "New data shows distributed teams outperform in-office counterparts on key metrics. The shift to async-first communication is reshaping management practices.",
+    category: "Business",
+  },
+  {
+    id: "trend-3",
+    title: "Fintech Disruption in SMB Lending",
+    source: "TechCrunch",
+    sourceIcon: "rocket",
+    keyword: "Fintech Innovation",
+    excerpt: "Alternative lenders are leveraging real-time cash flow data to underwrite small businesses in minutes, bypassing traditional credit scoring models entirely.",
+    category: "Finance",
+  },
+  {
+    id: "trend-4",
+    title: "Creator Economy Growth Surge",
+    source: "YouTube",
+    sourceIcon: "play",
+    keyword: "Creator Economy",
+    excerpt: "Full-time content creators increased 35% year-over-year. Platform monetization tools and brand partnerships are maturing rapidly across social channels.",
+    category: "Marketing",
+  },
+  {
+    id: "trend-5",
+    title: "Telehealth Adoption Plateaus",
+    source: "BBC News",
+    sourceIcon: "globe",
+    keyword: "Healthcare Tech",
+    excerpt: "After pandemic-era spikes, telehealth usage has stabilized. Providers are now focusing on hybrid care models that blend virtual and in-person visits.",
+    category: "Health",
+  },
+  {
+    id: "trend-6",
+    title: "Climate Tech Funding Rebounds",
+    source: "Reuters",
+    sourceIcon: "trending-up",
+    keyword: "Clean Energy",
+    excerpt: "Venture investment in climate tech startups rose 28% in Q4, driven by battery storage innovation and grid modernization projects across the US and EU.",
+    category: "Science",
+  },
+]
 
 export function Dashboard({
   onNavigate,
@@ -138,33 +196,65 @@ export function Dashboard({
           </CardContent>
         </Card>
 
-        {/* Suggested Modules */}
-        <Card>
-          <CardHeader className="pb-3">
+        {/* Trending Modules For You */}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sparkles className="size-4 text-primary" />
-              <CardTitle className="text-base">Suggested Modules for Education</CardTitle>
+              <h3 className="text-base font-semibold text-foreground">Trending Modules For You</h3>
             </div>
-            <CardDescription>AI-recommended content sources based on trending topics</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {suggestedModules.map((sug) => (
-                <div
-                  key={sug.id}
-                  className="flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-accent/50 transition-colors cursor-pointer"
-                  onClick={() => onNavigate("module-create")}
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{sug.name}</p>
-                    <p className="text-xs text-muted-foreground">{sug.source}</p>
+            <p className="text-xs text-muted-foreground">Curated from your topics and sources</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {trendingModules.map((mod) => (
+              <div
+                key={mod.id}
+                className="group relative flex flex-col rounded-xl border border-border bg-card overflow-hidden transition-all hover:shadow-md hover:border-primary/20"
+              >
+                {/* Card content */}
+                <div className="p-4 flex flex-col gap-3 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <Badge variant="secondary" className="text-[10px] font-medium shrink-0">
+                      {mod.category}
+                    </Badge>
+                    <span className="text-[10px] text-muted-foreground">{mod.source}</span>
                   </div>
-                  <ArrowRight className="size-3.5 text-muted-foreground shrink-0" />
+                  <div className="flex flex-col gap-1.5">
+                    <h4 className="text-sm font-semibold text-foreground leading-snug line-clamp-2 text-balance">{mod.title}</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{mod.excerpt}</p>
+                  </div>
+                  <div className="mt-auto pt-2">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/5 border border-primary/10 rounded-full px-2 py-0.5">
+                      <Hash className="size-2.5" />
+                      {mod.keyword}
+                    </span>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+
+                {/* Hover overlay with actions */}
+                <div className="absolute inset-0 flex items-center justify-center gap-2 bg-card/80 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs gap-1.5 bg-card shadow-sm"
+                    onClick={() => {}}
+                  >
+                    <Eye className="size-3" />
+                    Preview
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="h-8 text-xs gap-1.5 shadow-sm"
+                    onClick={() => onNavigate("module-create")}
+                  >
+                    <Settings2 className="size-3" />
+                    Customize
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -17,6 +17,7 @@ export default function Page() {
   const [activeSection, setActiveSection] = useState("dashboard")
 
   const renderSection = () => {
+    console.log("[v0] activeSection:", activeSection)
     switch (activeSection) {
       case "dashboard":
         return <Dashboard onNavigate={setActiveSection} />
@@ -34,6 +35,7 @@ export default function Page() {
         return <SettingsPage />
       case "layouts":
       case "templates":
+      case "brand":
       case "industries":
         return (
           <PlaceholderPage
