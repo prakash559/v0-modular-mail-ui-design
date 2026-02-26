@@ -64,6 +64,13 @@ import {
   Bold,
   Italic,
   Underline,
+  Rss,
+  Music,
+  Clapperboard,
+  Terminal,
+  Camera,
+  AtSign,
+  type LucideIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -95,54 +102,54 @@ import {
 import { mockModules, moduleLayouts, tones } from "@/lib/mock-data"
 
 /* ─── Feed Data Source definitions ─── */
-type FeedSource = { id: string; label: string; icon: string; category: string }
+type FeedSource = { id: string; label: string; icon: LucideIcon; category: string }
 
 const feedSources: FeedSource[] = [
-  { id: "youtube", label: "YouTube", icon: "https://www.google.com/s2/favicons?domain=youtube.com&sz=32", category: "Social" },
-  { id: "instagram", label: "Instagram", icon: "https://www.google.com/s2/favicons?domain=instagram.com&sz=32", category: "Social" },
-  { id: "tiktok", label: "TikTok", icon: "https://www.google.com/s2/favicons?domain=tiktok.com&sz=32", category: "Social" },
-  { id: "twitter", label: "X / Twitter", icon: "https://www.google.com/s2/favicons?domain=x.com&sz=32", category: "Social" },
-  { id: "linkedin", label: "LinkedIn", icon: "https://www.google.com/s2/favicons?domain=linkedin.com&sz=32", category: "Social" },
-  { id: "threads", label: "Threads", icon: "https://www.google.com/s2/favicons?domain=threads.net&sz=32", category: "Social" },
-  { id: "reddit", label: "Reddit", icon: "https://www.google.com/s2/favicons?domain=reddit.com&sz=32", category: "Social" },
-  { id: "facebook", label: "Facebook", icon: "https://www.google.com/s2/favicons?domain=facebook.com&sz=32", category: "Social" },
-  { id: "bluesky", label: "Bluesky", icon: "https://www.google.com/s2/favicons?domain=bsky.app&sz=32", category: "Social" },
-  { id: "pinterest", label: "Pinterest", icon: "https://www.google.com/s2/favicons?domain=pinterest.com&sz=32", category: "Social" },
-  { id: "tumblr", label: "Tumblr", icon: "https://www.google.com/s2/favicons?domain=tumblr.com&sz=32", category: "Social" },
-  { id: "google-news", label: "Google News", icon: "https://www.google.com/s2/favicons?domain=news.google.com&sz=32", category: "News" },
-  { id: "bbc", label: "BBC News", icon: "https://www.google.com/s2/favicons?domain=bbc.com&sz=32", category: "News" },
-  { id: "cnn", label: "CNN", icon: "https://www.google.com/s2/favicons?domain=cnn.com&sz=32", category: "News" },
-  { id: "reuters", label: "Reuters", icon: "https://www.google.com/s2/favicons?domain=reuters.com&sz=32", category: "News" },
-  { id: "nytimes", label: "NYTimes", icon: "https://www.google.com/s2/favicons?domain=nytimes.com&sz=32", category: "News" },
-  { id: "guardian", label: "The Guardian", icon: "https://www.google.com/s2/favicons?domain=theguardian.com&sz=32", category: "News" },
-  { id: "forbes", label: "Forbes", icon: "https://www.google.com/s2/favicons?domain=forbes.com&sz=32", category: "News" },
-  { id: "ap-news", label: "AP News", icon: "https://www.google.com/s2/favicons?domain=apnews.com&sz=32", category: "News" },
-  { id: "yahoo-news", label: "Yahoo News", icon: "https://www.google.com/s2/favicons?domain=news.yahoo.com&sz=32", category: "News" },
-  { id: "axios", label: "Axios", icon: "https://www.google.com/s2/favicons?domain=axios.com&sz=32", category: "News" },
-  { id: "huffpost", label: "HuffPost", icon: "https://www.google.com/s2/favicons?domain=huffpost.com&sz=32", category: "News" },
-  { id: "medium", label: "Medium", icon: "https://www.google.com/s2/favicons?domain=medium.com&sz=32", category: "Publishing" },
-  { id: "substack", label: "Substack", icon: "https://www.google.com/s2/favicons?domain=substack.com&sz=32", category: "Publishing" },
-  { id: "wordpress", label: "WordPress", icon: "https://www.google.com/s2/favicons?domain=wordpress.com&sz=32", category: "Publishing" },
-  { id: "vimeo", label: "Vimeo", icon: "https://www.google.com/s2/favicons?domain=vimeo.com&sz=32", category: "Video" },
-  { id: "dailymotion", label: "Dailymotion", icon: "https://www.google.com/s2/favicons?domain=dailymotion.com&sz=32", category: "Video" },
-  { id: "rumble", label: "Rumble", icon: "https://www.google.com/s2/favicons?domain=rumble.com&sz=32", category: "Video" },
-  { id: "spotify", label: "Spotify", icon: "https://www.google.com/s2/favicons?domain=spotify.com&sz=32", category: "Podcast" },
-  { id: "apple-podcasts", label: "Apple Podcasts", icon: "https://www.google.com/s2/favicons?domain=podcasts.apple.com&sz=32", category: "Podcast" },
-  { id: "techcrunch", label: "TechCrunch", icon: "https://www.google.com/s2/favicons?domain=techcrunch.com&sz=32", category: "Technology" },
-  { id: "the-verge", label: "The Verge", icon: "https://www.google.com/s2/favicons?domain=theverge.com&sz=32", category: "Technology" },
-  { id: "wired", label: "Wired", icon: "https://www.google.com/s2/favicons?domain=wired.com&sz=32", category: "Technology" },
-  { id: "ars-technica", label: "Ars Technica", icon: "https://www.google.com/s2/favicons?domain=arstechnica.com&sz=32", category: "Technology" },
-  { id: "fast-company", label: "Fast Company", icon: "https://www.google.com/s2/favicons?domain=fastcompany.com&sz=32", category: "Business" },
-  { id: "economist", label: "The Economist", icon: "https://www.google.com/s2/favicons?domain=economist.com&sz=32", category: "Business" },
-  { id: "bloomberg", label: "Bloomberg", icon: "https://www.google.com/s2/favicons?domain=bloomberg.com&sz=32", category: "Business" },
-  { id: "webpage", label: "Any Webpage", icon: "https://www.google.com/s2/favicons?domain=google.com&sz=32", category: "Other" },
-  { id: "rss", label: "RSS Feed", icon: "https://www.google.com/s2/favicons?domain=rss.com&sz=32", category: "Other" },
+  { id: "youtube", label: "YouTube", icon: Play, category: "Social" },
+  { id: "instagram", label: "Instagram", icon: Camera, category: "Social" },
+  { id: "tiktok", label: "TikTok", icon: Clapperboard, category: "Social" },
+  { id: "twitter", label: "X / Twitter", icon: AtSign, category: "Social" },
+  { id: "linkedin", label: "LinkedIn", icon: Briefcase, category: "Social" },
+  { id: "threads", label: "Threads", icon: Hash, category: "Social" },
+  { id: "reddit", label: "Reddit", icon: MessageCircle, category: "Social" },
+  { id: "facebook", label: "Facebook", icon: Globe, category: "Social" },
+  { id: "bluesky", label: "Bluesky", icon: Globe, category: "Social" },
+  { id: "pinterest", label: "Pinterest", icon: Image, category: "Social" },
+  { id: "tumblr", label: "Tumblr", icon: PenLine, category: "Social" },
+  { id: "google-news", label: "Google News", icon: Newspaper, category: "News" },
+  { id: "bbc", label: "BBC News", icon: Newspaper, category: "News" },
+  { id: "cnn", label: "CNN", icon: Newspaper, category: "News" },
+  { id: "reuters", label: "Reuters", icon: Newspaper, category: "News" },
+  { id: "nytimes", label: "NYTimes", icon: Newspaper, category: "News" },
+  { id: "guardian", label: "The Guardian", icon: Newspaper, category: "News" },
+  { id: "forbes", label: "Forbes", icon: TrendingUp, category: "News" },
+  { id: "ap-news", label: "AP News", icon: Newspaper, category: "News" },
+  { id: "yahoo-news", label: "Yahoo News", icon: Globe, category: "News" },
+  { id: "axios", label: "Axios", icon: Zap, category: "News" },
+  { id: "huffpost", label: "HuffPost", icon: Newspaper, category: "News" },
+  { id: "medium", label: "Medium", icon: FileText, category: "Publishing" },
+  { id: "substack", label: "Substack", icon: BookOpen, category: "Publishing" },
+  { id: "wordpress", label: "WordPress", icon: Globe, category: "Publishing" },
+  { id: "vimeo", label: "Vimeo", icon: Play, category: "Video" },
+  { id: "dailymotion", label: "Dailymotion", icon: Play, category: "Video" },
+  { id: "rumble", label: "Rumble", icon: Play, category: "Video" },
+  { id: "spotify", label: "Spotify", icon: Music, category: "Podcast" },
+  { id: "apple-podcasts", label: "Apple Podcasts", icon: Headphones, category: "Podcast" },
+  { id: "techcrunch", label: "TechCrunch", icon: Rocket, category: "Technology" },
+  { id: "the-verge", label: "The Verge", icon: Terminal, category: "Technology" },
+  { id: "wired", label: "Wired", icon: Zap, category: "Technology" },
+  { id: "ars-technica", label: "Ars Technica", icon: Terminal, category: "Technology" },
+  { id: "fast-company", label: "Fast Company", icon: TrendingUp, category: "Business" },
+  { id: "economist", label: "The Economist", icon: BarChart3, category: "Business" },
+  { id: "bloomberg", label: "Bloomberg", icon: BarChart3, category: "Business" },
+  { id: "webpage", label: "Any Webpage", icon: Globe, category: "Other" },
+  { id: "rss", label: "RSS Feed", icon: Rss, category: "Other" },
 ]
 
 const feedCategories = ["All", ...Array.from(new Set(feedSources.map((s) => s.category)))]
 
 /* ─── Tile definitions (kept for editorial / saved) ─── */
-const feedTiles = feedSources.map((s) => ({ id: s.id, label: s.label, icon: Globe }))
+const feedTiles = feedSources.map((s) => ({ id: s.id, label: s.label, icon: s.icon }))
 
 const editorialTiles = [
   { id: "intro-tips", label: "Intro Tips", icon: Lightbulb },
@@ -264,7 +271,7 @@ type CanvasBlock = {
   topicPhrase: string
   tileLabel: string
   feedSourceId: string
-  feedSourceIcon: string
+  feedSourceIcon: LucideIcon | null
   bgColor: string
   titleColor: string
   textColor: string
@@ -303,7 +310,7 @@ type SidebarStep = "tiles" | "layouts" | "topic"
 
 const defaultBlockFields = {
   feedSourceId: "",
-  feedSourceIcon: "",
+  feedSourceIcon: null as LucideIcon | null,
   tone: "Professional",
   bottomLine: true,
   whyItMatters: false,
@@ -343,38 +350,7 @@ const defaultBlockFields = {
 }
 
 export function EmailEditor() {
-  const [canvasBlocks, setCanvasBlocks] = useState<CanvasBlock[]>([
-    {
-      id: "block-1",
-      moduleId: "mod-1",
-      name: "Business Analytics Trends",
-      source: "Google News",
-      topicPhrase: "AI in business analytics",
-      tileLabel: "Google News",
-      feedSourceId: "google-news",
-      feedSourceIcon: "https://www.google.com/s2/favicons?domain=news.google.com&sz=32",
-      headingText: "Business Analytics Trends",
-      bodyText:
-        "Top business analytics trends reshaping how companies make data-driven decisions in 2026. AI-powered dashboards and predictive models lead the charge.",
-      ...defaultBlockFields,
-    },
-    {
-      id: "block-2",
-      moduleId: "mod-2",
-      name: "EdTech Weekly Roundup",
-      source: "Reddit",
-      topicPhrase: "edtech innovation",
-      tileLabel: "Reddit",
-      feedSourceId: "reddit",
-      feedSourceIcon: "https://www.google.com/s2/favicons?domain=reddit.com&sz=32",
-      headingText: "EdTech Weekly Roundup",
-      bodyText:
-        "The most discussed EdTech topics this week from r/edtech and r/education, including new classroom tools and curriculum innovations.",
-      ...defaultBlockFields,
-      bottomLine: false,
-      whyItMatters: true,
-    },
-  ])
+  const [canvasBlocks, setCanvasBlocks] = useState<CanvasBlock[]>([])
 
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null)
   const [selectedComponent, setSelectedComponent] = useState<EditableComponent | null>(null)
@@ -388,6 +364,9 @@ export function EmailEditor() {
   const [draggingBlockId, setDraggingBlockId] = useState<string | null>(null)
 
   /* Left sidebar state */
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [insertAtIndex, setInsertAtIndex] = useState<number | null>(null)
+  const [hoveredGapIndex, setHoveredGapIndex] = useState<number | null>(null)
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("add-module")
   const [activeTab, setActiveTab] = useState<"feeds" | "editorial" | "saved">("feeds")
   const [sidebarStep, setSidebarStep] = useState<SidebarStep>("tiles")
@@ -438,8 +417,17 @@ export function EmailEditor() {
       bottomLine: mod.commentary.bottomLine,
       whyItMatters: mod.commentary.whyItMatters,
     }
-    setCanvasBlocks((prev) => [...prev, newBlock])
-  }, [])
+    setCanvasBlocks((prev) => {
+      if (insertAtIndex !== null && insertAtIndex >= 0 && insertAtIndex <= prev.length) {
+        const next = [...prev]
+        next.splice(insertAtIndex, 0, newBlock)
+        return next
+      }
+      return [...prev, newBlock]
+    })
+    setSidebarOpen(false)
+    setInsertAtIndex(null)
+  }, [insertAtIndex])
 
   const addNewModuleToCanvas = useCallback(
     (tileLabel: string, layoutName: string, topic: string, feedSourceOverride?: FeedSource) => {
@@ -452,16 +440,26 @@ export function EmailEditor() {
         topicPhrase: topic,
         tileLabel,
         feedSourceId: feedSource?.id || "",
-        feedSourceIcon: feedSource?.icon || "",
+        feedSourceIcon: feedSource?.icon || null,
         headingText: `${tileLabel}: ${topic}`,
         bodyText: `AI-generated ${activeTab} content about "${topic}" using ${layoutName} layout. This content will be populated by ModularMail's AI engine.`,
         ...defaultBlockFields,
         bottomLine: activeTab !== "editorial",
         whyItMatters: activeTab === "editorial",
       }
-      setCanvasBlocks((prev) => [...prev, newBlock])
+      setCanvasBlocks((prev) => {
+        if (insertAtIndex !== null && insertAtIndex >= 0 && insertAtIndex <= prev.length) {
+          const next = [...prev]
+          next.splice(insertAtIndex, 0, newBlock)
+          return next
+        }
+        return [...prev, newBlock]
+      })
+      /* Close sidebar after adding */
+      setSidebarOpen(false)
+      setInsertAtIndex(null)
     },
-    [activeTab, selectedTileId]
+    [activeTab, selectedTileId, insertAtIndex]
   )
 
   const deleteBlock = useCallback((id: string) => {
@@ -469,6 +467,7 @@ export function EmailEditor() {
     setSelectedBlockId((prev) => {
       if (prev === id) {
         setSidebarMode("add-module")
+        setSidebarOpen(false)
         setSelectedComponent(null)
         return null
       }
@@ -550,6 +549,7 @@ export function EmailEditor() {
     setSelectedBlockId(blockId)
     setSelectedComponent(null)
     setSidebarMode("edit-module")
+    setSidebarOpen(true)
     setEditingTab("data")
   }
 
@@ -557,6 +557,7 @@ export function EmailEditor() {
     setSelectedBlockId(blockId)
     setSelectedComponent(component)
     setSidebarMode("edit-module")
+    setSidebarOpen(true)
     setEditingTab("data")
   }
 
@@ -564,6 +565,8 @@ export function EmailEditor() {
     setSelectedBlockId(null)
     setSelectedComponent(null)
     setSidebarMode("add-module")
+    setSidebarOpen(false)
+    setInsertAtIndex(null)
   }
 
   /* ─── Sidebar flow actions ─── */
@@ -603,6 +606,8 @@ export function EmailEditor() {
     setSelectedTileId(null)
     setSelectedLayoutId(null)
     setTopicKeyword("")
+    setSidebarOpen(false)
+    setInsertAtIndex(null)
   }
 
   const handleEditorialLayoutSelect = (copyLength: "short" | "medium" | "long") => {
@@ -615,6 +620,8 @@ export function EmailEditor() {
     setSelectedTileId(null)
     setSelectedLayoutId(null)
     setTopicKeyword("")
+    setSidebarOpen(false)
+    setInsertAtIndex(null)
   }
 
   const handleAddModule = () => {
@@ -937,9 +944,12 @@ export function EmailEditor() {
   )
 
   const SectionHeader = ({ label, sectionKey, enableSwitch, enabled, onToggle }: { label: string; sectionKey: string; enableSwitch?: boolean; enabled?: boolean; onToggle?: (v: boolean) => void }) => (
-    <button
-      className="flex items-center justify-between w-full py-2 group"
+    <div
+      className="flex items-center justify-between w-full py-2 group cursor-pointer"
+      role="button"
+      tabIndex={0}
       onClick={() => toggleStyleSection(sectionKey)}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") toggleStyleSection(sectionKey) }}
     >
       <div className="flex items-center gap-2">
         <ChevronDown className={`size-3.5 text-muted-foreground transition-transform ${openStyleSections[sectionKey] ? "" : "-rotate-90"}`} />
@@ -950,7 +960,7 @@ export function EmailEditor() {
           <Switch checked={enabled} onCheckedChange={onToggle} />
         </div>
       )}
-    </button>
+    </div>
   )
 
   /* ─── Render Style editing tab ─── */
@@ -1342,12 +1352,21 @@ export function EmailEditor() {
       {/* ─── Main Area ─── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* ─── Left Sidebar ─── */}
+        {sidebarOpen && (
         <div className="w-80 border-r border-border bg-card flex flex-col shrink-0 h-full overflow-hidden">
           {sidebarMode === "add-module" ? (
             <>
               {/* Tab header */}
               <div className="p-2.5 border-b border-border flex flex-col gap-1.5">
-                <p className="text-xs font-semibold text-foreground">Content Types:</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-foreground">Add Module</p>
+                  <button
+                    className="size-6 flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    onClick={() => { setSidebarOpen(false); setInsertAtIndex(null) }}
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </div>
                 <div className="flex items-center rounded-lg bg-muted p-0.5">
                   {(["feeds", "editorial", "saved"] as const).map((tab) => (
                     <button
@@ -1408,21 +1427,19 @@ export function EmailEditor() {
                               const matchesCat = feedCategory === "All" || s.category === feedCategory
                               return matchesSearch && matchesCat
                             })
-                            .map((source) => (
-                              <button
-                                key={source.id}
-                                className="flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1.5 hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm transition-all text-left"
-                                onClick={() => handleTileSelect(source.id)}
-                              >
-                                <img
-                                  src={source.icon}
-                                  alt={source.label}
-                                  className="size-4 shrink-0 rounded-sm"
-                                  crossOrigin="anonymous"
-                                />
-                                <span className="text-[10px] font-medium text-foreground truncate">{source.label}</span>
-                              </button>
-                            ))}
+                            .map((source) => {
+                              const SourceIcon = source.icon
+                              return (
+                                <button
+                                  key={source.id}
+                                  className="flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1.5 hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm transition-all text-left"
+                                  onClick={() => handleTileSelect(source.id)}
+                                >
+                                  <SourceIcon className="size-3.5 shrink-0 text-muted-foreground" />
+                                  <span className="text-[10px] font-medium text-foreground truncate">{source.label}</span>
+                                </button>
+                              )
+                            })}
                         </div>
                       </>
                     ) : activeTab === "saved" ? (
@@ -1625,6 +1642,7 @@ export function EmailEditor() {
             </>
           )}
         </div>
+        )}
 
         {/* ─── Center Canvas ─── */}
         <div
@@ -1633,7 +1651,7 @@ export function EmailEditor() {
             exitEditMode()
           }}
         >
-          <div className="flex justify-center py-8 px-16">
+          <div className="flex justify-center py-6 px-8">
             <div className="relative">
               {/* The email template */}
               <div
@@ -1655,7 +1673,7 @@ export function EmailEditor() {
 
                 {/* Canvas Blocks */}
                 <div
-                  className="p-4 min-h-[300px]"
+                  className="p-4 min-h-[200px]"
                   onDragOver={(e) => {
                     e.preventDefault()
                     if (canvasBlocks.length === 0) setDragOverIndex(0)
@@ -1666,42 +1684,77 @@ export function EmailEditor() {
                 >
                   {canvasBlocks.length === 0 ? (
                     <div
-                      className={`flex flex-col items-center justify-center py-16 text-center border-2 border-dashed rounded-xl transition-colors ${
+                      className={`flex flex-col items-center justify-center py-12 text-center border-2 border-dashed rounded-xl transition-colors ${
                         dragOverIndex === 0 ? "border-primary bg-primary/5" : "border-border"
                       }`}
                     >
                       <Blocks className="size-10 text-muted-foreground/30 mb-3" />
-                      <p className="text-sm font-medium text-foreground">Drop modules here</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Select a module type from the left panel to build your email
+                      <p className="text-sm font-medium text-foreground">Your email is empty</p>
+                      <p className="text-xs text-muted-foreground mt-1 mb-4">
+                        Click the button below to add your first module
                       </p>
+                      <Button
+                        size="sm"
+                        className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setInsertAtIndex(0)
+                          setSidebarMode("add-module")
+                          setSidebarStep("tiles")
+                          setSidebarOpen(true)
+                        }}
+                      >
+                        <Plus className="size-3.5" />
+                        Add Module
+                      </Button>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col">
                       {canvasBlocks.map((block, index) => {
                         const isModuleHovered = hoveredBlockId === block.id
                         const isModuleSelected = selectedBlockId === block.id
 
                         return (
                           <div key={block.id} onClick={(e) => e.stopPropagation()}>
-                            {/* Drop indicator */}
+                            {/* Green "+" add button between modules (before each block) */}
                             <div
-                              className={`h-1 rounded-full mx-2 transition-colors mb-1 ${
-                                dragOverIndex === index ? "bg-primary" : "bg-transparent"
-                              }`}
+                              className="relative flex items-center justify-center group/gap py-1"
+                              onMouseEnter={() => setHoveredGapIndex(index)}
+                              onMouseLeave={() => setHoveredGapIndex(null)}
                               onDragOver={(e) => handleDragOver(e, index)}
                               onDrop={(e) => handleDrop(e, index)}
-                            />
+                            >
+                              {dragOverIndex === index ? (
+                                <div className="h-0.5 w-full rounded-full bg-primary" />
+                              ) : (
+                                <div className={`flex items-center justify-center w-full transition-all ${hoveredGapIndex === index ? "opacity-100" : "opacity-0"}`}>
+                                  <div className="flex-1 h-px bg-emerald-500/40" />
+                                  <button
+                                    className="size-6 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-sm transition-transform hover:scale-110 shrink-0 mx-1"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setInsertAtIndex(index)
+                                      setSidebarMode("add-module")
+                                      setSidebarStep("tiles")
+                                      setSidebarOpen(true)
+                                    }}
+                                  >
+                                    <Plus className="size-3.5" />
+                                  </button>
+                                  <div className="flex-1 h-px bg-emerald-500/40" />
+                                </div>
+                              )}
+                            </div>
 
                             {/* Module Block with icon strip positioned absolutely outside */}
                             <div
-                              className="relative pr-12"
+                              className="relative"
                               onMouseEnter={() => setHoveredBlockId(block.id)}
                               onMouseLeave={() => setHoveredBlockId(null)}
                             >
                               {/* Module content area */}
                               <div
-                                className={`flex-1 relative rounded-lg transition-all cursor-pointer ${
+                                className={`relative rounded-lg transition-all cursor-pointer ${
                                   draggingBlockId === block.id ? "opacity-40" : ""
                                 } ${
                                   isModuleSelected && !selectedComponent
@@ -1722,9 +1775,10 @@ export function EmailEditor() {
                                 {(isModuleHovered || isModuleSelected) && (
                                   <div className="absolute -top-7 right-0 flex items-center gap-1 z-10">
                                     <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-primary-foreground bg-primary rounded-full px-2.5 py-0.5 shadow-sm">
-                                      {block.feedSourceIcon && (
-                                        <img src={block.feedSourceIcon} alt="" className="size-3.5 rounded-sm" crossOrigin="anonymous" />
-                                      )}
+                                      {block.feedSourceIcon && (() => {
+                                        const FeedIcon = block.feedSourceIcon
+                                        return <FeedIcon className="size-3 text-primary-foreground" />
+                                      })()}
                                       {block.tileLabel}
                                       {block.topicPhrase && (
                                         <span className="text-primary-foreground/80 font-normal">&middot; {block.topicPhrase}</span>
@@ -1799,9 +1853,9 @@ export function EmailEditor() {
                                 </div>
                               </div>
 
-                              {/* Stacked action icons (outside template, in the grey zone) */}
+                              {/* Stacked action icons (outside template, further from border) */}
                               {(isModuleHovered || isModuleSelected) && (
-                                <div className="absolute -right-11 top-0 flex flex-col items-center gap-0.5">
+                                <div className="absolute -right-14 top-0 flex flex-col items-center gap-0.5">
                                   <TooltipProvider delayDuration={200}>
                                     {/* Edit */}
                                     <Tooltip>
@@ -1887,14 +1941,36 @@ export function EmailEditor() {
                           </div>
                         )
                       })}
-                      {/* Final drop zone */}
+
+                      {/* Final green "+" button after last module */}
                       <div
-                        className={`h-1 rounded-full mx-2 transition-colors ${
-                          dragOverIndex === canvasBlocks.length ? "bg-primary" : "bg-transparent"
-                        }`}
+                        className="relative flex items-center justify-center group/gap py-1"
+                        onMouseEnter={() => setHoveredGapIndex(canvasBlocks.length)}
+                        onMouseLeave={() => setHoveredGapIndex(null)}
                         onDragOver={(e) => handleDragOver(e, canvasBlocks.length)}
                         onDrop={(e) => handleDrop(e, canvasBlocks.length)}
-                      />
+                      >
+                        {dragOverIndex === canvasBlocks.length ? (
+                          <div className="h-0.5 w-full rounded-full bg-primary" />
+                        ) : (
+                          <div className={`flex items-center justify-center w-full transition-all ${hoveredGapIndex === canvasBlocks.length ? "opacity-100" : "opacity-0"}`}>
+                            <div className="flex-1 h-px bg-emerald-500/40" />
+                            <button
+                              className="size-6 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-sm transition-transform hover:scale-110 shrink-0 mx-1"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setInsertAtIndex(canvasBlocks.length)
+                                setSidebarMode("add-module")
+                                setSidebarStep("tiles")
+                                setSidebarOpen(true)
+                              }}
+                            >
+                              <Plus className="size-3.5" />
+                            </button>
+                            <div className="flex-1 h-px bg-emerald-500/40" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
