@@ -9,6 +9,7 @@ import { ModulesIndex } from "@/components/sections/modules-index"
 import { ModuleCreate } from "@/components/sections/module-create"
 import { EmailEditor } from "@/components/sections/email-editor"
 import { EmailsList } from "@/components/sections/emails-list"
+import { EmailCreateWizard } from "@/components/sections/email-create-wizard"
 import { SettingsPage } from "@/components/sections/settings-page"
 import { PlaceholderPage } from "@/components/sections/placeholder-page"
 
@@ -25,6 +26,8 @@ export default function Page() {
         return <ModuleCreate onNavigate={setActiveSection} />
       case "editor":
         return <EmailEditor />
+      case "email-create":
+        return <EmailCreateWizard onNavigate={setActiveSection} />
       case "emails":
         return <EmailsList onNavigate={setActiveSection} />
       case "settings":

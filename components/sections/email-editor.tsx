@@ -1363,10 +1363,10 @@ export function EmailEditor() {
         <div className="w-80 border-r border-border bg-card flex flex-col shrink-0 h-full overflow-hidden">
           {sidebarMode === "add-module" ? (
             <>
-              {/* Tab header */}
-              <div className="p-2.5 border-b border-border flex flex-col gap-1.5">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="text-xs font-semibold text-foreground">Content Types:</p>
+              {/* Step indicator + close */}
+              <div className="p-2.5 border-b border-border flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-foreground">Add Module</p>
                   <button
                     className="size-5 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                     onClick={() => { setSidebarOpen(false); setInsertAtIndex(null) }}
@@ -1374,6 +1374,52 @@ export function EmailEditor() {
                     <X className="size-3.5" />
                   </button>
                 </div>
+                {/* Horizontal step indicator */}
+                {(() => {
+                  const steps = [
+                    { key: "tiles", label: "Source" },
+                    { key: "topic", label: "Topic" },
+                    { key: "layouts", label: "Layout" },
+                  ]
+                  const currentIdx = steps.findIndex((s) => s.key === sidebarStep)
+                  return (
+                    <div className="flex items-center gap-1">
+                      {steps.map((step, idx) => {
+                        const isComplete = idx < currentIdx
+                        const isCurrent = idx === currentIdx
+                        return (
+                          <div key={step.key} className="flex items-center gap-1 flex-1">
+                            <div className="flex items-center gap-1.5 flex-1">
+                              <div
+                                className={`size-5 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 transition-colors ${
+                                  isComplete
+                                    ? "bg-primary text-primary-foreground"
+                                    : isCurrent
+                                      ? "bg-primary text-primary-foreground"
+                                      : "bg-muted text-muted-foreground"
+                                }`}
+                              >
+                                {isComplete ? (
+                                  <svg className="size-2.5" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                ) : (
+                                  idx + 1
+                                )}
+                              </div>
+                              <span className={`text-[10px] font-medium truncate ${isCurrent ? "text-foreground" : isComplete ? "text-foreground" : "text-muted-foreground"}`}>
+                                {step.label}
+                              </span>
+                            </div>
+                            {idx < steps.length - 1 && (
+                              <div className={`h-px flex-1 min-w-3 ${idx < currentIdx ? "bg-primary" : "bg-border"}`} />
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                })()}
+
+                {/* Content type tabs (only on tiles step) */}
                 <div className="flex items-center rounded-lg bg-muted p-0.5">
                   {(["feeds", "editorial", "saved"] as const).map((tab) => (
                     <button
