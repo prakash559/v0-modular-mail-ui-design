@@ -269,6 +269,7 @@ type CanvasBlock = {
   bodyText: string
   topicPhrase: string
   tileLabel: string
+  feedSourceId: string
   bgColor: string
   titleColor: string
   textColor: string
@@ -309,6 +310,7 @@ const defaultBlockFields = {
   tone: "Professional",
   bottomLine: true,
   whyItMatters: false,
+  feedSourceId: "",
   alignment: "left" as const,
   colorStyle: "neutral" as const,
   padding: 16,
@@ -451,6 +453,7 @@ export function EmailEditor() {
         source: activeTab === "feeds" ? "Feed" : activeTab === "editorial" ? "Editorial" : "Saved",
         topicPhrase: topic,
         tileLabel,
+        feedSourceId: selectedTileId || "",
         headingText: `${tileLabel}: ${topic}`,
         bodyText: `AI-generated ${activeTab} content about "${topic}" using ${layoutName} layout. This content will be populated by ModularMail's AI engine.`,
         ...defaultBlockFields,
@@ -1771,17 +1774,22 @@ export function EmailEditor() {
                                 }}
                                 style={{ padding: `${block.padding}px` }}
                               >
-                                {/* Module label: tile name + topic phrase as blue tag cloud (top right, above blue line) */}
-                                {(isModuleHovered || isModuleSelected) && (
-                                  <div className="absolute -top-7 right-0 flex items-center gap-1 z-10">
-                                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary-foreground bg-primary rounded-full px-2.5 py-0.5 shadow-sm">
-                                      {block.tileLabel}
-                                      {block.topicPhrase && (
-                                        <span className="text-primary-foreground/80 font-normal">&middot; {block.topicPhrase}</span>
-                                      )}
-                                    </span>
-                                  </div>
-                                )}
+                                {/* Module label: feed source icon + name + topic phrase as blue tag cloud */}
+                                {(isModuleHovered || isModuleSelected) && (() => {
+                                  const feedSource = feedSources.find((s) => s.id === block.feedSourceId)
+                                  const TagIcon = feedSource?.icon
+                                  return (
+                                    <div className="absolute -top-7 right-0 flex items-center gap-1 z-10">
+                                      <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-primary-foreground bg-primary rounded-full px-2.5 py-0.5 shadow-sm">
+                                        {TagIcon && <TagIcon className="size-3 text-primary-foreground/90" />}
+                                        {block.tileLabel}
+                                        {block.topicPhrase && (
+                                          <span className="text-primary-foreground/80 font-normal">&middot; {block.topicPhrase}</span>
+                                        )}
+                                      </span>
+                                    </div>
+                                  )
+                                })()}
 
                                 <div className={`text-${block.alignment}`}>
                                   {block.showTitle && (
@@ -1873,7 +1881,7 @@ export function EmailEditor() {
                                       <TooltipContent side="right">Edit</TooltipContent>
                                     </Tooltip>
 
-                                    {/* Move (drag + up/down) */}
+                                    {/* Move (drag) */}
                                     <Tooltip>
                                       <TooltipTrigger asChild>
                                         <button
@@ -1886,6 +1894,39 @@ export function EmailEditor() {
                                       </TooltipTrigger>
                                       <TooltipContent side="right">Move</TooltipContent>
                                     </Tooltip>
+
+                                    {/* Duplicate */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-primary hover:text-primary hover:bg-primary/5 transition-colors shadow-sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            duplicateBlock(block.id)
+                                          }}
+                                        >
+                                          <Copy className="size-3.5" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right">Duplicate</TooltipContent>
+                                    </Tooltip>
+
+                                    {/* Save */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-primary hover:text-primary hover:bg-primary/5 transition-colors shadow-sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            /* Save module placeholder */
+                                          }}
+                                        >
+                                          <Save className="size-3.5" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right">Save</TooltipContent>
+                                    </Tooltip>
+
                                     {/* Delete -- red */}
                                     <Tooltip>
                                       <TooltipTrigger asChild>
