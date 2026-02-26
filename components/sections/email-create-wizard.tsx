@@ -29,8 +29,10 @@ import {
   Code,
   BarChart3,
   Rss,
-  Filter,
   ChevronDown,
+  Eye,
+  CheckSquare,
+  Square,
   type LucideIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -295,50 +297,6 @@ const templates = [
   },
 ]
 
-/* ─── Step Indicator ─── */
-function StepIndicator({ currentStep }: { currentStep: number }) {
-  const steps = [
-    { label: "Topic" },
-    { label: "Data Sauce" },
-    { label: "Template" },
-  ]
-  return (
-    <div className="flex items-center justify-center gap-2 py-6">
-      {steps.map((step, idx) => {
-        const isComplete = idx < currentStep
-        const isCurrent = idx === currentStep
-        return (
-          <div key={step.label} className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              <div
-                className={`size-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                  isComplete
-                    ? "bg-primary text-primary-foreground"
-                    : isCurrent
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {isComplete ? (
-                  <Check className="size-3.5" />
-                ) : (
-                  idx + 1
-                )}
-              </div>
-              <span className={`text-xs font-medium ${isCurrent || isComplete ? "text-foreground" : "text-muted-foreground"}`}>
-                {step.label}
-              </span>
-            </div>
-            {idx < steps.length - 1 && (
-              <div className={`w-10 h-px ${idx < currentStep ? "bg-primary" : "bg-border"}`} />
-            )}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
 /* ─── Main Wizard ─── */
 export function EmailCreateWizard({
   onNavigate,
@@ -384,17 +342,11 @@ export function EmailCreateWizard({
 
   return (
     <div className="flex-1 overflow-auto bg-background">
-      <div className="max-w-4xl mx-auto">
-        <StepIndicator currentStep={step} />
-
+      <div className="max-w-4xl mx-auto pt-8">
         {/* ─── Step 1: Topic ─── */}
         {step === 0 && (
           <div className="px-6 pb-12 flex flex-col gap-8">
             <div className="text-center flex flex-col gap-3">
-              <div className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-primary bg-primary/10 rounded-full px-3 py-1 self-center">
-                <Sparkles className="size-3" />
-                Step 1 of 3
-              </div>
               <h1 className="text-3xl font-bold tracking-tight text-foreground text-balance">
                 What Topic Should Your Email Cover?
               </h1>
@@ -481,10 +433,6 @@ export function EmailCreateWizard({
                 Back
               </button>
               <div className="text-center flex flex-col gap-3">
-                <div className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-primary bg-primary/10 rounded-full px-3 py-1 self-center">
-                  <Sparkles className="size-3" />
-                  Step 2 of 3
-                </div>
                 <h1 className="text-3xl font-bold tracking-tight text-foreground text-balance">
                   Choose Your Data Sauce
                 </h1>
@@ -494,7 +442,23 @@ export function EmailCreateWizard({
               </div>
             </div>
 
-            {/* Search + filter */}
+            {/* Continue at top + Search + category */}
+            <div className="flex items-center justify-between max-w-xl mx-auto w-full">
+              <p className="text-xs text-muted-foreground">
+                {selectedSources.length === 0
+                  ? "Select at least one source to continue"
+                  : `${selectedSources.length} source${selectedSources.length === 1 ? "" : "s"} selected`}
+              </p>
+              <Button
+                className="gap-1.5 px-6"
+                onClick={() => setStep(2)}
+                disabled={selectedSources.length === 0}
+              >
+                Continue
+                <ArrowRight className="size-3.5" />
+              </Button>
+            </div>
+
             <div className="flex items-center gap-2 max-w-xl mx-auto w-full">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
@@ -502,14 +466,13 @@ export function EmailCreateWizard({
                   placeholder="Search sources..."
                   value={feedSearch}
                   onChange={(e) => setFeedSearch(e.target.value)}
-                  className="text-sm h-10 pl-10"
+                  className="text-sm h-10 pl-10 bg-white"
                 />
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="h-10 text-xs gap-1.5 px-3 shrink-0">
-                    <Filter className="size-3.5" />
-                    {feedCategory === "All" ? "All Categories" : feedCategory}
+                  <Button variant="outline" className="h-10 text-xs gap-1.5 px-3 shrink-0 bg-white">
+                    {feedCategory === "All" ? "Categories" : feedCategory}
                     <ChevronDown className="size-3.5" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -549,10 +512,7 @@ export function EmailCreateWizard({
                       onClick={() => toggleSource(source.id)}
                     >
                       <SourceIcon className={`size-4 shrink-0 ${isSelected ? "text-primary" : "text-muted-foreground"}`} />
-                      <div className="flex-1 min-w-0">
-                        <span className="text-sm font-medium text-foreground truncate block">{source.label}</span>
-                        <span className="text-[10px] text-muted-foreground">{source.category}</span>
-                      </div>
+                      <span className="text-sm font-medium text-foreground truncate flex-1 min-w-0">{source.label}</span>
                       {isSelected && (
                         <div className="size-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
                           <Check className="size-2.5" />
@@ -563,22 +523,6 @@ export function EmailCreateWizard({
                 })}
             </div>
 
-            {/* Selected count + continue */}
-            <div className="flex items-center justify-between max-w-xl mx-auto w-full">
-              <p className="text-xs text-muted-foreground">
-                {selectedSources.length === 0
-                  ? "Select at least one source to continue"
-                  : `${selectedSources.length} source${selectedSources.length === 1 ? "" : "s"} selected`}
-              </p>
-              <Button
-                className="gap-1.5 px-6"
-                onClick={() => setStep(2)}
-                disabled={selectedSources.length === 0}
-              >
-                Continue
-                <ArrowRight className="size-3.5" />
-              </Button>
-            </div>
           </div>
         )}
 
@@ -594,10 +538,6 @@ export function EmailCreateWizard({
                 Back
               </button>
               <div className="text-center flex flex-col gap-3">
-                <div className="inline-flex items-center justify-center gap-1.5 text-xs font-medium text-primary bg-primary/10 rounded-full px-3 py-1 self-center">
-                  <Sparkles className="size-3" />
-                  Step 3 of 3
-                </div>
                 <h1 className="text-3xl font-bold tracking-tight text-foreground text-balance">
                   Choose a Template
                 </h1>
@@ -611,29 +551,46 @@ export function EmailCreateWizard({
               {templates.map((tmpl) => {
                 const isSelected = selectedTemplate === tmpl.id
                 return (
-                  <button
+                  <div
                     key={tmpl.id}
                     className={`group relative flex flex-col rounded-xl border text-left transition-all ${
                       isSelected
                         ? "border-primary ring-2 ring-primary/20 bg-card shadow-sm"
                         : "border-border bg-card hover:border-primary/30 hover:shadow-sm"
                     }`}
-                    onClick={() => {
-                      setSelectedTemplate(tmpl.id)
-                      handleFinish()
-                    }}
                   >
                     <div className="px-5 pt-5 pb-2 flex flex-col gap-1">
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="text-sm font-semibold text-foreground">{tmpl.name}</h3>
-                        {isSelected ? (
-                          <div className="size-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                        {/* Hover actions: preview + checkbox */}
+                        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                          <button
+                            className="size-7 rounded-md border border-border bg-white flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
+                            onClick={(e) => { e.stopPropagation() }}
+                            title="Preview"
+                          >
+                            <Eye className="size-3.5" />
+                          </button>
+                          <button
+                            className="size-7 rounded-md border border-border bg-white flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setSelectedTemplate(isSelected ? "" : tmpl.id)
+                            }}
+                            title="Select"
+                          >
+                            {isSelected ? (
+                              <CheckSquare className="size-3.5 text-primary" />
+                            ) : (
+                              <Square className="size-3.5" />
+                            )}
+                          </button>
+                        </div>
+                        {/* Always-visible check when selected */}
+                        {isSelected && (
+                          <div className="size-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 group-hover:hidden">
                             <Check className="size-3" />
                           </div>
-                        ) : (
-                          <span className="inline-flex items-center text-[11px] font-semibold text-primary-foreground bg-primary rounded-md px-2.5 py-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                            Select
-                          </span>
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{tmpl.description}</p>
@@ -643,9 +600,21 @@ export function EmailCreateWizard({
                         {tmpl.illustration}
                       </div>
                     </div>
-                  </button>
+                  </div>
                 )
               })}
+            </div>
+
+            {/* Continue button */}
+            <div className="flex justify-center">
+              <Button
+                className="gap-1.5 px-8"
+                onClick={handleFinish}
+                disabled={!selectedTemplate}
+              >
+                Continue to Editor
+                <ArrowRight className="size-3.5" />
+              </Button>
             </div>
           </div>
         )}

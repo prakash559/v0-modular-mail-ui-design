@@ -17,7 +17,6 @@ export default function Page() {
   const [activeSection, setActiveSection] = useState("dashboard")
 
   const renderSection = () => {
-    console.log("[v0] activeSection:", activeSection)
     switch (activeSection) {
       case "dashboard":
         return <Dashboard onNavigate={setActiveSection} />
