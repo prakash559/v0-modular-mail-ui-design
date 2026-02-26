@@ -1451,7 +1451,7 @@ export function EmailEditor() {
                               return (
                                 <button
                                   key={source.id}
-                                  className="flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1.5 hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm transition-all text-left"
+                                  className="flex items-center gap-1.5 rounded-md border border-border bg-white px-2 py-1.5 hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm transition-all text-left"
                                   onClick={() => handleTileSelect(source.id)}
                                 >
                                   <SourceIcon className="size-3.5 shrink-0 text-muted-foreground" />
@@ -1499,7 +1499,7 @@ export function EmailEditor() {
                     </button>
                     <div>
                       <p className="text-xs font-semibold text-foreground mb-1">
-                        What topic or keyword?
+                        What Topic or Keyword?
                       </p>
                       <p className="text-[10px] text-muted-foreground leading-relaxed">
                         Give the AI context so it can generate relevant content for this module.
@@ -1509,7 +1509,7 @@ export function EmailEditor() {
                       placeholder="Enter a Topic, Keyword or Phrase"
                       value={topicKeyword}
                       onChange={(e) => setTopicKeyword(e.target.value)}
-                      className="text-xs h-8"
+                      className="text-[11px] h-8"
                     />
                     <div>
                       <p className="text-[10px] text-muted-foreground mb-1.5">Suggested</p>
@@ -1517,7 +1517,7 @@ export function EmailEditor() {
                         {suggestedTopics.map((t) => (
                           <button
                             key={t}
-                            className="text-[10px] px-2 py-0.5 rounded-full border border-border bg-background hover:bg-primary/5 hover:border-primary/30 transition-colors text-foreground"
+                            className="text-[10px] px-2 py-0.5 rounded-full border border-border bg-white hover:bg-primary/5 hover:border-primary/30 transition-colors text-foreground"
                             onClick={() => setTopicKeyword(t)}
                           >
                             {t}
@@ -1780,11 +1780,11 @@ export function EmailEditor() {
                                   const TagIcon = feedSource?.icon
                                   return (
                                     <div className="absolute -top-7 right-0 flex items-center gap-1 z-10">
-                                      <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-primary-foreground bg-primary rounded-full px-2.5 py-0.5 shadow-sm">
-                                        {TagIcon && <TagIcon className="size-3 text-primary-foreground/90" />}
+                                      <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-foreground bg-white border border-border rounded-full px-2.5 py-0.5 shadow-sm">
+                                        {TagIcon && <TagIcon className="size-3 text-muted-foreground" />}
                                         {block.tileLabel}
                                         {block.topicPhrase && (
-                                          <span className="text-primary-foreground/80 font-normal">&middot; {block.topicPhrase}</span>
+                                          <span className="text-muted-foreground font-normal">&middot; {block.topicPhrase}</span>
                                         )}
                                       </span>
                                     </div>
