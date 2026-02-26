@@ -64,6 +64,12 @@ import {
   Bold,
   Italic,
   Underline,
+  Rss,
+  Music,
+  Clapperboard,
+  Camera,
+  AtSign,
+  type LucideIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -94,15 +100,55 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { mockModules, moduleLayouts, tones } from "@/lib/mock-data"
 
-/* ─── Tile definitions ─── */
-const feedTiles = [
-  { id: "articles", label: "Articles", icon: Newspaper },
-  { id: "podcasts", label: "Podcasts", icon: Headphones },
-  { id: "video", label: "Video", icon: Play },
-  { id: "news", label: "News", icon: Globe },
-  { id: "social", label: "Social", icon: MessageCircle },
-  { id: "headlines", label: "Headlines", icon: FileText },
+/* ─── Feed Data Source definitions (company-level) ─── */
+type FeedSource = { id: string; label: string; icon: LucideIcon; category: string }
+
+const feedSources: FeedSource[] = [
+  { id: "youtube", label: "YouTube", icon: Play, category: "Social" },
+  { id: "instagram", label: "Instagram", icon: Camera, category: "Social" },
+  { id: "tiktok", label: "TikTok", icon: Clapperboard, category: "Social" },
+  { id: "twitter", label: "X / Twitter", icon: AtSign, category: "Social" },
+  { id: "linkedin", label: "LinkedIn", icon: Briefcase, category: "Social" },
+  { id: "threads", label: "Threads", icon: Hash, category: "Social" },
+  { id: "reddit", label: "Reddit", icon: MessageCircle, category: "Social" },
+  { id: "facebook", label: "Facebook", icon: Globe, category: "Social" },
+  { id: "bluesky", label: "Bluesky", icon: Globe, category: "Social" },
+  { id: "pinterest", label: "Pinterest", icon: Image, category: "Social" },
+  { id: "tumblr", label: "Tumblr", icon: PenLine, category: "Social" },
+  { id: "google-news", label: "Google News", icon: Newspaper, category: "News" },
+  { id: "bbc", label: "BBC News", icon: Newspaper, category: "News" },
+  { id: "cnn", label: "CNN", icon: Newspaper, category: "News" },
+  { id: "reuters", label: "Reuters", icon: Newspaper, category: "News" },
+  { id: "nytimes", label: "NYTimes", icon: Newspaper, category: "News" },
+  { id: "guardian", label: "The Guardian", icon: Newspaper, category: "News" },
+  { id: "forbes", label: "Forbes", icon: TrendingUp, category: "News" },
+  { id: "ap-news", label: "AP News", icon: Newspaper, category: "News" },
+  { id: "yahoo-news", label: "Yahoo News", icon: Globe, category: "News" },
+  { id: "axios", label: "Axios", icon: Zap, category: "News" },
+  { id: "huffpost", label: "HuffPost", icon: Newspaper, category: "News" },
+  { id: "medium", label: "Medium", icon: FileText, category: "Publishing" },
+  { id: "substack", label: "Substack", icon: BookOpen, category: "Publishing" },
+  { id: "wordpress", label: "WordPress", icon: Globe, category: "Publishing" },
+  { id: "vimeo", label: "Vimeo", icon: Play, category: "Video" },
+  { id: "dailymotion", label: "Dailymotion", icon: Play, category: "Video" },
+  { id: "rumble", label: "Rumble", icon: Play, category: "Video" },
+  { id: "spotify", label: "Spotify", icon: Music, category: "Podcast" },
+  { id: "apple-podcasts", label: "Apple Podcasts", icon: Headphones, category: "Podcast" },
+  { id: "techcrunch", label: "TechCrunch", icon: Rocket, category: "Technology" },
+  { id: "the-verge", label: "The Verge", icon: Compass, category: "Technology" },
+  { id: "wired", label: "Wired", icon: Zap, category: "Technology" },
+  { id: "ars-technica", label: "Ars Technica", icon: Code, category: "Technology" },
+  { id: "fast-company", label: "Fast Company", icon: TrendingUp, category: "Business" },
+  { id: "economist", label: "The Economist", icon: BarChart3, category: "Business" },
+  { id: "bloomberg", label: "Bloomberg", icon: BarChart3, category: "Business" },
+  { id: "webpage", label: "Any Webpage", icon: Globe, category: "Other" },
+  { id: "rss", label: "RSS Feed", icon: Rss, category: "Other" },
 ]
+
+const feedCategories = ["All", ...Array.from(new Set(feedSources.map((s) => s.category)))]
+
+/* ─── Tile definitions (editorial + saved) ─── */
+const feedTiles = feedSources.map((s) => ({ id: s.id, label: s.label, icon: s.icon }))
 
 const editorialTiles = [
   { id: "intro-tips", label: "Intro Tips", icon: Lightbulb },
@@ -350,6 +396,8 @@ export function EmailEditor() {
   const [selectedLayoutId, setSelectedLayoutId] = useState<string | null>(null)
   const [topicKeyword, setTopicKeyword] = useState("")
   const [editingTab, setEditingTab] = useState<EditingTab>("data")
+  const [feedSearch, setFeedSearch] = useState("")
+  const [feedCategory, setFeedCategory] = useState("All")
 
   const selectedBlock = canvasBlocks.find((b) => b.id === selectedBlockId)
 
@@ -590,6 +638,8 @@ export function EmailEditor() {
     setSelectedTileId(null)
     setSelectedLayoutId(null)
     setTopicKeyword("")
+    setFeedSearch("")
+    setFeedCategory("All")
     setSidebarOpen(true)
   }
 
@@ -1307,7 +1357,7 @@ export function EmailEditor() {
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* ─── Left Sidebar ─── */}
         {sidebarOpen && (
-        <div className="w-72 border-r border-border bg-card flex flex-col shrink-0 h-full overflow-hidden">
+        <div className="w-80 border-r border-border bg-card flex flex-col shrink-0 h-full overflow-hidden">
           {sidebarMode === "add-module" ? (
             <>
               {/* Tab header */}
@@ -1336,6 +1386,8 @@ export function EmailEditor() {
                         setSelectedTileId(null)
                         setSelectedLayoutId(null)
                         setTopicKeyword("")
+                        setFeedSearch("")
+                        setFeedCategory("All")
                       }}
                     >
                       {tab}
@@ -1347,8 +1399,66 @@ export function EmailEditor() {
               <ScrollArea className="flex-1">
                 {/* ── Step: Tiles ── */}
                 {sidebarStep === "tiles" && (
-                  <div className="p-3 flex flex-col gap-1.5">
-                    {activeTiles.length === 0 ? (
+                  <div className="p-2.5 flex flex-col gap-2">
+                    {activeTab === "feeds" ? (
+                      <>
+                        {/* Search + Category filter on one line */}
+                        <div className="flex items-center gap-1.5">
+                          <div className="relative flex-1">
+                            <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3 text-muted-foreground pointer-events-none" />
+                            <Input
+                              placeholder="Search feeds..."
+                              value={feedSearch}
+                              onChange={(e) => setFeedSearch(e.target.value)}
+                              className="text-[11px] h-7 pl-7 pr-2"
+                            />
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm" className="h-7 text-[10px] gap-1 px-2 shrink-0">
+                                <Filter className="size-3" />
+                                {feedCategory === "All" ? "Category" : feedCategory}
+                                <ChevronDownIcon className="size-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="min-w-[120px]">
+                              {feedCategories.map((cat) => (
+                                <DropdownMenuItem
+                                  key={cat}
+                                  className={`text-xs ${feedCategory === cat ? "font-semibold text-primary" : ""}`}
+                                  onClick={() => setFeedCategory(cat)}
+                                >
+                                  {cat}
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+
+                        {/* Feed source grid -- compact rows */}
+                        <div className="grid grid-cols-3 gap-1">
+                          {feedSources
+                            .filter((s) => {
+                              const matchesSearch = s.label.toLowerCase().includes(feedSearch.toLowerCase())
+                              const matchesCat = feedCategory === "All" || s.category === feedCategory
+                              return matchesSearch && matchesCat
+                            })
+                            .map((source) => {
+                              const SourceIcon = source.icon
+                              return (
+                                <button
+                                  key={source.id}
+                                  className="flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1.5 hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm transition-all text-left"
+                                  onClick={() => handleTileSelect(source.id)}
+                                >
+                                  <SourceIcon className="size-3.5 shrink-0 text-muted-foreground" />
+                                  <span className="text-[10px] font-medium text-foreground truncate">{source.label}</span>
+                                </button>
+                              )
+                            })}
+                        </div>
+                      </>
+                    ) : activeTiles.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-10 text-center">
                         <Blocks className="size-8 text-muted-foreground/30 mb-2" />
                         <p className="text-xs font-medium text-muted-foreground">No saved modules yet</p>
