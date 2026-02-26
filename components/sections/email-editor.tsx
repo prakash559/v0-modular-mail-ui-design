@@ -340,6 +340,9 @@ export function EmailEditor() {
   const [draggingBlockId, setDraggingBlockId] = useState<string | null>(null)
 
   /* Left sidebar state */
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [insertAtIndex, setInsertAtIndex] = useState<number | null>(null)
+  const [hoveredGapIndex, setHoveredGapIndex] = useState<number | null>(null)
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("add-module")
   const [activeTab, setActiveTab] = useState<"feeds" | "editorial" | "saved">("feeds")
   const [sidebarStep, setSidebarStep] = useState<SidebarStep>("tiles")
@@ -406,9 +409,18 @@ export function EmailEditor() {
         bottomLine: activeTab !== "editorial",
         whyItMatters: activeTab === "editorial",
       }
-      setCanvasBlocks((prev) => [...prev, newBlock])
+      setCanvasBlocks((prev) => {
+        if (insertAtIndex !== null && insertAtIndex >= 0 && insertAtIndex <= prev.length) {
+          const next = [...prev]
+          next.splice(insertAtIndex, 0, newBlock)
+          return next
+        }
+        return [...prev, newBlock]
+      })
+      setSidebarOpen(false)
+      setInsertAtIndex(null)
     },
-    [activeTab]
+    [activeTab, insertAtIndex]
   )
 
   const deleteBlock = useCallback((id: string) => {
@@ -416,6 +428,7 @@ export function EmailEditor() {
     setSelectedBlockId((prev) => {
       if (prev === id) {
         setSidebarMode("add-module")
+        setSidebarOpen(false)
         setSelectedComponent(null)
         return null
       }
@@ -491,6 +504,8 @@ export function EmailEditor() {
     setSelectedBlockId(blockId)
     setSelectedComponent(null)
     setSidebarMode("edit-module")
+    setSidebarOpen(true)
+    setInsertAtIndex(null)
     setEditingTab("data")
   }
 
@@ -498,6 +513,8 @@ export function EmailEditor() {
     setSelectedBlockId(blockId)
     setSelectedComponent(component)
     setSidebarMode("edit-module")
+    setSidebarOpen(true)
+    setInsertAtIndex(null)
     setEditingTab("data")
   }
 
@@ -505,6 +522,8 @@ export function EmailEditor() {
     setSelectedBlockId(null)
     setSelectedComponent(null)
     setSidebarMode("add-module")
+    setSidebarOpen(false)
+    setInsertAtIndex(null)
   }
 
   /* ─── Sidebar flow actions ─── */
@@ -525,7 +544,6 @@ export function EmailEditor() {
 
   const handleLayoutSelect = (layoutId: string) => {
     setSelectedLayoutId(layoutId)
-    // Immediately add and reset
     const tile = activeTiles.find((t) => t.id === selectedTileId)
     const layout = moduleLayouts.find((l) => l.id === layoutId)
     if (tile && layout && topicKeyword.trim()) {
@@ -559,6 +577,20 @@ export function EmailEditor() {
     setSelectedTileId(null)
     setSelectedLayoutId(null)
     setTopicKeyword("")
+  }
+
+  /* Open the add-module sidebar at a specific insertion index */
+  const openAddModuleAt = (index: number) => {
+    setInsertAtIndex(index)
+    setSelectedBlockId(null)
+    setSelectedComponent(null)
+    setSidebarMode("add-module")
+    setSidebarStep("tiles")
+    setActiveTab("feeds")
+    setSelectedTileId(null)
+    setSelectedLayoutId(null)
+    setTopicKeyword("")
+    setSidebarOpen(true)
   }
 
   const handleSidebarBack = () => {
@@ -1274,12 +1306,21 @@ export function EmailEditor() {
       {/* ─── Main Area ─── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* ─── Left Sidebar ─── */}
+        {sidebarOpen && (
         <div className="w-72 border-r border-border bg-card flex flex-col shrink-0 h-full overflow-hidden">
           {sidebarMode === "add-module" ? (
             <>
               {/* Tab header */}
               <div className="p-2.5 border-b border-border flex flex-col gap-1.5">
-                <p className="text-xs font-semibold text-foreground">Content Types:</p>
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs font-semibold text-foreground">Content Types:</p>
+                  <button
+                    className="size-5 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    onClick={() => { setSidebarOpen(false); setInsertAtIndex(null) }}
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </div>
                 <div className="flex items-center rounded-lg bg-muted p-0.5">
                   {(["feeds", "editorial", "saved"] as const).map((tab) => (
                     <button
@@ -1506,6 +1547,7 @@ export function EmailEditor() {
             </>
           )}
         </div>
+        )}
 
         {/* ─── Center Canvas ─── */}
         <div
@@ -1547,32 +1589,54 @@ export function EmailEditor() {
                 >
                   {canvasBlocks.length === 0 ? (
                     <div
-                      className={`flex flex-col items-center justify-center py-16 text-center border-2 border-dashed rounded-xl transition-colors ${
+                      className={`flex flex-col items-center justify-center py-14 text-center border-2 border-dashed rounded-xl transition-colors ${
                         dragOverIndex === 0 ? "border-primary bg-primary/5" : "border-border"
                       }`}
                     >
                       <Blocks className="size-10 text-muted-foreground/30 mb-3" />
-                      <p className="text-sm font-medium text-foreground">Drop modules here</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Select a module type from the left panel to build your email
+                      <p className="text-sm font-medium text-foreground">Your email is empty</p>
+                      <p className="text-xs text-muted-foreground mt-1 mb-4">
+                        Click the button below to add your first content module
                       </p>
+                      <button
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg px-4 py-2 transition-colors shadow-sm"
+                        onClick={(e) => { e.stopPropagation(); openAddModuleAt(0) }}
+                      >
+                        <Plus className="size-3.5" />
+                        Add Module
+                      </button>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col">
                       {canvasBlocks.map((block, index) => {
                         const isModuleHovered = hoveredBlockId === block.id
                         const isModuleSelected = selectedBlockId === block.id
 
                         return (
                           <div key={block.id} onClick={(e) => e.stopPropagation()}>
-                            {/* Drop indicator */}
+                            {/* Green "+" insert zone between modules */}
                             <div
-                              className={`h-1 rounded-full mx-2 transition-colors mb-1 ${
-                                dragOverIndex === index ? "bg-primary" : "bg-transparent"
-                              }`}
+                              className="relative flex items-center justify-center py-1"
+                              onMouseEnter={() => setHoveredGapIndex(index)}
+                              onMouseLeave={() => setHoveredGapIndex(null)}
                               onDragOver={(e) => handleDragOver(e, index)}
                               onDrop={(e) => handleDrop(e, index)}
-                            />
+                            >
+                              {dragOverIndex === index ? (
+                                <div className="h-0.5 w-full rounded-full bg-primary" />
+                              ) : (
+                                <div className={`flex items-center justify-center w-full transition-all duration-150 ${hoveredGapIndex === index ? "opacity-100" : "opacity-0"}`}>
+                                  <div className="flex-1 h-px bg-emerald-500/50" />
+                                  <button
+                                    className="size-5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-sm transition-transform hover:scale-110 shrink-0 mx-1"
+                                    onClick={(e) => { e.stopPropagation(); openAddModuleAt(index) }}
+                                  >
+                                    <Plus className="size-3" />
+                                  </button>
+                                  <div className="flex-1 h-px bg-emerald-500/50" />
+                                </div>
+                              )}
+                            </div>
 
                             {/* Module Block with icon strip positioned absolutely outside */}
                             <div className="relative">
@@ -1734,14 +1798,29 @@ export function EmailEditor() {
                           </div>
                         )
                       })}
-                      {/* Final drop zone */}
+                      {/* Final green "+" insert zone after last module */}
                       <div
-                        className={`h-1 rounded-full mx-2 transition-colors ${
-                          dragOverIndex === canvasBlocks.length ? "bg-primary" : "bg-transparent"
-                        }`}
+                        className="relative flex items-center justify-center py-1"
+                        onMouseEnter={() => setHoveredGapIndex(canvasBlocks.length)}
+                        onMouseLeave={() => setHoveredGapIndex(null)}
                         onDragOver={(e) => handleDragOver(e, canvasBlocks.length)}
                         onDrop={(e) => handleDrop(e, canvasBlocks.length)}
-                      />
+                      >
+                        {dragOverIndex === canvasBlocks.length ? (
+                          <div className="h-0.5 w-full rounded-full bg-primary" />
+                        ) : (
+                          <div className={`flex items-center justify-center w-full transition-all duration-150 ${hoveredGapIndex === canvasBlocks.length ? "opacity-100" : "opacity-0"}`}>
+                            <div className="flex-1 h-px bg-emerald-500/50" />
+                            <button
+                              className="size-5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-sm transition-transform hover:scale-110 shrink-0 mx-1"
+                              onClick={(e) => { e.stopPropagation(); openAddModuleAt(canvasBlocks.length) }}
+                            >
+                              <Plus className="size-3" />
+                            </button>
+                            <div className="flex-1 h-px bg-emerald-500/50" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
