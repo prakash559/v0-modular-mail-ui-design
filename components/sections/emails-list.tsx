@@ -30,7 +30,7 @@ export function EmailsList({
               Manage your email campaigns and drafts.
             </p>
           </div>
-          <Button onClick={() => onNavigate("editor")}>
+          <Button onClick={() => onNavigate("email-create")}>
             <Plus className="size-4 mr-1.5" />
             Create New Email
           </Button>

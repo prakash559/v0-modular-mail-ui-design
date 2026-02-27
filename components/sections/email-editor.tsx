@@ -60,6 +60,16 @@ import {
   Ban,
   Clock,
   Wrench,
+  Minus,
+  Bold,
+  Italic,
+  Underline,
+  Rss,
+  Music,
+  Clapperboard,
+  Camera,
+  AtSign,
+  type LucideIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -90,51 +100,69 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { mockModules, moduleLayouts, tones } from "@/lib/mock-data"
 
-/* ─── Tile definitions ─── */
-const feedTiles = [
-  { id: "articles", label: "Articles", icon: Newspaper },
-  { id: "podcasts", label: "Podcasts", icon: Headphones },
-  { id: "videos", label: "Videos", icon: Play },
-  { id: "news", label: "News", icon: Globe },
-  { id: "social", label: "Social", icon: MessageCircle },
-  { id: "highlights", label: "Highlights", icon: Star },
-  { id: "roundup", label: "Roundup", icon: Blocks },
-  { id: "headlines", label: "Headlines", icon: FileText },
-  { id: "trending", label: "Trending", icon: TrendingUp },
-  { id: "resources", label: "Resources", icon: BookOpen },
-  { id: "spotlight", label: "Spotlight", icon: Search },
-  { id: "data-feed", label: "Data Feed", icon: BarChart3 },
+/* ─── Feed Data Source definitions (company-level) ─── */
+type FeedSource = { id: string; label: string; icon: LucideIcon; category: string }
+
+const feedSources: FeedSource[] = [
+  { id: "youtube", label: "YouTube", icon: Play, category: "Social" },
+  { id: "instagram", label: "Instagram", icon: Camera, category: "Social" },
+  { id: "tiktok", label: "TikTok", icon: Clapperboard, category: "Social" },
+  { id: "twitter", label: "X / Twitter", icon: AtSign, category: "Social" },
+  { id: "linkedin", label: "LinkedIn", icon: Briefcase, category: "Social" },
+  { id: "threads", label: "Threads", icon: Hash, category: "Social" },
+  { id: "reddit", label: "Reddit", icon: MessageCircle, category: "Social" },
+  { id: "facebook", label: "Facebook", icon: Globe, category: "Social" },
+  { id: "bluesky", label: "Bluesky", icon: Globe, category: "Social" },
+  { id: "pinterest", label: "Pinterest", icon: Image, category: "Social" },
+  { id: "tumblr", label: "Tumblr", icon: PenLine, category: "Social" },
+  { id: "google-news", label: "Google News", icon: Newspaper, category: "News" },
+  { id: "bbc", label: "BBC News", icon: Newspaper, category: "News" },
+  { id: "cnn", label: "CNN", icon: Newspaper, category: "News" },
+  { id: "reuters", label: "Reuters", icon: Newspaper, category: "News" },
+  { id: "nytimes", label: "NYTimes", icon: Newspaper, category: "News" },
+  { id: "guardian", label: "The Guardian", icon: Newspaper, category: "News" },
+  { id: "forbes", label: "Forbes", icon: TrendingUp, category: "News" },
+  { id: "ap-news", label: "AP News", icon: Newspaper, category: "News" },
+  { id: "yahoo-news", label: "Yahoo News", icon: Globe, category: "News" },
+  { id: "axios", label: "Axios", icon: Zap, category: "News" },
+  { id: "huffpost", label: "HuffPost", icon: Newspaper, category: "News" },
+  { id: "medium", label: "Medium", icon: FileText, category: "Publishing" },
+  { id: "substack", label: "Substack", icon: BookOpen, category: "Publishing" },
+  { id: "wordpress", label: "WordPress", icon: Globe, category: "Publishing" },
+  { id: "vimeo", label: "Vimeo", icon: Play, category: "Video" },
+  { id: "dailymotion", label: "Dailymotion", icon: Play, category: "Video" },
+  { id: "rumble", label: "Rumble", icon: Play, category: "Video" },
+  { id: "spotify", label: "Spotify", icon: Music, category: "Podcast" },
+  { id: "apple-podcasts", label: "Apple Podcasts", icon: Headphones, category: "Podcast" },
+  { id: "techcrunch", label: "TechCrunch", icon: Rocket, category: "Technology" },
+  { id: "the-verge", label: "The Verge", icon: Compass, category: "Technology" },
+  { id: "wired", label: "Wired", icon: Zap, category: "Technology" },
+  { id: "ars-technica", label: "Ars Technica", icon: Code, category: "Technology" },
+  { id: "fast-company", label: "Fast Company", icon: TrendingUp, category: "Business" },
+  { id: "economist", label: "The Economist", icon: BarChart3, category: "Business" },
+  { id: "bloomberg", label: "Bloomberg", icon: BarChart3, category: "Business" },
+  { id: "webpage", label: "Any Webpage", icon: Globe, category: "Other" },
+  { id: "rss", label: "RSS Feed", icon: Rss, category: "Other" },
 ]
 
-const insightTiles = [
-  { id: "tip", label: "Tip", icon: Lightbulb },
-  { id: "insight", label: "Insight", icon: Sparkles },
-  { id: "breakdown", label: "Breakdown", icon: TrendingUp },
-  { id: "explainer", label: "Explainer", icon: Zap },
-  { id: "takeaways", label: "Takeaways", icon: List },
-  { id: "strategy", label: "Strategy", icon: Target },
-  { id: "trend", label: "Trend", icon: Rocket },
-  { id: "analysis", label: "Analysis", icon: BarChart3 },
-  { id: "checklist", label: "Checklist", icon: CheckSquare },
-  { id: "myth", label: "Myth", icon: Shield },
-  { id: "data", label: "Data", icon: Hash },
-  { id: "framework", label: "Framework", icon: Blocks },
-]
+const feedCategories = ["All", ...Array.from(new Set(feedSources.map((s) => s.category)))]
+
+/* ─── Tile definitions (editorial + saved) ─── */
+const feedTiles = feedSources.map((s) => ({ id: s.id, label: s.label, icon: s.icon }))
 
 const editorialTiles = [
-  { id: "welcome", label: "Welcome", icon: PenLine },
-  { id: "editorial", label: "Editorial", icon: FileText },
-  { id: "perspective", label: "Perspective", icon: Compass },
-  { id: "commentary", label: "Commentary", icon: Megaphone },
-  { id: "focus", label: "Focus", icon: Target },
-  { id: "viewpoint", label: "Viewpoint", icon: EyeIcon },
-  { id: "context", label: "Context", icon: Globe },
-  { id: "opinion", label: "Opinion", icon: MessageCircle },
-  { id: "outlook", label: "Outlook", icon: TrendingUp },
-  { id: "reflection", label: "Reflection", icon: BookOpen },
-  { id: "from-us", label: "From Us", icon: Briefcase },
-  { id: "note", label: "Note", icon: PenLine },
+  { id: "intro-tips", label: "Intro Tips", icon: Lightbulb },
+  { id: "insight", label: "Insight", icon: Sparkles },
+  { id: "breakdown", label: "Breakdown", icon: TrendingUp },
+  { id: "perspectives", label: "Perspectives", icon: Compass },
+  { id: "explainer", label: "Explainer", icon: Zap },
+  { id: "takeaways", label: "Takeaways", icon: List },
+  { id: "trends", label: "Trends", icon: Rocket },
+  { id: "checklist", label: "Checklist", icon: CheckSquare },
+  { id: "outro", label: "Outro", icon: PenLine },
 ]
+
+const savedTiles: typeof feedTiles = []
 
 /* ─── Layout wireframe renderer ─── */
 function LayoutWireframe({ layout }: { layout: (typeof moduleLayouts)[0] }) {
@@ -241,6 +269,7 @@ type CanvasBlock = {
   bodyText: string
   topicPhrase: string
   tileLabel: string
+  feedSourceId: string
   bgColor: string
   titleColor: string
   textColor: string
@@ -281,6 +310,7 @@ const defaultBlockFields = {
   tone: "Professional",
   bottomLine: true,
   whyItMatters: false,
+  feedSourceId: "",
   alignment: "left" as const,
   colorStyle: "neutral" as const,
   padding: 16,
@@ -358,22 +388,31 @@ export function EmailEditor() {
   const [draggingBlockId, setDraggingBlockId] = useState<string | null>(null)
 
   /* Left sidebar state */
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [insertAtIndex, setInsertAtIndex] = useState<number | null>(null)
+  const [hoveredGapIndex, setHoveredGapIndex] = useState<number | null>(null)
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("add-module")
-  const [activeTab, setActiveTab] = useState<"feeds" | "insights" | "editorial">("feeds")
+  const [activeTab, setActiveTab] = useState<"feeds" | "editorial" | "saved">("feeds")
   const [sidebarStep, setSidebarStep] = useState<SidebarStep>("tiles")
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null)
   const [selectedLayoutId, setSelectedLayoutId] = useState<string | null>(null)
   const [topicKeyword, setTopicKeyword] = useState("")
   const [editingTab, setEditingTab] = useState<EditingTab>("data")
+  const [feedSearch, setFeedSearch] = useState("")
+  const [feedCategory, setFeedCategory] = useState("All")
 
   const selectedBlock = canvasBlocks.find((b) => b.id === selectedBlockId)
 
   const activeTiles =
-    activeTab === "feeds" ? feedTiles : activeTab === "insights" ? insightTiles : editorialTiles
+    activeTab === "feeds" ? feedTiles : activeTab === "editorial" ? editorialTiles : savedTiles
 
-  const compatibleLayouts = moduleLayouts.filter((l) =>
-    l.compatibleModules.includes(activeTab === "feeds" ? "feeds" : activeTab === "insights" ? "insights" : "editorial")
-  )
+  const isEditorialTab = activeTab === "editorial"
+
+  const compatibleLayouts = isEditorialTab
+    ? [] // editorial uses short/medium/long copy, not standard layouts
+    : moduleLayouts.filter((l) =>
+        l.compatibleModules.includes("feeds")
+      )
 
   const suggestedTopics = [
     "AI in business",
@@ -411,18 +450,28 @@ export function EmailEditor() {
         id: `block-${Date.now()}`,
         moduleId: `new-${Date.now()}`,
         name: `${tileLabel}: ${topic}`,
-        source: activeTab === "feeds" ? "Feed" : activeTab === "insights" ? "Insight" : "Editorial",
+        source: activeTab === "feeds" ? "Feed" : activeTab === "editorial" ? "Editorial" : "Saved",
         topicPhrase: topic,
         tileLabel,
+        feedSourceId: selectedTileId || "",
         headingText: `${tileLabel}: ${topic}`,
         bodyText: `AI-generated ${activeTab} content about "${topic}" using ${layoutName} layout. This content will be populated by ModularMail's AI engine.`,
         ...defaultBlockFields,
         bottomLine: activeTab !== "editorial",
-        whyItMatters: activeTab === "insights",
+        whyItMatters: activeTab === "editorial",
       }
-      setCanvasBlocks((prev) => [...prev, newBlock])
+      setCanvasBlocks((prev) => {
+        if (insertAtIndex !== null && insertAtIndex >= 0 && insertAtIndex <= prev.length) {
+          const next = [...prev]
+          next.splice(insertAtIndex, 0, newBlock)
+          return next
+        }
+        return [...prev, newBlock]
+      })
+      setSidebarOpen(false)
+      setInsertAtIndex(null)
     },
-    [activeTab]
+    [activeTab, insertAtIndex]
   )
 
   const deleteBlock = useCallback((id: string) => {
@@ -430,6 +479,7 @@ export function EmailEditor() {
     setSelectedBlockId((prev) => {
       if (prev === id) {
         setSidebarMode("add-module")
+        setSidebarOpen(false)
         setSelectedComponent(null)
         return null
       }
@@ -505,6 +555,8 @@ export function EmailEditor() {
     setSelectedBlockId(blockId)
     setSelectedComponent(null)
     setSidebarMode("edit-module")
+    setSidebarOpen(true)
+    setInsertAtIndex(null)
     setEditingTab("data")
   }
 
@@ -512,6 +564,8 @@ export function EmailEditor() {
     setSelectedBlockId(blockId)
     setSelectedComponent(component)
     setSidebarMode("edit-module")
+    setSidebarOpen(true)
+    setInsertAtIndex(null)
     setEditingTab("data")
   }
 
@@ -519,17 +573,49 @@ export function EmailEditor() {
     setSelectedBlockId(null)
     setSelectedComponent(null)
     setSidebarMode("add-module")
+    setSidebarOpen(false)
+    setInsertAtIndex(null)
   }
 
   /* ─── Sidebar flow actions ─── */
   const handleTileSelect = (tileId: string) => {
     setSelectedTileId(tileId)
-    setSidebarStep("layouts")
+    setSidebarStep("topic")
+  }
+
+  const handleTopicContinue = () => {
+    if (!topicKeyword.trim()) return
+    if (isEditorialTab) {
+      // Editorial skips standard layouts -- go to editorial copy length
+      setSidebarStep("layouts")
+    } else {
+      setSidebarStep("layouts")
+    }
   }
 
   const handleLayoutSelect = (layoutId: string) => {
     setSelectedLayoutId(layoutId)
-    setSidebarStep("topic")
+    const tile = activeTiles.find((t) => t.id === selectedTileId)
+    const layout = moduleLayouts.find((l) => l.id === layoutId)
+    if (tile && layout && topicKeyword.trim()) {
+      addNewModuleToCanvas(tile.label, layout.name, topicKeyword.trim())
+    }
+    setSidebarStep("tiles")
+    setSelectedTileId(null)
+    setSelectedLayoutId(null)
+    setTopicKeyword("")
+  }
+
+  const handleEditorialLayoutSelect = (copyLength: "short" | "medium" | "long") => {
+    const tile = activeTiles.find((t) => t.id === selectedTileId)
+    if (tile && topicKeyword.trim()) {
+      const layoutName = `${copyLength.charAt(0).toUpperCase() + copyLength.slice(1)} Copy`
+      addNewModuleToCanvas(tile.label, layoutName, topicKeyword.trim())
+    }
+    setSidebarStep("tiles")
+    setSelectedTileId(null)
+    setSelectedLayoutId(null)
+    setTopicKeyword("")
   }
 
   const handleAddModule = () => {
@@ -544,14 +630,30 @@ export function EmailEditor() {
     setTopicKeyword("")
   }
 
+  /* Open the add-module sidebar at a specific insertion index */
+  const openAddModuleAt = (index: number) => {
+    setInsertAtIndex(index)
+    setSelectedBlockId(null)
+    setSelectedComponent(null)
+    setSidebarMode("add-module")
+    setSidebarStep("tiles")
+    setActiveTab("feeds")
+    setSelectedTileId(null)
+    setSelectedLayoutId(null)
+    setTopicKeyword("")
+    setFeedSearch("")
+    setFeedCategory("All")
+    setSidebarOpen(true)
+  }
+
   const handleSidebarBack = () => {
-    if (sidebarStep === "topic") {
-      setSidebarStep("layouts")
+    if (sidebarStep === "layouts") {
+      setSidebarStep("topic")
       setSelectedLayoutId(null)
-      setTopicKeyword("")
-    } else if (sidebarStep === "layouts") {
+    } else if (sidebarStep === "topic") {
       setSidebarStep("tiles")
       setSelectedTileId(null)
+      setTopicKeyword("")
     }
   }
 
@@ -666,29 +768,6 @@ export function EmailEditor() {
           </Select>
         </div>
 
-        {/* Alignment */}
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-xs font-medium">Alignment</Label>
-          <div className="flex items-center gap-1">
-            {(["left", "center", "right"] as const).map((align) => {
-              const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
-              return (
-                <button
-                  key={align}
-                  className={`flex-1 flex items-center justify-center h-8 rounded-md border text-xs transition-colors ${
-                    selectedBlock.alignment === align
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "border-border text-muted-foreground hover:bg-muted"
-                  }`}
-                  onClick={() => updateBlock(selectedBlock.id, { alignment: align })}
-                >
-                  <Icon className="size-3.5" />
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
         {/* Extra Editorial */}
         <div className="border-t border-border pt-3 flex flex-col gap-3">
           <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Extra Editorial</p>
@@ -765,274 +844,233 @@ export function EmailEditor() {
   }
 
   /* ─── Additional style state ─── */
-  const [titleFont, setTitleFont] = useState("sans-serif")
-  const [titleSize, setTitleSize] = useState("16")
-  const [titleJustify, setTitleJustify] = useState<"left" | "center" | "right">("left")
-  const [bodyFont, setBodyFont] = useState("sans-serif")
-  const [bodySize, setBodySize] = useState("14")
-  const [bodyJustify, setBodyJustify] = useState<"left" | "center" | "right">("left")
+  const [titleFontSize, setTitleFontSize] = useState(20)
+  const [titleFontHeight, setTitleFontHeight] = useState(26)
+  const [titleBold, setTitleBold] = useState(true)
+  const [titleItalic, setTitleItalic] = useState(false)
+  const [titleAlign, setTitleAlign] = useState<"left" | "center" | "right">("left")
+  const [titleClipLines, setTitleClipLines] = useState(1)
+
+  const [descFontSize, setDescFontSize] = useState(15)
+  const [descFontHeight, setDescFontHeight] = useState(26)
+  const [descAlign, setDescAlign] = useState<"left" | "center" | "right">("left")
+  const [descClipLines, setDescClipLines] = useState(5)
+
+  const [ctaLabel, setCtaLabel] = useState("Read more")
+  const [ctaFontSize, setCtaFontSize] = useState(15)
+  const [ctaColor, setCtaColor] = useState("#197DF9")
+  const [ctaBold, setCtaBold] = useState(false)
+  const [ctaUnderline, setCtaUnderline] = useState(false)
+  const [ctaAlign, setCtaAlign] = useState<"left" | "center" | "right">("left")
+
   const [imageSize, setImageSize] = useState([100])
-  const [ctaCopy, setCtaCopy] = useState("Read More")
-  const [ctaFont, setCtaFont] = useState("sans-serif")
-  const [ctaSize, setCtaSize] = useState("12")
-  const [ctaColor, setCtaColor] = useState("#2563eb")
-  const [ctaJustify, setCtaJustify] = useState<"left" | "center" | "right">("left")
 
-  const fontOptions = [
-    { value: "sans-serif", label: "Sans Serif" },
-    { value: "serif", label: "Serif" },
-    { value: "monospace", label: "Monospace" },
-    { value: "georgia", label: "Georgia" },
-    { value: "arial", label: "Arial" },
-    { value: "helvetica", label: "Helvetica" },
-  ]
+  /* Collapsible section state */
+  const [openStyleSections, setOpenStyleSections] = useState<Record<string, boolean>>({
+    title: true,
+    description: true,
+    cta: true,
+    image: true,
+    general: true,
+  })
 
-  const sizeOptions = ["10", "11", "12", "13", "14", "16", "18", "20", "24", "28", "32"]
+  const toggleStyleSection = (key: string) => {
+    setOpenStyleSections((prev) => ({ ...prev, [key]: !prev[key] }))
+  }
 
-  const JustifyButtons = ({ value, onChange }: { value: "left" | "center" | "right"; onChange: (v: "left" | "center" | "right") => void }) => (
-    <div className="flex items-center gap-0.5">
-      {(["left", "center", "right"] as const).map((align) => {
-        const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
-        return (
-          <button
-            key={align}
-            className={`flex items-center justify-center size-7 rounded-md border text-xs transition-colors ${
-              value === align
-                ? "bg-primary text-primary-foreground border-primary"
-                : "border-border text-muted-foreground hover:bg-muted"
-            }`}
-            onClick={() => onChange(align)}
-          >
-            <Icon className="size-3" />
-          </button>
-        )
-      })}
+  /* ─── Reusable style controls ─── */
+  const NumberStepper = ({ label, value, onChange, min = 1, max = 100 }: { label: string; value: number; onChange: (v: number) => void; min?: number; max?: number }) => (
+    <div className="flex items-center justify-between py-1.5">
+      <Label className="text-xs text-foreground">{label}</Label>
+      <div className="flex items-center border border-border rounded-md overflow-hidden">
+        <button
+          className="size-7 flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
+          onClick={() => onChange(Math.max(min, value - 1))}
+        >
+          <Minus className="size-3" />
+        </button>
+        <span className="w-9 text-center text-xs font-medium text-foreground tabular-nums">{value}</span>
+        <button
+          className="size-7 flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
+          onClick={() => onChange(Math.min(max, value + 1))}
+        >
+          <Plus className="size-3" />
+        </button>
+      </div>
     </div>
+  )
+
+  const ColorRow = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
+    <div className="flex items-center justify-between py-1.5">
+      <Label className="text-xs text-foreground">{label}</Label>
+      <div className="flex items-center gap-1.5">
+        <div className="flex items-center border border-border rounded-md overflow-hidden h-7">
+          <span className="text-[10px] text-muted-foreground pl-2 pr-0.5">#</span>
+          <input
+            value={value.replace("#", "").toUpperCase()}
+            onChange={(e) => onChange(`#${e.target.value}`)}
+            className="w-[72px] text-xs h-7 bg-transparent outline-none pr-1 font-mono"
+          />
+        </div>
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="size-7 shrink-0 rounded border border-border cursor-pointer"
+        />
+      </div>
+    </div>
+  )
+
+  const AlignRow = ({ label, value, onChange }: { label: string; value: "left" | "center" | "right"; onChange: (v: "left" | "center" | "right") => void }) => (
+    <div className="flex items-center justify-between py-1.5">
+      <Label className="text-xs text-foreground">{label}</Label>
+      <div className="flex items-center rounded-md overflow-hidden border border-border">
+        {(["left", "center", "right"] as const).map((align) => {
+          const Icon = align === "left" ? AlignLeft : align === "center" ? AlignCenter : AlignRight
+          return (
+            <button
+              key={align}
+              className={`size-7 flex items-center justify-center transition-colors ${
+                value === align
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+              onClick={() => onChange(align)}
+            >
+              <Icon className="size-3" />
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+
+  const ToggleRow = ({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) => (
+    <div className="flex items-center justify-between py-1.5">
+      <Label className="text-xs text-foreground">{label}</Label>
+      <Switch checked={checked} onCheckedChange={onChange} />
+    </div>
+  )
+
+  const SectionHeader = ({ label, sectionKey, enableSwitch, enabled, onToggle }: { label: string; sectionKey: string; enableSwitch?: boolean; enabled?: boolean; onToggle?: (v: boolean) => void }) => (
+    <button
+      className="flex items-center justify-between w-full py-2 group"
+      onClick={() => toggleStyleSection(sectionKey)}
+    >
+      <div className="flex items-center gap-2">
+        <ChevronDown className={`size-3.5 text-muted-foreground transition-transform ${openStyleSections[sectionKey] ? "" : "-rotate-90"}`} />
+        <span className="text-xs font-semibold text-foreground uppercase tracking-wider">{label}</span>
+      </div>
+      {enableSwitch && (
+        <div onClick={(e) => e.stopPropagation()}>
+          <Switch checked={enabled} onCheckedChange={onToggle} />
+        </div>
+      )}
+    </button>
   )
 
   /* ─── Render Style editing tab ─── */
   const renderStyleTab = () => {
     if (!selectedBlock) return null
     return (
-      <div className="flex flex-col gap-4">
-        {/* Background Color */}
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-xs font-medium">Background Color</Label>
-          <div className="flex items-center gap-2">
-            <input
-              type="color"
-              value={selectedBlock.bgColor}
-              onChange={(e) => updateBlock(selectedBlock.id, { bgColor: e.target.value })}
-              className="size-7 shrink-0 rounded border border-border cursor-pointer"
-            />
-            <Input
-              value={selectedBlock.bgColor}
-              onChange={(e) => updateBlock(selectedBlock.id, { bgColor: e.target.value })}
-              className="text-xs h-7 min-w-0 font-mono"
-            />
-          </div>
-        </div>
-
+      <div className="flex flex-col divide-y divide-border">
         {/* ── Title ── */}
-        <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Title</p>
-            <Switch checked={selectedBlock.showTitle} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showTitle: v })} />
-          </div>
-          {selectedBlock.showTitle && (
-            <>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Font</Label>
-                <Select value={titleFont} onValueChange={setTitleFont}>
-                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {fontOptions.map((f) => (
-                      <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Size</Label>
-                <Select value={titleSize} onValueChange={setTitleSize}>
-                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {sizeOptions.map((s) => (
-                      <SelectItem key={s} value={s}>{s}px</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Color</Label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={selectedBlock.titleColor}
-                    onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
-                    className="size-7 shrink-0 rounded border border-border cursor-pointer"
-                  />
-                  <Input
-                    value={selectedBlock.titleColor}
-                    onChange={(e) => updateBlock(selectedBlock.id, { titleColor: e.target.value })}
-                    className="text-xs h-7 min-w-0 font-mono"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-[11px] text-muted-foreground">Justification</Label>
-                <JustifyButtons value={titleJustify} onChange={setTitleJustify} />
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* ── Body ── */}
-        <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Body</p>
-            <Switch checked={selectedBlock.showText} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showText: v })} />
-          </div>
-          {selectedBlock.showText && (
-            <>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Font</Label>
-                <Select value={bodyFont} onValueChange={setBodyFont}>
-                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {fontOptions.map((f) => (
-                      <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Size</Label>
-                <Select value={bodySize} onValueChange={setBodySize}>
-                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {sizeOptions.map((s) => (
-                      <SelectItem key={s} value={s}>{s}px</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Color</Label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={selectedBlock.textColor}
-                    onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
-                    className="size-7 shrink-0 rounded border border-border cursor-pointer"
-                  />
-                  <Input
-                    value={selectedBlock.textColor}
-                    onChange={(e) => updateBlock(selectedBlock.id, { textColor: e.target.value })}
-                    className="text-xs h-7 min-w-0 font-mono"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-[11px] text-muted-foreground">Justification</Label>
-                <JustifyButtons value={bodyJustify} onChange={setBodyJustify} />
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* ── Image ── */}
-        <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Image</p>
-            <Switch checked={selectedBlock.showImage} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showImage: v })} />
-          </div>
-          {selectedBlock.showImage && (
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-[11px] text-muted-foreground">Size ({imageSize[0]}%)</Label>
-              <Slider
-                value={imageSize}
-                onValueChange={setImageSize}
-                min={25}
-                max={100}
-                step={5}
-              />
+        <div className="flex flex-col">
+          <SectionHeader label="Title" sectionKey="title" enableSwitch enabled={selectedBlock.showTitle} onToggle={(v) => updateBlock(selectedBlock.id, { showTitle: v })} />
+          {openStyleSections.title && selectedBlock.showTitle && (
+            <div className="flex flex-col pb-3">
+              <NumberStepper label="Font size" value={titleFontSize} onChange={setTitleFontSize} min={8} max={72} />
+              <NumberStepper label="Font height" value={titleFontHeight} onChange={setTitleFontHeight} min={8} max={80} />
+              <ToggleRow label="Bold font" checked={titleBold} onChange={setTitleBold} />
+              <ToggleRow label="Italic font" checked={titleItalic} onChange={setTitleItalic} />
+              <ColorRow label="Color" value={selectedBlock.titleColor} onChange={(v) => updateBlock(selectedBlock.id, { titleColor: v })} />
+              <AlignRow label="Align" value={titleAlign} onChange={setTitleAlign} />
+              <NumberStepper label="Clip after X lines" value={titleClipLines} onChange={setTitleClipLines} min={1} max={10} />
             </div>
           )}
         </div>
 
-        {/* ── CTA ── */}
-        <div className="border-t border-border pt-3 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">CTA</p>
-            <Switch checked={selectedBlock.showCta} onCheckedChange={(v) => updateBlock(selectedBlock.id, { showCta: v })} />
-          </div>
-          {selectedBlock.showCta && (
-            <>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Copy</Label>
-                <Input
-                  value={selectedBlock.ctaCopy}
-                  onChange={(e) => updateBlock(selectedBlock.id, { ctaCopy: e.target.value })}
-                  className="text-xs h-7"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Font</Label>
-                <Select value={ctaFont} onValueChange={setCtaFont}>
-                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {fontOptions.map((f) => (
-                      <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Size</Label>
-                <Select value={ctaSize} onValueChange={setCtaSize}>
-                  <SelectTrigger className="text-xs h-7"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {sizeOptions.map((s) => (
-                      <SelectItem key={s} value={s}>{s}px</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11px] text-muted-foreground">Color</Label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    value={ctaColor}
-                    onChange={(e) => setCtaColor(e.target.value)}
-                    className="size-7 shrink-0 rounded border border-border cursor-pointer"
-                  />
-                  <Input
-                    value={ctaColor}
-                    onChange={(e) => setCtaColor(e.target.value)}
-                    className="text-xs h-7 min-w-0 font-mono"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-[11px] text-muted-foreground">Justification</Label>
-                <JustifyButtons value={ctaJustify} onChange={setCtaJustify} />
-              </div>
-            </>
+        {/* ── Description ── */}
+        <div className="flex flex-col">
+          <SectionHeader label="Description" sectionKey="description" enableSwitch enabled={selectedBlock.showText} onToggle={(v) => updateBlock(selectedBlock.id, { showText: v })} />
+          {openStyleSections.description && selectedBlock.showText && (
+            <div className="flex flex-col pb-3">
+              <NumberStepper label="Font size" value={descFontSize} onChange={setDescFontSize} min={8} max={72} />
+              <NumberStepper label="Font height" value={descFontHeight} onChange={setDescFontHeight} min={8} max={80} />
+              <ColorRow label="Color" value={selectedBlock.textColor} onChange={(v) => updateBlock(selectedBlock.id, { textColor: v })} />
+              <AlignRow label="Align" value={descAlign} onChange={setDescAlign} />
+              <NumberStepper label="Clip after X lines" value={descClipLines} onChange={setDescClipLines} min={1} max={20} />
+            </div>
           )}
         </div>
 
-        {/* Padding */}
-        <div className="border-t border-border pt-3 flex flex-col gap-1.5">
-          <Label className="text-xs font-medium">Padding ({selectedBlock.padding}px)</Label>
-          <Slider
-            value={[selectedBlock.padding]}
-            onValueChange={([v]) => updateBlock(selectedBlock.id, { padding: v })}
-            min={8}
-            max={40}
-            step={4}
-          />
+        {/* ── Call To Action ── */}
+        <div className="flex flex-col">
+          <SectionHeader label="Call To Action" sectionKey="cta" enableSwitch enabled={selectedBlock.showCta} onToggle={(v) => updateBlock(selectedBlock.id, { showCta: v })} />
+          {openStyleSections.cta && selectedBlock.showCta && (
+            <div className="flex flex-col pb-3">
+              <div className="flex items-center justify-between py-1.5">
+                <Label className="text-xs text-foreground">Read More Label</Label>
+                <Input
+                  value={ctaLabel}
+                  onChange={(e) => {
+                    setCtaLabel(e.target.value)
+                    updateBlock(selectedBlock.id, { ctaCopy: e.target.value })
+                  }}
+                  className="text-xs h-7 w-[120px] text-right"
+                />
+              </div>
+              <NumberStepper label="Font size" value={ctaFontSize} onChange={setCtaFontSize} min={8} max={72} />
+              <ColorRow label="Read More Color" value={ctaColor} onChange={setCtaColor} />
+              <ToggleRow label="Bold font" checked={ctaBold} onChange={setCtaBold} />
+              <ToggleRow label="Underline" checked={ctaUnderline} onChange={setCtaUnderline} />
+              <AlignRow label="Align" value={ctaAlign} onChange={setCtaAlign} />
+            </div>
+          )}
+        </div>
+
+        {/* ── Image ── */}
+        <div className="flex flex-col">
+          <SectionHeader label="Image" sectionKey="image" enableSwitch enabled={selectedBlock.showImage} onToggle={(v) => updateBlock(selectedBlock.id, { showImage: v })} />
+          {openStyleSections.image && selectedBlock.showImage && (
+            <div className="flex flex-col pb-3">
+              <div className="flex items-center justify-between py-1.5">
+                <Label className="text-xs text-foreground">Size ({imageSize[0]}%)</Label>
+                <div className="w-[140px]">
+                  <Slider
+                    value={imageSize}
+                    onValueChange={setImageSize}
+                    min={25}
+                    max={100}
+                    step={5}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── General ── */}
+        <div className="flex flex-col">
+          <SectionHeader label="General" sectionKey="general" />
+          {openStyleSections.general && (
+            <div className="flex flex-col pb-3">
+              <ColorRow label="Background Color" value={selectedBlock.bgColor} onChange={(v) => updateBlock(selectedBlock.id, { bgColor: v })} />
+              <div className="flex items-center justify-between py-1.5">
+                <Label className="text-xs text-foreground">Padding ({selectedBlock.padding}px)</Label>
+                <div className="w-[140px]">
+                  <Slider
+                    value={[selectedBlock.padding]}
+                    onValueChange={([v]) => updateBlock(selectedBlock.id, { padding: v })}
+                    min={8}
+                    max={40}
+                    step={4}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     )
@@ -1321,13 +1359,22 @@ export function EmailEditor() {
       {/* ─── Main Area ─── */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
         {/* ─── Left Sidebar ─── */}
-        <div className="w-72 border-r border-border bg-card flex flex-col shrink-0 h-full overflow-hidden">
+        {sidebarOpen && (
+        <div className="w-80 border-r border-border bg-card flex flex-col shrink-0 h-full overflow-hidden">
           {sidebarMode === "add-module" ? (
             <>
-              {/* Tab header */}
-              <div className="p-2.5 border-b border-border">
+              <div className="p-2.5 border-b border-border flex flex-col gap-1.5">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-xs font-semibold text-foreground">Content Types:</p>
+                  <button
+                    className="size-5 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    onClick={() => { setSidebarOpen(false); setInsertAtIndex(null) }}
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </div>
                 <div className="flex items-center rounded-lg bg-muted p-0.5">
-                  {(["feeds", "insights", "editorial"] as const).map((tab) => (
+                  {(["feeds", "editorial", "saved"] as const).map((tab) => (
                     <button
                       key={tab}
                       className={`flex-1 px-2 py-1.5 text-[11px] font-medium rounded-md transition-colors capitalize ${
@@ -1341,6 +1388,8 @@ export function EmailEditor() {
                         setSelectedTileId(null)
                         setSelectedLayoutId(null)
                         setTopicKeyword("")
+                        setFeedSearch("")
+                        setFeedCategory("All")
                       }}
                     >
                       {tab}
@@ -1352,29 +1401,142 @@ export function EmailEditor() {
               <ScrollArea className="flex-1">
                 {/* ── Step: Tiles ── */}
                 {sidebarStep === "tiles" && (
-                  <div className="p-3 flex flex-col gap-1.5">
-                    <p className="text-[10px] font-semibold text-foreground uppercase tracking-wider px-1 mb-1">
-                      Select a module type
-                    </p>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {activeTiles.map((tile) => {
-                        const TileIcon = tile.icon
-                        return (
-                          <button
-                            key={tile.id}
-                            className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-background p-3 hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm transition-all"
-                            onClick={() => handleTileSelect(tile.id)}
-                          >
-                            <TileIcon className="size-4 text-muted-foreground" />
-                            <span className="text-[11px] font-medium text-foreground">{tile.label}</span>
-                          </button>
-                        )
-                      })}
-                    </div>
+                  <div className="p-2.5 flex flex-col gap-2">
+                    {activeTab === "feeds" ? (
+                      <>
+                        {/* Search + Category filter on one line */}
+                        <div className="flex items-center gap-1.5">
+                          <div className="relative flex-1">
+                            <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3 text-muted-foreground pointer-events-none" />
+                            <Input
+                              placeholder="Search feeds..."
+                              value={feedSearch}
+                              onChange={(e) => setFeedSearch(e.target.value)}
+                              className="text-[11px] h-7 pl-7 pr-2"
+                            />
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm" className="h-7 text-[10px] gap-1 px-2 shrink-0">
+                                <Filter className="size-3" />
+                                {feedCategory === "All" ? "Category" : feedCategory}
+                                <ChevronDownIcon className="size-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="min-w-[120px]">
+                              {feedCategories.map((cat) => (
+                                <DropdownMenuItem
+                                  key={cat}
+                                  className={`text-xs ${feedCategory === cat ? "font-semibold text-primary" : ""}`}
+                                  onClick={() => setFeedCategory(cat)}
+                                >
+                                  {cat}
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+
+                        {/* Feed source grid -- compact rows */}
+                        <div className="grid grid-cols-3 gap-1">
+                          {feedSources
+                            .filter((s) => {
+                              const matchesSearch = s.label.toLowerCase().includes(feedSearch.toLowerCase())
+                              const matchesCat = feedCategory === "All" || s.category === feedCategory
+                              return matchesSearch && matchesCat
+                            })
+                            .map((source) => {
+                              const SourceIcon = source.icon
+                              return (
+                                <button
+                                  key={source.id}
+                                  className="flex items-center gap-1.5 rounded-md border border-border bg-white px-2 py-1.5 hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm transition-all text-left"
+                                  onClick={() => handleTileSelect(source.id)}
+                                >
+                                  <SourceIcon className="size-3.5 shrink-0 text-muted-foreground" />
+                                  <span className="text-[10px] font-medium text-foreground truncate">{source.label}</span>
+                                </button>
+                              )
+                            })}
+                        </div>
+                      </>
+                    ) : activeTiles.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-10 text-center">
+                        <Blocks className="size-8 text-muted-foreground/30 mb-2" />
+                        <p className="text-xs font-medium text-muted-foreground">No saved modules yet</p>
+                        <p className="text-[10px] text-muted-foreground/70 mt-0.5">Saved modules will appear here</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {activeTiles.map((tile) => {
+                          const TileIcon = tile.icon
+                          return (
+                            <button
+                              key={tile.id}
+                              className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-background p-3 hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-sm transition-all"
+                              onClick={() => handleTileSelect(tile.id)}
+                            >
+                              <TileIcon className="size-4 text-muted-foreground" />
+                              <span className="text-[11px] font-medium text-foreground">{tile.label}</span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {/* ── Step: Layouts ── */}
+                {/* ── Step: Topic (now comes before layouts) ── */}
+                {sidebarStep === "topic" && (
+                  <div className="p-3 flex flex-col gap-3">
+                    <button
+                      className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary transition-colors self-start"
+                      onClick={handleSidebarBack}
+                    >
+                      <ChevronLeft className="size-3.5" />
+                      Back
+                    </button>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground mb-1">
+                        What Topic or Keyword?
+                      </p>
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">
+                        Give the AI context so it can generate relevant content for this module.
+                      </p>
+                    </div>
+                    <Input
+                      placeholder="Enter a Topic, Keyword or Phrase"
+                      value={topicKeyword}
+                      onChange={(e) => setTopicKeyword(e.target.value)}
+                      className="text-[11px] h-8"
+                    />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground mb-1.5">Suggested</p>
+                      <div className="flex flex-wrap gap-1">
+                        {suggestedTopics.map((t) => (
+                          <button
+                            key={t}
+                            className="text-[10px] px-2 py-0.5 rounded-full border border-border bg-white hover:bg-primary/5 hover:border-primary/30 transition-colors text-foreground"
+                            onClick={() => setTopicKeyword(t)}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      className="w-full text-xs h-8 gap-1.5 mt-1"
+                      disabled={!topicKeyword.trim()}
+                      onClick={handleTopicContinue}
+                    >
+                      <ArrowRight className="size-3.5" />
+                      Continue
+                    </Button>
+                  </div>
+                )}
+
+                {/* ── Step: Layouts (after topic) ── */}
                 {sidebarStep === "layouts" && (
                   <div className="p-3 flex flex-col gap-2">
                     <button
@@ -1387,78 +1549,63 @@ export function EmailEditor() {
                     <p className="text-xs font-semibold text-foreground px-1">
                       Choose a Layout
                     </p>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {compatibleLayouts.map((layout) => (
-                        <button
-                          key={layout.id}
-                          className={`flex flex-col rounded-lg border bg-background overflow-hidden hover:border-primary/40 hover:shadow-sm transition-all ${
-                            selectedLayoutId === layout.id
-                              ? "border-primary ring-1 ring-primary/30"
-                              : "border-border"
-                          }`}
-                          onClick={() => handleLayoutSelect(layout.id)}
-                        >
-                          <div className="w-full aspect-[4/3] border-b border-border bg-muted/30 flex items-center justify-center p-2">
-                            <LayoutWireframe layout={layout} />
-                          </div>
-                          <div className="px-2 py-1.5">
-                            <span className="text-[10px] font-medium text-foreground leading-tight line-clamp-1">
-                              {layout.name}
-                            </span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
-                {/* ── Step: Topic ── */}
-                {sidebarStep === "topic" && (
-                  <div className="p-3 flex flex-col gap-3">
-                    <button
-                      className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary transition-colors self-start"
-                      onClick={handleSidebarBack}
-                    >
-                      <ChevronLeft className="size-3.5" />
-                      Back
-                    </button>
-                    <div>
-                      <p className="text-xs font-semibold text-foreground mb-1">
-                        What topic or keyword?
-                      </p>
-                      <p className="text-[10px] text-muted-foreground leading-relaxed">
-                        Give the AI context so it can generate relevant content for this module.
-                      </p>
-                    </div>
-                    <Input
-                      placeholder="Enter a Topic, Keyword or Phrase"
-                      value={topicKeyword}
-                      onChange={(e) => setTopicKeyword(e.target.value)}
-                      className="text-xs h-8"
-                    />
-                    <div>
-                      <p className="text-[10px] text-muted-foreground mb-1.5">Suggested</p>
-                      <div className="flex flex-wrap gap-1">
-                        {suggestedTopics.map((t) => (
+                    {isEditorialTab ? (
+                      /* Editorial: Short / Medium / Long copy options */
+                      <div className="flex flex-col gap-1.5">
+                        {([
+                          { id: "short", label: "Short Copy", desc: "A concise 2-3 sentence block. Quick and scannable.", lines: 2 },
+                          { id: "medium", label: "Medium Copy", desc: "A short paragraph with room for context. 4-6 sentences.", lines: 4 },
+                          { id: "long", label: "Long Copy", desc: "A full editorial section with depth and narrative. 8+ sentences.", lines: 7 },
+                        ] as const).map((opt) => (
                           <button
-                            key={t}
-                            className="text-[10px] px-2 py-0.5 rounded-full border border-border bg-background hover:bg-primary/5 hover:border-primary/30 transition-colors text-muted-foreground hover:text-foreground"
-                            onClick={() => setTopicKeyword(t)}
+                            key={opt.id}
+                            className="flex flex-col rounded-lg border border-border bg-background overflow-hidden hover:border-primary/40 hover:shadow-sm transition-all text-left"
+                            onClick={() => handleEditorialLayoutSelect(opt.id)}
                           >
-                            {t}
+                            {/* Text wireframe */}
+                            <div className="w-full border-b border-border bg-muted/30 flex flex-col gap-1 p-3">
+                              <div className="h-2 w-16 rounded-full bg-muted-foreground/15" />
+                              {Array.from({ length: opt.lines }).map((_, i) => (
+                                <div
+                                  key={i}
+                                  className="h-1.5 rounded-full bg-muted-foreground/10"
+                                  style={{ width: i === opt.lines - 1 ? "60%" : "100%" }}
+                                />
+                              ))}
+                            </div>
+                            <div className="px-3 py-2">
+                              <span className="text-[11px] font-medium text-foreground">{opt.label}</span>
+                              <p className="text-[10px] text-muted-foreground leading-relaxed mt-0.5">{opt.desc}</p>
+                            </div>
                           </button>
                         ))}
                       </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      className="w-full text-xs h-8 gap-1.5 mt-1"
-                      disabled={!topicKeyword.trim()}
-                      onClick={handleAddModule}
-                    >
-                      <Plus className="size-3.5" />
-                      Add Module to Email
-                    </Button>
+                    ) : (
+                      /* Feeds: Standard layout grid */
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {compatibleLayouts.map((layout) => (
+                          <button
+                            key={layout.id}
+                            className={`flex flex-col rounded-lg border bg-background overflow-hidden hover:border-primary/40 hover:shadow-sm transition-all ${
+                              selectedLayoutId === layout.id
+                                ? "border-primary ring-1 ring-primary/30"
+                                : "border-border"
+                            }`}
+                            onClick={() => handleLayoutSelect(layout.id)}
+                          >
+                            <div className="w-full aspect-[4/3] border-b border-border bg-muted/30 flex items-center justify-center p-2">
+                              <LayoutWireframe layout={layout} />
+                            </div>
+                            <div className="px-2 py-1.5">
+                              <span className="text-[10px] font-medium text-foreground leading-tight line-clamp-1">
+                                {layout.name}
+                              </span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </ScrollArea>
@@ -1512,6 +1659,7 @@ export function EmailEditor() {
             </>
           )}
         </div>
+        )}
 
         {/* ─── Center Canvas ─── */}
         <div
@@ -1553,32 +1701,54 @@ export function EmailEditor() {
                 >
                   {canvasBlocks.length === 0 ? (
                     <div
-                      className={`flex flex-col items-center justify-center py-16 text-center border-2 border-dashed rounded-xl transition-colors ${
+                      className={`flex flex-col items-center justify-center py-14 text-center border-2 border-dashed rounded-xl transition-colors ${
                         dragOverIndex === 0 ? "border-primary bg-primary/5" : "border-border"
                       }`}
                     >
                       <Blocks className="size-10 text-muted-foreground/30 mb-3" />
-                      <p className="text-sm font-medium text-foreground">Drop modules here</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Select a module type from the left panel to build your email
+                      <p className="text-sm font-medium text-foreground">Your email is empty</p>
+                      <p className="text-xs text-muted-foreground mt-1 mb-4">
+                        Click the button below to add your first content module
                       </p>
+                      <button
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg px-4 py-2 transition-colors shadow-sm"
+                        onClick={(e) => { e.stopPropagation(); openAddModuleAt(0) }}
+                      >
+                        <Plus className="size-3.5" />
+                        Add Module
+                      </button>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col">
                       {canvasBlocks.map((block, index) => {
                         const isModuleHovered = hoveredBlockId === block.id
                         const isModuleSelected = selectedBlockId === block.id
 
                         return (
                           <div key={block.id} onClick={(e) => e.stopPropagation()}>
-                            {/* Drop indicator */}
+                            {/* Green "+" insert zone between modules */}
                             <div
-                              className={`h-1 rounded-full mx-2 transition-colors mb-1 ${
-                                dragOverIndex === index ? "bg-primary" : "bg-transparent"
-                              }`}
+                              className="relative flex items-center justify-center py-1"
+                              onMouseEnter={() => setHoveredGapIndex(index)}
+                              onMouseLeave={() => setHoveredGapIndex(null)}
                               onDragOver={(e) => handleDragOver(e, index)}
                               onDrop={(e) => handleDrop(e, index)}
-                            />
+                            >
+                              {dragOverIndex === index ? (
+                                <div className="h-0.5 w-full rounded-full bg-primary" />
+                              ) : (
+                                <div className={`flex items-center justify-center w-full transition-all duration-150 ${hoveredGapIndex === index ? "opacity-100" : "opacity-0"}`}>
+                                  <div className="flex-1 h-px bg-emerald-500/50" />
+                                  <button
+                                    className="size-5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-sm transition-transform hover:scale-110 shrink-0 mx-1"
+                                    onClick={(e) => { e.stopPropagation(); openAddModuleAt(index) }}
+                                  >
+                                    <Plus className="size-3" />
+                                  </button>
+                                  <div className="flex-1 h-px bg-emerald-500/50" />
+                                </div>
+                              )}
+                            </div>
 
                             {/* Module Block with icon strip positioned absolutely outside */}
                             <div className="relative">
@@ -1603,17 +1773,22 @@ export function EmailEditor() {
                                 }}
                                 style={{ padding: `${block.padding}px` }}
                               >
-                                {/* Module label: tile name + topic phrase as blue tag cloud (top right, above blue line) */}
-                                {(isModuleHovered || isModuleSelected) && (
-                                  <div className="absolute -top-7 right-0 flex items-center gap-1 z-10">
-                                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary-foreground bg-primary rounded-full px-2.5 py-0.5 shadow-sm">
-                                      {block.tileLabel}
-                                      {block.topicPhrase && (
-                                        <span className="text-primary-foreground/80 font-normal">&middot; {block.topicPhrase}</span>
-                                      )}
-                                    </span>
-                                  </div>
-                                )}
+                                {/* Module label: feed source icon + name + topic phrase as blue tag cloud */}
+                                {(isModuleHovered || isModuleSelected) && (() => {
+                                  const feedSource = feedSources.find((s) => s.id === block.feedSourceId)
+                                  const TagIcon = feedSource?.icon
+                                  return (
+                                    <div className="absolute -top-7 right-0 flex items-center gap-1 z-10">
+                                      <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-foreground bg-white border border-border rounded-full px-2.5 py-0.5 shadow-sm">
+                                        {TagIcon && <TagIcon className="size-3 text-muted-foreground" />}
+                                        {block.tileLabel}
+                                        {block.topicPhrase && (
+                                          <span className="text-muted-foreground font-normal">&middot; {block.topicPhrase}</span>
+                                        )}
+                                      </span>
+                                    </div>
+                                  )
+                                })()}
 
                                 <div className={`text-${block.alignment}`}>
                                   {block.showTitle && (
@@ -1704,6 +1879,21 @@ export function EmailEditor() {
                                       </TooltipTrigger>
                                       <TooltipContent side="right">Edit</TooltipContent>
                                     </Tooltip>
+
+                                    {/* Move (drag) */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <button
+                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-primary hover:text-primary hover:bg-primary/5 transition-colors shadow-sm cursor-grab active:cursor-grabbing"
+                                          draggable
+                                          onDragStart={(e) => handleDragStart(e, block.id)}
+                                        >
+                                          <GripVertical className="size-3.5" />
+                                        </button>
+                                      </TooltipTrigger>
+                                      <TooltipContent side="right">Move</TooltipContent>
+                                    </Tooltip>
+
                                     {/* Duplicate */}
                                     <Tooltip>
                                       <TooltipTrigger asChild>
@@ -1719,31 +1909,23 @@ export function EmailEditor() {
                                       </TooltipTrigger>
                                       <TooltipContent side="right">Duplicate</TooltipContent>
                                     </Tooltip>
-                                    {/* HTML */}
+
+                                    {/* Save */}
                                     <Tooltip>
                                       <TooltipTrigger asChild>
                                         <button
                                           className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-primary hover:text-primary hover:bg-primary/5 transition-colors shadow-sm"
-                                          onClick={(e) => { e.stopPropagation() }}
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            /* Save module placeholder */
+                                          }}
                                         >
-                                          <Code className="size-3.5" />
+                                          <Save className="size-3.5" />
                                         </button>
                                       </TooltipTrigger>
-                                      <TooltipContent side="right">HTML</TooltipContent>
+                                      <TooltipContent side="right">Save</TooltipContent>
                                     </Tooltip>
-                                    {/* Move (drag + up/down) */}
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <button
-                                          className="size-7 flex items-center justify-center rounded-md bg-card border border-border text-primary hover:text-primary hover:bg-primary/5 transition-colors shadow-sm cursor-grab active:cursor-grabbing"
-                                          draggable
-                                          onDragStart={(e) => handleDragStart(e, block.id)}
-                                        >
-                                          <GripVertical className="size-3.5" />
-                                        </button>
-                                      </TooltipTrigger>
-                                      <TooltipContent side="right">Move</TooltipContent>
-                                    </Tooltip>
+
                                     {/* Delete -- red */}
                                     <Tooltip>
                                       <TooltipTrigger asChild>
@@ -1766,14 +1948,29 @@ export function EmailEditor() {
                           </div>
                         )
                       })}
-                      {/* Final drop zone */}
+                      {/* Final green "+" insert zone after last module */}
                       <div
-                        className={`h-1 rounded-full mx-2 transition-colors ${
-                          dragOverIndex === canvasBlocks.length ? "bg-primary" : "bg-transparent"
-                        }`}
+                        className="relative flex items-center justify-center py-1"
+                        onMouseEnter={() => setHoveredGapIndex(canvasBlocks.length)}
+                        onMouseLeave={() => setHoveredGapIndex(null)}
                         onDragOver={(e) => handleDragOver(e, canvasBlocks.length)}
                         onDrop={(e) => handleDrop(e, canvasBlocks.length)}
-                      />
+                      >
+                        {dragOverIndex === canvasBlocks.length ? (
+                          <div className="h-0.5 w-full rounded-full bg-primary" />
+                        ) : (
+                          <div className={`flex items-center justify-center w-full transition-all duration-150 ${hoveredGapIndex === canvasBlocks.length ? "opacity-100" : "opacity-0"}`}>
+                            <div className="flex-1 h-px bg-emerald-500/50" />
+                            <button
+                              className="size-5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-sm transition-transform hover:scale-110 shrink-0 mx-1"
+                              onClick={(e) => { e.stopPropagation(); openAddModuleAt(canvasBlocks.length) }}
+                            >
+                              <Plus className="size-3" />
+                            </button>
+                            <div className="flex-1 h-px bg-emerald-500/50" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

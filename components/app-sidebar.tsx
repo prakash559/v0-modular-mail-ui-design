@@ -9,6 +9,7 @@ import {
   Building2,
   Settings,
   ChevronDown,
+  Palette,
 } from "lucide-react"
 import {
   Sidebar,
@@ -31,6 +32,7 @@ const mainNav = [
   { title: "Layouts", icon: Layout, id: "layouts" },
   { title: "Emails", icon: Mail, id: "emails" },
   { title: "Templates", icon: FileStack, id: "templates" },
+  { title: "Brand", icon: Palette, id: "brand" },
   { title: "Industries", icon: Building2, id: "industries" },
 ]
 
